@@ -1,14 +1,14 @@
 import { Router } from "express";
+import { TestController } from "../controllers/test";
 
 const router = Router();
 
-router.get("/", (_, res) => {
-  // Logic to fetch users
-  res.json({ message: "What's up megasoft" });
-});
+// Test route controller
+router.get("/", TestController);
 
-router.all('*', (_, res)=> {
-  res.status(404).json({'error': "Route not found."})
+// Catch all route for api/ group.
+router.all('*', (_, res) => {
+  res.status(404).json({ 'error': "Route not found." })
 })
 
 export default router
