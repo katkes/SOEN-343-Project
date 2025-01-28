@@ -7,4 +7,8 @@ router.get("/", (_, res) => {
   res.json({ message: "What's up megasoft" });
 });
 
+router.all('*', (_, res)=> {
+  res.status(404).json({'error': "Route not found."})
+})
+
 export default router
