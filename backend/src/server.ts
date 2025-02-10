@@ -1,10 +1,12 @@
+
 import express from "express";
-import apiRoute from './routes/api'
-import { SERVER_ART } from "./utils/constants";
+import apiRoute from './routes/api.route'
+import { SERVER_ART } from "./configs/constants";
 import path from 'path'
+import { ENV_VARS } from "./configs/env";
+
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 function initRouteConfig() {
   // Require all requests to be made with JSON Middleware
@@ -26,7 +28,7 @@ function initRouteConfig() {
 initRouteConfig()
 
 // Start the server
-app.listen(PORT, () => {
+app.listen(ENV_VARS.PORT, () => {
   console.log(SERVER_ART);
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${ENV_VARS.PORT}`);
 });
