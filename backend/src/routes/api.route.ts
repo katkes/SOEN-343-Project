@@ -7,8 +7,8 @@ const router = Router();
 router.get("/", TestController);
 
 // Catch all route for api/ group.
-router.all('*', (_, res) => {
-  res.status(404).json({ 'error': "Route not found." })
-})
+router.all("*", (_, res) => {
+  res.status(404).json({ error: "Route not found." });
+});
 
-export default router
+export default router;

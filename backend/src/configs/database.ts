@@ -1,15 +1,6 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import { ENV_VARS } from "./env";
-
-// Load environment variables
-dotenv.config();
-
-// src/config/database.ts
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { Logger } from "./logger";
 
 class Database {
   private static instance: Database;
@@ -27,19 +18,17 @@ class Database {
   public async connect(): Promise<void> {
     if (!this.connection) {
       try {
-        await mongoose.connect(process.env.MONGO_URI as string, {
-            dbName
-            useNewUrlParser: true,
-          useUnifiedTopology: true,
+        await mongoose.connect(ENV_VARS.DB_CONN_STRING as string, {
+          dbName: ENV_VARS.DB_NAME,
         });
         this.connection = mongoose.connection;
-        console.log('✅ MongoDB connected');
+        Logger.info("MongoDB connected");
       } catch (error) {
-        console.error('❌ MongoDB connection error:', error);
+        Logger.error("MongoDB connection error:", error);
         throw error;
       }
     } else {
-      console.log('✅ Already connected to MongoDB');
+      Logger.info("Already connected to MongoDB");
     }
   }
 
@@ -49,4 +38,3 @@ class Database {
 }
 
 export default Database;
-
