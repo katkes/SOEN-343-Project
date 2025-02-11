@@ -1,5 +1,5 @@
 {
-  "name": "sees-be",
+  "name": "eventful-be",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "start": "node dist/server.js",
     "clean": "rimraf dist",
     "build": "npm run clean && tsc",
-    "prepare": "cd .. && husky"
+    "prepare": "cd ../ && husky || true",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",
@@ -34,7 +35,7 @@
     "typescript-eslint": "^8.24.0"
   },
   "lint-staged": {
-    "*.{js,ts}": [
+    "*.{js,ts,tsx}": [
       "prettier --write",
       "eslint --fix"
     ],
