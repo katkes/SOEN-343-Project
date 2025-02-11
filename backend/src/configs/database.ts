@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import { ENV_VARS } from "./env";
-import { Logger } from "./logger";
+import mongoose from 'mongoose';
+import { ENV_VARS } from './env';
+import { Logger } from './logger';
 
 class Database {
   private static instance: Database;
@@ -22,13 +22,13 @@ class Database {
           dbName: ENV_VARS.DB_NAME,
         });
         this.connection = mongoose.connection;
-        Logger.info("MongoDB connected");
+        Logger.info('MongoDB connected');
       } catch (error) {
-        Logger.error("MongoDB connection error:", error);
+        Logger.error('MongoDB connection error:', error);
         throw error;
       }
     } else {
-      Logger.info("Already connected to MongoDB");
+      Logger.info('Already connected to MongoDB');
     }
   }
 
