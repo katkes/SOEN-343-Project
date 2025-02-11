@@ -8,7 +8,7 @@
     "start": "node dist/server.js",
     "clean": "rimraf dist",
     "build": "npm run clean && tsc",
-    "prepare": "cd .. && husky backend/.husky"
+    "prepare": "cd .. && husky"
   },
   "keywords": [],
   "author": "",
@@ -30,10 +30,8 @@
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.3"
   },
-  "lint-staged": {
     "lint-staged": {
       "*.{js, ts}": "eslint --fix",
       "*.{json,md}": "prettier --write"
     }
-  }
 }
