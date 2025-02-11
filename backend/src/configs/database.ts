@@ -4,7 +4,7 @@ import { Logger } from './logger';
 
 class Database {
   private static instance: Database;
-  private connection: mongoose.Connection | null = null;
+  private connection: mongoose.Connection |              null = null;
 
   private constructor() {}
 
