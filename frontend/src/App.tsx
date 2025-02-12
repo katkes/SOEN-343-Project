@@ -13,21 +13,6 @@ function App() {
         console.log(json);
         setText(json);
       });
-    fetch("/api/users/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json", // Set the content type to JSON
-      },
-      body: JSON.stringify({
-        firstName: "Juan-Carlos",
-        lastName: "Sreng-Flores",
-        email: "srengfloresj@hotmail.com",
-        password: "password123",
-      }), // Convert the data to a JSON string
-    })
-      .then((response) => response.json()) // Parse the JSON response
-      .then((data) => console.log("Success:", data)) // Handle the response data
-      .catch((error) => console.error("Error:", error)); // Handle any errors
   }, []);
   return (
     <>

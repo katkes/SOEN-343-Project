@@ -6,9 +6,9 @@ import { StatusCodes } from 'http-status-codes';
 
 // Create user validation schema when receiving request
 const createUserBodySchema = z.object({
-  firstName: z.string().min(1, 'firstName is required'), // Ensures name is a non-empty string
-  lastName: z.string().min(1, 'lastName is required'), // Ensures name is a non-empty string
-  password: z.string().min(1, 'password is required'), // Ensures name is a non-empty string
+  firstName: z.string().min(1, 'firstName field is required'), // Ensures name is a non-empty string
+  lastName: z.string().min(1, 'lastName field is required'), // Ensures name is a non-empty string
+  password: z.string().min(1, 'password field is required'), // Ensures name is a non-empty string
   email: z.string().min(1).email('Invalid email format'), // Ensures email is a valid email address
 });
 
