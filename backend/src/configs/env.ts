@@ -10,7 +10,6 @@ let areEnvsDefinedProperly = true;
  *
  * @param variableName variable name in the .env file
  * @param defaultValue define a default value to accept if variable is not defined
- * @returns {string}
  */
 function requiredEnv(variableName: string): string {
   const envVar = process.env[variableName];

@@ -1,14 +1,17 @@
 import express from 'express';
+import { ENV_VARS } from './configs/env';
 import apiRoute from './routes/api.route';
 import { SERVER_ART } from './configs/constants';
 import path from 'path';
-import { ENV_VARS } from './configs/env';
 import Database from './configs/database';
 import { Logger } from './configs/logger';
 
 const app = express();
 
 async function initRouteConfig() {
+  // Display ascii art
+  console.log(SERVER_ART);
+
   try {
     Database.getInstance().connect();
   } catch (error) {
@@ -35,6 +38,5 @@ initRouteConfig();
 
 // Start the server
 app.listen(ENV_VARS.PORT, () => {
-  console.log(SERVER_ART);
   Logger.info(`Server is running on http://localhost:${ENV_VARS.PORT}`);
 });
