@@ -1,5 +1,5 @@
-import { IUser, User } from '../models/user.model';
-import { hashPassword } from '../utils/hash';
+import { IUser, User } from '../../models/user';
+import { hashPassword } from '../../utils/hash';
 
 type CreateUserDTO = Omit<IUser, 'hashedPassword'> & { password: string };
 export const createUser = async (userData: CreateUserDTO) => {

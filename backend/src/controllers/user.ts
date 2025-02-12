@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createUser, getUserByEmail } from '../services/user.service';
+import { createUser, getUserByEmail } from '../services/mongo/user';
 import { Logger } from '../configs/logger';
 import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';

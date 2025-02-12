@@ -1,6 +1,6 @@
 import express from 'express';
 import { ENV_VARS } from './configs/env';
-import apiRoute from './routes/api.route';
+import apiRoute from './routes/api';
 import { SERVER_ART } from './configs/constants';
 import path from 'path';
 import Database from './configs/database';
