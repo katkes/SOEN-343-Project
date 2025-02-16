@@ -41,7 +41,7 @@ export const getUserByEmailController = async (req: Request, res: Response) => {
   // Email checks
   let email: string | undefined;
   try {
-    email = getUserByEmailParamsSchema.parse(req.params.email).email;
+    email = getUserByEmailParamsSchema.parse(req.params).email;
   } catch (err) {
     Logger.error(err);
     res
