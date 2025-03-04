@@ -12,3 +12,5 @@ export const SERVER_ART = `
 |_____| \\_/ \\___|_| |_|\\__|_|  \\__,_|_(_)_|\\___/ 
                                                                           
 `;
+
+export const SESSION_TIMEOUT = '1h';

@@ -28,7 +28,10 @@ export const ENV_VARS = {
   DB_CONN_STRING: requiredEnv('DB_CONN_STRING'),
   DB_NAME: requiredEnv('DB_NAME'),
   PORT: process.env.PORT || 3000,
-  IS_PROD: process.env.NODE_ENV != undefined,
+  IS_PROD: process.env.NODE_ENV !== undefined,
+  HTTPS: process.env.HTTPS !== undefined,
+  JWT_SECRET: process.env.JWT_SECRET || 'supersecretjwtkey',
+  SESSION_SECRET: process.env.JWT_SECRET || 'supersecretkey',
 } as const;
 
 // safeguard to not run the program in case env variables are not properly set
