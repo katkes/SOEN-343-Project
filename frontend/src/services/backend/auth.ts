@@ -1,23 +1,30 @@
+import { Credentials } from '../../types/auth';
+// import { NetworkError } from '../../types/error';
 import { api } from './api';
 import { Endpoints } from './endpoints';
 
-type Login = {
-  email: string;
-  password: string;
-}
-async function login (credentials: Login) {
-  return api.post<Login>(Endpoints.User.Login, credentials);
-  // should reroute to dashboard or feed page after being logged in
+
+async function login (credentials: Credentials) {
+  try {
+    await api.post<void>(Endpoints.User.Login, credentials)
+    return true
+  } catch (err) {
+    console.log(err)
+    return false
+  }
 }
 
 async function logout () {
   return api.post<void>(Endpoints.User.Login)
-  // should reroute to login page after being logged out.
 }
 
-async function signUp (user: Login) {
-  return api.post<Login>(Endpoints.User.Login, user);
-  // should reroute to dashboard or feed page after being logged in
+async function signUp (user: Credentials) {
+  try {
+    await api.post<void>(Endpoints.User.Login, user);
+    return true
+  } catch {
+    return false
+  }
 }
 
 // export the functions here in an object
