@@ -1,43 +1,16 @@
-import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import React from 'react';
+import './App.css';
+import { RouterProvider } from 'react-router-dom';
+import { AppRoutes } from './AppRoutes';
 
-function App() {
-  const [count, setCount] = useState(0);
-  const [txt, setText] = useState<{ message: string }>();
-  useEffect(() => {
-    fetch("/api")
-      .then((res) => res.json())
-      .then((json) => {
-        console.log(json);
-        setText(json);
-      });
-  }, []);
+/**
+ * Entry point of the web application.
+ */
+export default function App() {
+  // Use react router to send the user to the right page based on the current route
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>{txt?.message}</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <React.StrictMode>
+      <RouterProvider router={AppRoutes} />
+    </React.StrictMode>
   );
 }
-
-export default App;
