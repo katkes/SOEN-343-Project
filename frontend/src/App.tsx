@@ -1,16 +1,20 @@
-import React from 'react';
-import './App.css';
-import { RouterProvider } from 'react-router-dom';
-import { AppRoutes } from './AppRoutes';
+import { Routes, Route, BrowserRouter } from "react-router";
+import { Home } from "./pages/Home";
+import { Login } from "./pages/Login";
+import { FrontEndRoutes } from "./pages/routes";
+import { Dashboard } from "./pages/Dashboard";
+import { SignUp } from "./pages/SignUp";
+import "./App.css";
 
-/**
- * Entry point of the web application.
- */
-export default function App() {
-  // Use react router to send the user to the right page based on the current route
-  return (
-    <React.StrictMode>
-      <RouterProvider router={AppRoutes} />
-    </React.StrictMode>
-  );
-}
+const App = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route path={FrontEndRoutes.Home} element={<Home />} />
+      <Route path={FrontEndRoutes.Login} element={<Login />} />
+      <Route path={FrontEndRoutes.SignUp} element={<SignUp />} />
+      <Route path={FrontEndRoutes.Dashboard} element={<Dashboard />} />
+    </Routes>
+  </BrowserRouter>
+)
+
+export default App;
