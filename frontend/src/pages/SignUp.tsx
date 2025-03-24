@@ -95,6 +95,7 @@ export const SignUp: React.FC = () => {
                 <option value="">Choose a Role</option>
                 <option value="Event Organizer">Organizer</option>
                 <option value="Sponsor">Sponsor</option>
+                <option value="Attendee">Speaker</option>
                 <option value="Attendee">Attendee</option>
               </select>
 
