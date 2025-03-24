@@ -21,6 +21,7 @@
 
 .tabs {
   border-radius: 25px;
+  font-weight: bold;
   gap: 24px;
 }
 
