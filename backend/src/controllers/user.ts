@@ -115,7 +115,7 @@ export async function loginController(req: Request, res: Response) {
   req.session.token = token;
 
   // return success status
-  res.sendStatus(StatusCodes.OK);
+  res.sendStatus(StatusCodes.NO_CONTENT);
 }
 
 export async function logoutController(req: Request, res: Response) {
@@ -124,6 +124,6 @@ export async function logoutController(req: Request, res: Response) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Logout failed' });
     }
 
-    res.json({ message: 'Logged out successfully' });
+    res.sendStatus(StatusCodes.NO_CONTENT);
   });
 }
