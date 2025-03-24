@@ -1,1 +1,139 @@
 @import 'tailwindcss';
+
+.frame {
+  background: linear-gradient(180deg, #d9ecfb 0%, #ffffff 93.65%);
+  font-family: 'Poppins', sans-serif;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0px 0px 0px;
+  height: 100vh;
+  width: 100vw;
+}
+
+.navbar {
+  background-color: rgba(249, 250, 251, 0.5);
+  border-radius: 0px 0px 10px 10px;
+}
+
+.tabs {
+  border-radius: 25px;
+  gap: 24px;
+}
+
+.tab {
+  padding: 3px 10px;
+  border-radius: 25px;
+  &:hover {
+    cursor: pointer;
+    background-color: #ebebeb;
+    transition: ease-in 0.3s;
+    transition: ease-in-out 0.3s;
+  }
+}
+
+.tab-selected {
+  background-color: #ebebeb;
+  border-radius: 25px;
+}
+
+.btn {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 16px;
+  gap: 8px;
+  background: #273266;
+  border-radius: 10px;
+}
+
+.description {
+  /* Plan, manage, and optimize events with ease—powerful tools for seamless organization and interactive experiences. */
+
+  width: 644px;
+  height: 62px;
+
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 31px;
+  text-align: center;
+
+  color: #273266;
+}
+
+.btn-2 {
+  /* Property 1=Variant2 */
+
+  /* Auto layout */
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 16px;
+  gap: 8px;
+  background: #273266;
+  opacity: 0.85;
+  border-radius: 10px;
+}
+
+.btn-3 {
+  /* Property 1=Variant5 */
+
+  /* Auto layout */
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 16px;
+  gap: 8px;
+  background: #273266;
+  opacity: 0.85;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 25px;
+}
+
+.services {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+
+  background: linear-gradient(181.15deg, #d9ecfb -78.47%, #ffffff 57.41%);
+
+  /* Inside auto layout */
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+  z-index: 1;
+}
+
+.badge {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 12px;
+  gap: 4px;
+
+  width: 145px;
+  height: 28px;
+
+  background: rgba(99, 126, 254, 0.3);
+  border-radius: 100px;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+.clickable-button {
+  &:hover {
+    cursor: pointer;
+  }
+}
