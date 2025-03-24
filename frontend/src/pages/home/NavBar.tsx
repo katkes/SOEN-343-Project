@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Logo1 from '../../assets/logo1.svg';
 import CustomButton from '../../components/CustomButton';
+import { Link } from 'react-router';
+import { FrontEndRoutes } from '../routes';
 
 interface NavBarProps {
   homeRef: React.RefObject<HTMLDivElement | null>;
@@ -50,22 +52,26 @@ export default function NavBar({ homeRef, servicesRef, aboutRef, contactRef }: N
           ))}
         </div>
         <div className="join flex gap-2">
-          <CustomButton
-            focusColor="focus:ring-[#1E2A78]"
-            hoverColor="hover:bg-[#3b4edb]"
-            rounded="rounded-full"
-          >
-            Sign Up
-          </CustomButton>
-          <CustomButton
-            bgColor="bg-gray-200"
-            textColor="text-[#1E2A78]"
-            hoverColor="hover:bg-gray-300"
-            focusColor="focus:ring-[#1E2A78]"
-            rounded="rounded-full"
-          >
-            LogIn
-          </CustomButton>
+          <Link to={FrontEndRoutes.SignUp} className="text-[#273266] font-bold">
+            <CustomButton
+              focusColor="focus:ring-[#1E2A78]"
+              hoverColor="hover:bg-[#3b4edb]"
+              rounded="rounded-full"
+            >
+              Sign Up
+            </CustomButton>
+          </Link>
+          <Link to={FrontEndRoutes.Login} className="text-[#273266] font-bold">
+            <CustomButton
+              bgColor="bg-gray-200"
+              textColor="text-[#1E2A78]"
+              hoverColor="hover:bg-gray-300"
+              focusColor="focus:ring-[#1E2A78]"
+              rounded="rounded-full"
+            >
+              LogIn
+            </CustomButton>
+          </Link>
         </div>
       </div>
     </>

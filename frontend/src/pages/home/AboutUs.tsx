@@ -1,6 +1,8 @@
 import aboutUs from '../../assets/collaboration-illustration.png';
 import Badge from '../../components/Badge';
 import CustomButton from '../../components/CustomButton';
+import { Link } from 'react-router';
+import { FrontEndRoutes } from '../routes';
 
 export default function AboutUs() {
   return (
@@ -29,9 +31,11 @@ export default function AboutUs() {
                 reliably, and with a focus on excellence.
               </span>
               <div className="mt-4">
-                <CustomButton width="w-[150px]" hoverColor="hover:bg-[#3b4edb]">
-                  Get Started
-                </CustomButton>
+                <Link to={FrontEndRoutes.SignUp}>
+                  <CustomButton width="w-[150px]" hoverColor="hover:bg-[#3b4edb]">
+                    Get Started
+                  </CustomButton>
+                </Link>
               </div>
             </div>
           </div>

@@ -1,4 +1,6 @@
 import CustomButton from '../../components/CustomButton';
+import { Link } from 'react-router';
+import { FrontEndRoutes } from '../routes';
 
 export default function Promo() {
   return (
@@ -10,15 +12,17 @@ export default function Promo() {
 
         <div className="text-l pl-12 text-[#637EFE] flex-2/5">
           <div className="ml-32">
-            <CustomButton
-              width="w-[150px]"
-              bgColor="bg-[#FFFF]"
-              textColor="text-[#637EFE]"
-              rounded="rounded-full"
-              hoverColor="hover:bg-gray-300"
-            >
-              Join Us Now!
-            </CustomButton>
+            <Link to={FrontEndRoutes.SignUp}>
+              <CustomButton
+                width="w-[150px]"
+                bgColor="bg-[#FFFF]"
+                textColor="text-[#637EFE]"
+                rounded="rounded-full"
+                hoverColor="hover:bg-gray-300"
+              >
+                Join Us Now!
+              </CustomButton>
+            </Link>
           </div>
         </div>
       </div>

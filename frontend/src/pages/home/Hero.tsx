@@ -1,5 +1,7 @@
 import heroShape from '../../assets/hero-shape.svg';
 import CustomButton from '../../components/CustomButton';
+import { Link } from 'react-router';
+import { FrontEndRoutes } from '../routes';
 
 export default function Hero() {
   return (
@@ -16,7 +18,9 @@ export default function Hero() {
         </div>
 
         <div className="join flex gap-2 z-50">
-          <CustomButton hoverColor="hover:bg-[#3b4edb]">Get Started</CustomButton>
+          <Link to={FrontEndRoutes.SignUp} className="text-[#273266] font-bold">
+            <CustomButton hoverColor="hover:bg-[#3b4edb]">Get Started</CustomButton>
+          </Link>
           <CustomButton bgColor="bg-gray-200" textColor="text-[#1E2A78] hover:bg-gray-300">
             Learn More
           </CustomButton>
