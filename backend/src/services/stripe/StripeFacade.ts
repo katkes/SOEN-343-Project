@@ -9,42 +9,42 @@ export class StripeFacade {
   }
 
   /**
-   * Verify the Stripe connection by making a simple call, e.g. retrieving the account or balance.
-   * This is useful to confirm your API key is valid before the server fully starts.
+   * Verify the connection to the Stripe API.
    */
   public async verifyConnection(): Promise<void> {
     try {
       // For instance, retrieve the balance as a quick check:
       await this.stripe.balance.retrieve();
       Logger.info('Stripe connection verified successfully.');
-    } catch (error) {
+    } catch (error: unknown) {
       Logger.error('Stripe connection error:', error);
-      throw error;
+      throw new Error('Failed to verify Stripe connection.');
     }
   }
 
   /**
-   * TODO: To be implemented and enhanced in future.
-   *
-   * Sample method to create a charge using the Stripe API.
-   * @param amount The amount to charge in cents.
-   * @param currency The currency of the charge.
-   * @param source The payment source, e.g. a token or card ID.
-   * @returns The charge object returned by the Stripe API.
-   *
-   * @see https://stripe.com/docs/api/charges/create
+   * Create a Payment Intent using the provided amount, currency, and PaymentMethod.
    */
-  public async createCharge(amount: number, currency: string, source: string) {
+  public async createPaymentIntent(
+    amount: number,
+    currency: string,
+    paymentMethod: string,
+  ): Promise<Stripe.PaymentIntent> {
     try {
-      const charge = await this.stripe.charges.create({
+      const paymentIntent = await this.stripe.paymentIntents.create({
         amount,
         currency,
-        source,
+        payment_method: paymentMethod,
+        payment_method_types: ['card'],
+        confirm: true,
       });
-      return charge;
-    } catch (error) {
-      Logger.error('Charge creation failed:', error);
-      throw error;
+      return paymentIntent;
+    } catch (error: unknown) {
+      // Check if the error is a StripeError
+      if (error instanceof Stripe.errors.StripeError) {
+        throw new Error(`Payment Intent creation failed: ${error.message}`);
+      }
+      throw new Error('An unknown error occurred while creating the Payment Intent.');
     }
   }
 }
