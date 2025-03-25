@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import 'express-session';
 import { compareHash } from '../utils/hash';
 import { SESSION_TIMEOUT } from '../configs/constants';
+import { userTypes } from '../models/user';
 
 // Create user validation schema when receiving request
 const createUserBodySchema = z.object({
@@ -15,6 +16,7 @@ const createUserBodySchema = z.object({
   lastName: z.string().min(1, 'lastName field is required.'), // Ensures name is a non-empty string
   password: z.string().min(1, 'password field is required.'), // Ensures name is a non-empty string
   email: z.string().min(1).email('Invalid email format.'), // Ensures email is a valid email address
+  type: z.enum(userTypes), // Ensures email is a valid email address
 });
 
 /**
