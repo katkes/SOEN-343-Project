@@ -5,8 +5,6 @@ import { useNavigate } from 'react-router';
 import { FrontEndRoutes } from './routes';
 import loginPNG from '../assets/login.png';
 import { EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { FcGoogle } from 'react-icons/fc';
-import { FaApple, FaFacebookF } from 'react-icons/fa';
 import CustomButton from '../components/CustomButton';
 import NavBar from '../components/NavBar';
 
@@ -19,10 +17,11 @@ export const Login: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const isLoggedIn = await authService.login({ email, password });
-    if (isLoggedIn) {
+    try {
+      await authService.login({ email, password });
       navigate(FrontEndRoutes.Dashboard);
-    } else {
+    }
+    catch {
       setErrMsg('Invalid credentials');
     }
   };
