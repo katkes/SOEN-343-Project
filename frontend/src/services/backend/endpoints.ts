@@ -1,7 +1,12 @@
 export const Endpoints = {
+  Auth: { 
+    Login: "/api/auth/login",
+    Logout: "/api/auth/logout",
+  },
   User: {
     SignUp: "/api/users",
-    Login: "/api/users/login",
-    Logout: "/api/users/logout",
+  },
+  Company: {
+    SignUp: "/api/company"
   }
 } as const;
