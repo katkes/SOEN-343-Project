@@ -23,7 +23,6 @@ import { Discussion} from './pages/Discussion';
 import './App.css';
 
 
-
 const App = () => (
   <BrowserRouter>
     <Routes>
