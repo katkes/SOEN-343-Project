@@ -1,25 +1,112 @@
-import { useNavigate } from 'react-router';
 import { Main } from '../layouts/Main';
-import { authService } from '../services/backend/auth';
-import { FrontEndRoutes } from './routes';
-import CustomButton from '../components/CustomButton';
+import Sidebar from '../components/Sidebar';
+import dashboardGraphic from '../assets/dashboard-graphic.png';
+import Badge from '../components/Badge';
+import { useNavigate } from 'react-router-dom';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const logout = async () => {
-    try {
-      await authService.logout();
-      // logout success, navigate to login page!
-      navigate(FrontEndRoutes.Login);
-    } catch (e) {
-      console.error('Could not logout: ', e);
-    }
-  };
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
   return (
     <Main>
-      Dashboard
-      <br></br>
-      <CustomButton onClick={logout}>logout</CustomButton>
+      <div className="flex h-screen overflow-hidden bg-[#EAF5FF]">
+        <Sidebar />
+
+        <div className="flex-1 overflow-y-auto bg-[#EAF5FF] p-8">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-4xl font-bold text-[#273266] bg-white px-6 py-2 rounded-full shadow">
+              Dashboard
+            </h1>
+            <div className="bg-[#273266] text-white py-2 px-4 rounded-xl font-medium text-sm">
+              {today}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between bg-white p-6 rounded-2xl shadow mb-8">
+            <div>
+              <p className="text-sm text-[#637381]">
+                My Role /{' '}
+                <Badge
+                  label={'Organizer'}
+                  display="inline-block"
+                  className="bg-white text-center w-fit px-3 py-1 text-xs shadow"
+                />
+              </p>
+              <h2 className="text-3xl font-extrabold text-[#273266] mt-2">
+                Be a Great Event Organizer
+              </h2>
+              <p className="text-[#637381] mt-2 max-w-lg">
+                Plan, manage, and optimize events with ease—powerful tools for seamless organization
+                and interactive experiences.
+              </p>
+            </div>
+            <img
+              src={dashboardGraphic}
+              alt="Dashboard Visual"
+              className="w-72 h-auto hidden md:block"
+            />
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-bold text-[#273266]">Upcoming Events</h3>
+              <button className="text-blue-600 hover:underline text-sm font-medium flex items-center gap-1">
+                Show All <span>→</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                {
+                  title: 'Yapping 101',
+                  speaker: 'Daniel Lam',
+                  date: 'Now',
+                  tags: ['Hot Topic', 'Automation', 'Nonproductive'],
+                },
+                {
+                  title: 'How to be the GOAT',
+                  speaker: 'J. Carlos',
+                  date: 'March 31st',
+                  tags: ['Hot Topic', 'GOAT', 'Productivity'],
+                },
+                {
+                  title: 'Why the Job’s is NEVER Finished',
+                  speaker: 'Keshan',
+                  date: 'April 3rd',
+                  tags: ['Mamba Mentality', 'Productivity', 'Hot Topic'],
+                },
+              ].map((event, idx) => (
+                <div
+                  key={idx}
+                  className="bg-[#EAF0FF] p-4 rounded-xl shadow cursor-pointer hover:bg-gray-100"
+                  onClick={() => navigate('/event/event-details')}
+                >
+                  <div className="flex items-center gap-2 text-sm text-[#273266] mb-2">
+                    📅 <span>{event.title}</span>
+                  </div>
+                  <p className="text-sm text-[#637381]">
+                    Write an amazing description in this dedicated card section.
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-[#273266]">
+                    <span className="text-[#637381]">👤 Speaker:</span> {event.speaker}
+                  </p>
+                  <p className="text-sm text-[#637381]">📅 Date: {event.date}</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {event.tags.map((tag) => (
+                      <Badge key={tag} label={tag} className="bg-white px-3 py-1 text-xs shadow" />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </Main>
   );
 };
