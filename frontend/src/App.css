@@ -157,3 +157,32 @@
   order: 1;
   flex-grow: 0;
 }
+
+.profile-banner {
+  width: 100%;
+  height: 211px;
+
+  background: linear-gradient(90deg, #637efe 0%, #b6cbfc 50%, #ffffff 100%);
+  border-radius: 16px 16px 0px 0px;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.banner {
+  width: 100%;
+  height: 310px;
+  background-color: #3D50FF;
+
+  border-radius: 16px 16px 0px 0px;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
