@@ -15,12 +15,18 @@ export const EventRegistration = () => {
   });
 
   const handleCheckout = async () => {
+
+    const validEventId = '645f3b2e8a8f3c0012345678'; // Dummy ID
+    const validUserId = '645f3b2e8a8f3c0012345679';  // Dummy ID
+
+    const paymentMethodId = 'pm_card_visa'; // Possibly replace with a different payment method, hardcode for now
+
     const payload = {
-      eventId: 'ENTER_EVENT_ID_HERE',     // TODO: Replace with real event ID
-      userId: 'ENTER_USER_ID_HERE',       // TODO: Replace with real user ID
+      eventId: validEventId,              // TODO: Replace with real event ID
+      userId: validUserId,                // TODO: Replace with real user ID
       amount: 5000,                       // TODO: Replace with event ticket price in cents
       currency: 'cad',                    // Could use 'usd' as well
-      paymentMethod: 'pm_card_visa',      // Replace with Stripe PaymentMethod ID from Stripe Elements
+      paymentMethod: paymentMethodId,     // Replace with Stripe PaymentMethod ID from Stripe Elements
     };
 
     try {
