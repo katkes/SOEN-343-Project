@@ -5,6 +5,7 @@ import { SERVER_ART } from './configs/constants';
 import path from 'path';
 import Database from './configs/database';
 import { Logger } from './configs/logger';
+import { StripeFacade } from './services/stripe/StripeFacade';
 
 const app = express();
 
@@ -12,12 +13,23 @@ async function initRouteConfig() {
   // Display ascii art
   console.log(SERVER_ART);
 
+  // Connect to MongoDB database
   try {
     Database.getInstance().connect();
   } catch (error) {
     console.error('Error while attempting to connect to database: ', error);
     process.exit(1);
   }
+
+  // Verify Stripe connection
+  const stripeFacade = new StripeFacade();
+  try {
+    await stripeFacade.verifyConnection();
+  } catch (error) {
+    console.error('Error while attempting to verify Stripe connection: ', error);
+    process.exit(1);
+  }
+
   // Require all requests to be made with JSON Middleware
   app.use(express.json());
 
