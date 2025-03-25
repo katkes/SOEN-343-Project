@@ -4,15 +4,41 @@ import loginPNG from '../assets/signup.png';
 import { EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import CustomButton from '../components/CustomButton';
 import NavBar from '../components/NavBar';
+import { authService } from '../services/backend/auth';
+import { UserType } from '../types/auth';
+import { useNavigate } from 'react-router-dom';
+import { FrontEndRoutes } from './routes';
 
 export const AttendeeSignUp: React.FC = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState<UserType | ''>('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [erroDisplay, setErrorDisplay] = useState('');
+  const navigate = useNavigate();
 
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (role == '') {
+      setErrorDisplay('Please select a role');
+      return;
+    }
+    try {
+      await authService.userSignUp({
+        firstName,
+        lastName,
+        role,
+        email,
+        password,
+      });
+      navigate(FrontEndRoutes.Dashboard);
+    } catch (e) {
+      console.error("failed to signup as attendee:", e)
+      setErrorDisplay("Email already in use.");
+    }
+  };
   return (
     <Main>
       <div className="min-h-screen bg-[#EAF5FF] flex items-center justify-center px-4 relative">
@@ -33,9 +59,10 @@ export const AttendeeSignUp: React.FC = () => {
             <h2 className="text-3xl font-semibold text-center mb-6 text-[#273266]">
               Attendee Sign Up
             </h2>
-            <form onSubmit={() => {}} className="space-y-5">
+            <form onSubmit={onSubmit} className="space-y-5">
               <div className="relative">
                 <input
+                  required
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
@@ -46,6 +73,7 @@ export const AttendeeSignUp: React.FC = () => {
 
               <div className="relative">
                 <input
+                  required
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
@@ -55,17 +83,21 @@ export const AttendeeSignUp: React.FC = () => {
               </div>
 
               <select
+                required
                 value={role}
-                onChange={(e) => setRole(e.target.value)}
+                onChange={(e) => setRole(e.target.value as UserType | '')}
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               >
-                <option value="">Choose a Role</option>
+                <option value="" selected disabled>
+                  Choose a Role
+                </option>
                 <option value="Learner">Learner</option>
                 <option value="Speaker">Speaker</option>
               </select>
 
               <div className="relative">
                 <input
+                  required
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -82,6 +114,7 @@ export const AttendeeSignUp: React.FC = () => {
 
               <div className="relative">
                 <input
+                  required
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -105,6 +138,7 @@ export const AttendeeSignUp: React.FC = () => {
               <CustomButton type="submit" width="w-full" hoverColor="hover:bg-[#3b4edb]">
                 Create Attendee Account
               </CustomButton>
+              <p className='text-red-500 w-full text-center'>{erroDisplay}</p>
             </form>
           </div>
         </div>
