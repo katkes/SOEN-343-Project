@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { TestController } from '../controllers/test';
 import userRoute from './user';
+import authRoute from './auth';
+import companyRoute from './company';
 import { SessionMiddleware } from '../middleware/session';
 import { StatusCodes } from 'http-status-codes';
 const router = Router();
@@ -13,6 +15,12 @@ router.get('/', TestController);
 
 // api/users/
 router.use('/users', userRoute);
+
+// api/company/
+router.use('/company', companyRoute);
+
+// api/auth
+router.use('/auth', authRoute);
 
 // Catch all route for api/ group.
 router.all('*', (_, res) => {

@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
-import { createUser, getUserByEmail } from '../services/mongo/user';
+import { createUser, CreateUserDTO, getUserByEmail } from '../services/mongo/user';
 import { Logger } from '../configs/logger';
 import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
 import { ENV_VARS } from '../configs/env';
 import jwt from 'jsonwebtoken';
 import 'express-session';
-import { compareHash } from '../utils/hash';
 import { SESSION_TIMEOUT } from '../configs/constants';
-import { userTypes } from '../models/user';
+import { userRoles } from '../models/user';
+import { getCompanyByEmail } from '../services/mongo/company';
 
 // Create user validation schema when receiving request
 const createUserBodySchema = z.object({
@@ -16,14 +16,14 @@ const createUserBodySchema = z.object({
   lastName: z.string().min(1, 'lastName field is required.'), // Ensures name is a non-empty string
   password: z.string().min(1, 'password field is required.'), // Ensures name is a non-empty string
   email: z.string().min(1).email('Invalid email format.'), // Ensures email is a valid email address
-  type: z.enum(userTypes), // Ensures email is a valid email address
+  role: z.enum(userRoles), // Ensures email is a valid email address
 });
 
 /**
  * Controller creates a new user to the database
  */
 export async function createUserController(req: Request, res: Response) {
-  let body;
+  let body: CreateUserDTO;
   try {
     body = createUserBodySchema.parse(req.body);
     // create user
@@ -35,6 +35,14 @@ export async function createUserController(req: Request, res: Response) {
       .json({ message: 'Error occurred while creating a new user.' });
     return;
   }
+
+  // make sure the email is not already used by the company
+  const company = await getCompanyByEmail(body.email);
+  if (company) {
+    res.status(StatusCodes.CONFLICT).json({ error: 'Email already exists' });
+    return;
+  }
+
   const user = await createUser(body);
 
   // create token for user and store userId in JWT store
@@ -42,7 +50,7 @@ export async function createUserController(req: Request, res: Response) {
   req.session.token = token;
 
   // return success status
-  res.sendStatus(StatusCodes.CREATED);
+  res.status(StatusCodes.CREATED).json({});
 }
 
 // Email schema for validation
@@ -74,57 +82,4 @@ export async function getUserByEmailController(req: Request, res: Response) {
     Logger.error('Received error: ', error);
     res.status(500).json({ error: 'Error occurred while getting users.' });
   }
-}
-
-// Login schema for validation
-const loginParamsSchema = z.object({
-  email: z.string().min(1).email('Invalid email format.'), // Ensures email is a valid email address
-  password: z.string().min(1, 'Invalid password format.'),
-});
-
-export async function loginController(req: Request, res: Response) {
-  let body;
-  try {
-    body = loginParamsSchema.parse(req.body);
-  } catch (error) {
-    Logger.error('Error logging in user: ', req.body);
-    Logger.error('Received error: ', error);
-    res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: 'Error occurred while logging in a user.' });
-    return;
-  }
-  const { email, password } = body;
-  const user = await getUserByEmail(email);
-
-  // check if user is found
-  if (!user) {
-    Logger.error(`User with email \`${email}\` was not found. Returning 404 response`);
-    res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found.' });
-    return;
-  }
-
-  // check if user has same password
-  if (!(await compareHash(password, user.hashedPassword))) {
-    Logger.error(`User with email \`${email}\` returned a wrong password. Returning 401 response`);
-    res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Wrong password.' });
-    return;
-  }
-  // password matches create token for user and store userId in JWT store
-  const token = jwt.sign({ _id: user._id }, ENV_VARS.JWT_SECRET, {
-    expiresIn: SESSION_TIMEOUT,
-  });
-  req.session.token = token;
-
-  // return success status
-  res.sendStatus(StatusCodes.NO_CONTENT);
-}
-
-export async function logoutController(req: Request, res: Response) {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Logout failed' });
-    }
-    res.sendStatus(StatusCodes.NO_CONTENT);
-  });
 }
