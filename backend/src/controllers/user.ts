@@ -125,7 +125,6 @@ export async function logoutController(req: Request, res: Response) {
     if (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Logout failed' });
     }
-
     res.sendStatus(StatusCodes.NO_CONTENT);
   });
 }

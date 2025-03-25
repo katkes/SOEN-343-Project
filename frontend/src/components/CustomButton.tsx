@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { ReactNode } from 'react';
 
 interface CustomButtonProps {
@@ -24,15 +22,16 @@ const CustomButton = ({
   width = 'w-fit',
   className = '',
   children,
+  type,
   onClick,
 }: CustomButtonProps) => {
   const baseStyles = `px-6 py-3 font-semibold transition-colors duration-200 focus:outline-none text-center focus:ring-2 clickable-button`;
   const combinedClasses = `${baseStyles} ${bgColor} ${textColor} ${hoverColor} ${focusColor} ${width} ${rounded} ${className} `;
 
   return (
-    <div onClick={onClick} className={combinedClasses}>
+    <button type={type} onClick={onClick} className={combinedClasses}>
       {children}
-    </div>
+    </button>
   );
 };
 

@@ -5,26 +5,15 @@ import { Endpoints } from './endpoints';
 
 
 async function login (credentials: Credentials) {
-  try {
-    await api.post<void>(Endpoints.User.Login, credentials)
-    return true
-  } catch (err) {
-    console.log(err)
-    return false
-  }
+  await api.post<void>(Endpoints.User.Login, credentials)
 }
 
 async function logout () {
-  return api.post<void>(Endpoints.User.Login)
+  await api.post<void>(Endpoints.User.Logout)
 }
 
 async function signUp (user: Credentials) {
-  try {
-    await api.post<void>(Endpoints.User.Login, user);
-    return true
-  } catch {
-    return false
-  }
+  await api.post<void>(Endpoints.User.SignUp, user);
 }
 
 // export the functions here in an object

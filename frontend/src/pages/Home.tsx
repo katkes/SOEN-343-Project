@@ -1,7 +1,5 @@
 import React from 'react';
 import { Main } from '../layouts/Main';
-import { Link } from 'react-router';
-import { FrontEndRoutes } from './routes';
 import { useRef } from 'react';
 import Hero from './home/Hero';
 import NavBar from '../components/NavBar';
