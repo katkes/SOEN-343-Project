@@ -14,6 +14,37 @@ export const EventRegistration = () => {
     day: 'numeric',
   });
 
+  const handleCheckout = async () => {
+    const payload = {
+      eventId: 'ENTER_EVENT_ID_HERE',     // TODO: Replace with real event ID
+      userId: 'ENTER_USER_ID_HERE',       // TODO: Replace with real user ID
+      amount: 5000,                       // TODO: Replace with event ticket price in cents
+      currency: 'cad',                    // Could use 'usd' as well
+      paymentMethod: 'pm_card_visa',      // Replace with Stripe PaymentMethod ID from Stripe Elements
+    };
+
+    try {
+      const response = await fetch('/api/payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Payment successful:', data);
+        // TODO: Redirect to confirmation page
+        navigate('/event/confirmation');
+      } else {
+        console.error('Payment failed:', data.message);
+        console.error('Payment error:', data.error);
+      }
+    } catch (error) {
+      console.error('Error during checkout:', error);
+    }
+  };
+
   return (
     <div className="flex bg-[#EAF5FF] min-h-screen">
       <Sidebar />
@@ -117,7 +148,8 @@ export const EventRegistration = () => {
             </div>
           </div>
 
-          <CustomButton className="bg-[#3D50FF] w-full py-3 text-white rounded-xl font-bold mt-6">
+          <CustomButton onClick={handleCheckout}
+            className="bg-[#3D50FF] w-full py-3 text-white rounded-xl font-bold mt-6">
             Checkout
           </CustomButton>
         </div>

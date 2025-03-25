@@ -3,6 +3,7 @@ import { TestController } from '../controllers/test';
 import userRoute from './user';
 import authRoute from './auth';
 import companyRoute from './company';
+import paymentRoute from './payment';
 import { SessionMiddleware } from '../middleware/session';
 import { StatusCodes } from 'http-status-codes';
 const router = Router();
@@ -21,6 +22,9 @@ router.use('/company', companyRoute);
 
 // api/auth
 router.use('/auth', authRoute);
+
+// api/payment
+router.use('/payment', paymentRoute);
 
 // Catch all route for api/ group.
 router.all('*', (_, res) => {
