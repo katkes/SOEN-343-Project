@@ -27,6 +27,7 @@ function requiredEnv(variableName: string): string {
 export const ENV_VARS = {
   DB_CONN_STRING: requiredEnv('DB_CONN_STRING'),
   DB_NAME: requiredEnv('DB_NAME'),
+  STRIPE_SECRET_KEY: requiredEnv('STRIPE_SECRET_KEY'),
   PORT: process.env.PORT || 3000,
   IS_PROD: process.env.NODE_ENV !== undefined,
   HTTPS: process.env.HTTPS !== undefined,
