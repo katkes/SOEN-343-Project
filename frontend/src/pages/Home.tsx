@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { FrontEndRoutes } from './routes';
 import { useRef } from 'react';
 import Hero from './home/Hero';
-import NavBar from './home/NavBar';
+import NavBar from '../components/NavBar';
 import Services from './home/Services';
 import AboutUs from './home/AboutUs';
 import Promo from './home/Promo';
@@ -24,10 +24,11 @@ export const Home: React.FC = () => {
           servicesRef={servicesRef}
           aboutRef={aboutRef}
           contactRef={contactRef}
+          showTabs={true}
         />
 
         <div ref={homeRef} id="home-section">
-          <Hero />
+          <Hero servicesRef={servicesRef} />
         </div>
         <div ref={servicesRef} id="services-section">
           <Services />
@@ -38,7 +39,7 @@ export const Home: React.FC = () => {
         <div>
           <Promo />
         </div>
-        <div ref={contactRef} id="contact-section">
+        <div ref={contactRef} id="contact-section" className="scroll-mt-32 min-h-[60vh]">
           <ContactUs />
         </div>
         <div>
