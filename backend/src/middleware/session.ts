@@ -8,3 +8,5 @@ export const SessionMiddleware = session({
   // Set to true in production with HTTPS
   cookie: { secure: ENV_VARS.IS_PROD && ENV_VARS.HTTPS },
 });
+
+export type SessionAccountType = { _id: unknown; accountType: 'company' | 'user' };
