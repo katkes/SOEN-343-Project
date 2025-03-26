@@ -9,3 +9,7 @@ export async function createEvent(eventData: CreateEventDTO) {
 export async function getEventByName(name: string) {
   return await Event.findOne({ name });
 }
+
+export async function getAllEvents() {
+  return await Event.find({});
+}
