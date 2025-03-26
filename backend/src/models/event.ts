@@ -1,5 +1,4 @@
-// TODO: To be revamped in a future PR.
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IEvent {
   name: string;
@@ -11,7 +10,9 @@ export interface IEvent {
   timeDurationInMinutes: number;
   description: string;
 }
-export interface IEventDocument extends Document, IEvent {}
+export interface IEventDocument extends Document, IEvent {
+  _id: Types.ObjectId;
+}
 
 const EventSchema: Schema = new Schema(
   {
