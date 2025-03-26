@@ -3,13 +3,23 @@ import Sidebar from '../components/Sidebar';
 import Badge from '../components/Badge';
 import CustomButton from '../components/CustomButton';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 
 const Events = () => {
   const [creatingNewEvent, setCreatingNewEvent] = useState(false);
+  const [eventDate, setEventDate] = useState(() => {
+    const now = new Date();
+    const estZone = 'America/New_York'; // EST timezone
+    const estTime = toZonedTime(now, estZone);
+    return format(estTime, "yyyy-MM-dd'T'HH:mm");
+  });
+  const [eventLocation, setEventLocation] = useState('');
   const [eventTitle, setEventTitle] = useState('');
   const [eventDescription, setEventDescription] = useState('');
-  const [eventDate, setEventDate] = useState('');
-  const [eventLocation, setEventLocation] = useState('');
+  const [locationType, setLocationType] = useState('');
+  const [duration, setDuration] = useState<number | undefined>();
+  const [maxCapacity, setMaxCapacity] = useState<number | undefined>();
   const navigate = useNavigate();
 
 
@@ -123,7 +133,7 @@ const Events = () => {
                 setSelectedEventType(null); // Reset selectedEventType when creating a new event
               }}
             >
-              Create New Event +
+              Create New Event
             </CustomButton>
           </div>
 
@@ -132,15 +142,16 @@ const Events = () => {
             {creatingNewEvent ? (
               <>
                 {/* New Event Form */}
-                <div className="text-[#273266]  rounded-xl shadow border-0.5">
+                <div className="text-[#273266] rounded-xl shadow border-0.5">
                   <div className="flex flex-col justify-center banner py-12 px-12 gap-6">
                     <div className="flex flex-col md:flex-row gap-4 text-white text-sm font-medium">
                       <input
-                        type="text"
+                        type="datetime-local"
+                        id="eventDate"
+                        name="eventDate"
                         value={eventDate}
                         onChange={(e) => setEventDate(e.target.value)}
                         className="bg-transparent placeholder-gray-100 border-b border-white/50 focus:border-white outline-none w-fit"
-                        placeholder="dd-mm-yyyy"
                       />
                       <input
                         type="text"
@@ -172,38 +183,33 @@ const Events = () => {
                     <h3 className="text-xl font-semibold pt-2 pb-4">Event Details</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <input
-                        placeholder="Start Time"
+                        type="number"
+                        value={maxCapacity || ''}
+                        onChange={(e) => setMaxCapacity(Number(e.target.value))}
+                        placeholder="Max Capacity"
                         className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
                       />
                       <input
-                        placeholder="End Time"
+                        type="number"
+                        value={duration || ''}
+                        onChange={(e) => setDuration(Number(e.target.value))}
+                        placeholder="Duration (mins)"
                         className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
                       />
-                      <input
-                        placeholder="Speaker"
+                      <select
+                        value={locationType || 'in-person'}
+                        onChange={(e) => setLocationType(e.target.value)}
                         className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-                      />
-                      <input
-                        placeholder="Event Type"
-                        className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-                      />
-                      <input
-                        placeholder="Staff Number"
-                        className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-                      />
-                      <input
-                        placeholder="Budget"
-                        className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-                      />
-                      <input
-                        placeholder="Sponsor Benefits"
-                        className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-                      />
+                      >
+                        <option value="in-person">In Person</option>
+                        <option value="hybrid">Hybrid</option>
+                        <option value="online">Online</option>
+                      </select>
                     </div>
 
                     <div>
                       <CustomButton className="bg-[#3D50FF] w-full py-3 text-white rounded-xl mt-4 font-bold">
-                        + Create Event
+                        Create Event
                       </CustomButton>
                     </div>
                   </div>
