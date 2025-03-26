@@ -24,6 +24,8 @@ export class StripeFacade {
 
   /**
    * Create a Payment Intent using the provided amount, currency, and PaymentMethod.
+   *
+   * Documentation for creating a Payment Intent: https://docs.stripe.com/api/payment_intents/create
    */
   public async createPaymentIntent(
     amount: number,
