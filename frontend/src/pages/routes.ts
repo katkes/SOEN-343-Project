@@ -7,6 +7,11 @@ export const FrontEndRoutes = {
   AttendeeSignUp: '/signup/attendee',
   CreateCompanyUser: '/signup/company-user',
   Events: '/events',
+  Event: {
+    base: '/event',
+    param: ':id',
+    definition: '/event/:id',
+  },
   Schedule: '/schedule',
   Community: '/community',
   Discussion: '/community/discussion',
