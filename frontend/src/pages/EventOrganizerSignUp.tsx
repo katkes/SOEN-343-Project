@@ -10,6 +10,8 @@ import { authService } from '../services/backend/auth';
 
 export const EventOrganizerSignUp: React.FC = () => {
   const [eventOrganizerName, setEventOrganizerName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -18,17 +20,19 @@ export const EventOrganizerSignUp: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // try {
-    //   await authService.EventOrganizerSignUp({
-    //     EventOrganizerName,
-    //     email,
-    //     password,
-    //   });
-    //   navigate(FrontEndRoutes.Dashboard);
-    // } catch (e) {
-    //   console.error("failed to signup as Event Organizer account:", e)
-    //   setErrorDisplay("Email already in use.");
-    // }
+    try {
+      await authService.userSignUp({
+        firstName,
+        lastName,
+        role: 'EventOrganizer',
+        email,
+        password,
+      });
+      navigate(FrontEndRoutes.Dashboard);
+    } catch (e) {
+      console.error("failed to signup as Event Organizer account:", e)
+      setErrorDisplay("Email already in use.");
+    }
   };
 
   return (
@@ -59,6 +63,28 @@ export const EventOrganizerSignUp: React.FC = () => {
                   value={eventOrganizerName}
                   onChange={(e) => setEventOrganizerName(e.target.value)}
                   placeholder="Event Organizer Name"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+
+              <div className="relative">
+                <input
+                  required
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="First Name"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+
+              <div className="relative">
+                <input
+                  required
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Last Name"
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 />
               </div>
