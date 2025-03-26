@@ -9,26 +9,32 @@ import NavBar from '../components/NavBar';
 import { authService } from '../services/backend/auth';
 
 export const SponsorSignUp: React.FC = () => {
-  const [sponsorName, setSponsorName] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const [erroDisplay, setErrorDisplay] = useState('');
+  const [errorDisplay, setErrorDisplay] = useState('');
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // try {
-    //   await authService.SponsorSignUp({
-    //     SponsorName,
-    //     email,
-    //     password,
-    //   });
-    //   navigate(FrontEndRoutes.Dashboard);
-    // } catch (e) {
-    //   console.error("failed to signup as Sponsor account:", e)
-    //   setErrorDisplay("Email already in use.");
-    // }
+    try {
+      await authService.userSignUp({
+        firstName,
+        lastName,
+        role: 'Sponsor',
+        companyName,
+        email,
+        password,
+    
+      });
+      navigate(FrontEndRoutes.Dashboard);
+    } catch (e) {
+      console.error("failed to signup as Event Organizer account:", e)
+      setErrorDisplay("Email already in use.");
+    }
   };
 
   return (
@@ -56,9 +62,31 @@ export const SponsorSignUp: React.FC = () => {
                 <input
                   required
                   type="text"
-                  value={sponsorName}
-                  onChange={(e) => setSponsorName(e.target.value)}
-                  placeholder="Sponsor Name"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="Company Name"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+
+              <div className="relative">
+                <input
+                  required
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="First Name"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+
+              <div className="relative">
+                <input
+                  required
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Last Name"
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 />
               </div>
@@ -110,7 +138,7 @@ export const SponsorSignUp: React.FC = () => {
               >
                 Create Sponsor Account
               </CustomButton>
-              <p className='text-red-500 w-full text-center'>{erroDisplay}</p>
+              <p className='text-red-500 w-full text-center'>{errorDisplay}</p>
             </form>
           </div>
         </div>
