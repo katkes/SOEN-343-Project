@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export const userRoles = ['Sponsor', 'EventOrganizer', 'Learner', 'Speaker', 'Admin'] as const;
 export type UserRole = (typeof userRoles)[number];
@@ -12,7 +12,9 @@ export interface IUser {
   companyName?: string;
 }
 
-export interface IUserDocument extends Document, IUser {}
+export interface IUserDocument extends Document, IUser {
+  _id: Types.ObjectId;
+}
 
 const UserSchema: Schema = new Schema(
   {
