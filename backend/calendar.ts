@@ -1,64 +1,6 @@
-// import { env } from "process";
-
-// const express = require('express');
-// const nodemailer = require('nodemailer');
-// const app = express();
-// app.use(express.json());
-
-// const transporter = nodemailer.createTransport({
-//   service: 'mail',
-//   auth: {
-//     user: `${env.EMAIL}`,
-//     pass: `${env.PASSWORD}`, // use app password if 2FA is enabled
-//   },
-// });
-
-// app.post('/send-invite', async (req: { body: { to: any; subject: any; description: any; startTime: any; endTime: any; }; }, res: { send: (arg0: string) => void; status: (arg0: number) => { (): any; new(): any; send: { (arg0: string): void; new(): any; }; }; }) => {
-//   const { to, subject, description, startTime, endTime } = req.body;
-
-//   const icsContent = `
-// BEGIN:VCALENDAR
-// VERSION:2.0
-// CALSCALE:GREGORIAN
-// METHOD:REQUEST
-// BEGIN:VEVENT
-// DTSTART:${formatDate(startTime)}
-// DTEND:${formatDate(endTime)}
-// SUMMARY:${subject}
-// DESCRIPTION:${description}
-// ORGANIZER;CN=Your Name:mailto:your.email@gmail.com
-// ATTENDEE;CN=Invitee;RSVP=TRUE:mailto:${to}
-// END:VEVENT
-// END:VCALENDAR`;
-
-//   const mailOptions = {
-//     from: `${env.EMAIL}`,
-//     to: "jainammshah12@gmail.com",
-//     subject: 'Meeting Invite: ' + subject,
-//     text: description,
-//     alternatives: [{
-//       contentType: 'text/calendar; method=REQUEST',
-//       content: icsContent
-//     }]
-//   };
-
-//   try {
-//     await transporter.sendMail(mailOptions);
-//     res.send('Invite sent!');
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Failed to send invite');
-//   }
-// });
-
-// function formatDate(dateStr: string | number | Date) {
-//   const date = new Date(dateStr);
-//   return date.toISOString().replace(/[-:]/g, '').split('.')[0]; // e.g. 20250326T150000
-// }
-
-// app.listen(3000, () => console.log('Server running on http://localhost:3000'));
-
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Configuration for email transport
 const transporter = nodemailer.createTransport({
@@ -66,8 +8,8 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, // true for 465, false for other ports
   auth: {
-    user: `eventfulio99@gmail.com`,
-    pass: `nela irga yeeo zspy`, // use app password if 2FA is enabled
+    user: process.env.EMAIL, // Your email address
+    pass: process.env.APP_PASSWORD, // use app password if 2FA is enabled
   },
   tls: {
     rejectUnauthorized: false, // Helps in some network environments
