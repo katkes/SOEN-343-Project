@@ -31,7 +31,7 @@ export default function ContactUs() {
               </div>
               <div>
                 <h4 className="font-semibold text-[#1A1F36]">Phone Number</h4>
-                <p className="text-[#637381]">(+62)81 414 257 9980</p>
+                <p className="text-[#637381]">(514) 848-2424</p>
               </div>
             </div>
 
@@ -41,7 +41,7 @@ export default function ContactUs() {
               </div>
               <div>
                 <h4 className="font-semibold text-[#1A1F36]">Email Address</h4>
-                <p className="text-[#637381]">info@MegaSoft.Inc</p>
+                <p className="text-[#637381]">eventful.io@mail.com</p>
               </div>
             </div>
           </div>
