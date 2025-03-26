@@ -25,8 +25,9 @@ import { SponsorSignUp } from './pages/SponsorSignUp';
 import { EventOrganizerSignUp } from './pages/EventOrganizerSignUp';
 
 
-const App = () => (
-  <BrowserRouter>
+const App = () => {
+
+  return <BrowserRouter>
     <Routes>
       <Route path={FrontEndRoutes.Home} element={<Home />} />
       <Route path={FrontEndRoutes.Login} element={<Login />} />
@@ -51,6 +52,6 @@ const App = () => (
       <Route path={FrontEndRoutes.Discussion} element={<Discussion />} />
     </Routes>
   </BrowserRouter>
-);
+};
 
 export default App;

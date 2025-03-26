@@ -3,6 +3,8 @@ import Sidebar from '../components/Sidebar';
 import dashboardGraphic from '../assets/dashboard-graphic.png';
 import Badge from '../components/Badge';
 import { useNavigate } from 'react-router-dom';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { CompanyAccount, UserAccount } from '../types/account';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -12,6 +14,17 @@ export const Dashboard: React.FC = () => {
     day: 'numeric',
     year: 'numeric',
   });
+  
+  const account = useAccountInfo();
+  
+  // LOGIC FOR EACH USERS.
+  console.log("is company:", account instanceof CompanyAccount);
+  console.log("is user:", account instanceof UserAccount);
+  if (account instanceof UserAccount) {
+    console.log("User account role:", account.role);
+  }
+  // LOGIC FOR EACH USERS.
+
   return (
     <Main>
       <div className="flex h-screen overflow-hidden bg-[#EAF5FF]">
