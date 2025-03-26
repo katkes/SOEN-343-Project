@@ -25,20 +25,20 @@ export default function NavBar({
     setSelectedTab(tab);
     let ref;
     switch (tab) {
-      case 'Home':
-        ref = homeRef;
-        break;
-      case 'Services':
-        ref = servicesRef;
-        break;
-      case 'About':
-        ref = aboutRef;
-        break;
-      case 'Contact':
-        ref = contactRef;
-        break;
-      default:
-        ref = homeRef;
+    case 'Home':
+      ref = homeRef;
+      break;
+    case 'Services':
+      ref = servicesRef;
+      break;
+    case 'About':
+      ref = aboutRef;
+      break;
+    case 'Contact':
+      ref = contactRef;
+      break;
+    default:
+      ref = homeRef;
     }
     ref?.current?.scrollIntoView({ behavior: 'smooth' });
   };
