@@ -9,15 +9,20 @@ import 'express-session';
 import { compareHash } from '../utils/hash';
 import { SESSION_TIMEOUT } from '../configs/constants';
 import { getCompanyByEmail } from '../services/mongo/company';
+import { SessionAccountType } from '../middleware/session';
 
-async function findUserOrCompanyAccountByEmail(email: string) {
-  let account: { _id: unknown; hashedPassword: string } | null = await getUserByEmail(email);
-
+type Account = { _id: unknown; hashedPassword: string };
+async function findUserOrCompanyAccountByEmail(
+  email: string,
+): Promise<[Account | null, 'company' | 'user']> {
+  let account: Account | null = await getUserByEmail(email);
+  let accountType: 'company' | 'user' = 'user';
   // if user not found, check in company table
   if (!account) {
     account = await getCompanyByEmail(email);
+    accountType = 'company';
   }
-  return account;
+  return [account, accountType];
 }
 
 // Login schema for validation
@@ -39,7 +44,7 @@ export async function loginController(req: Request, res: Response) {
     return;
   }
   const { email, password } = body;
-  const account = await findUserOrCompanyAccountByEmail(email);
+  const [account, accountType] = await findUserOrCompanyAccountByEmail(email);
   if (!account) {
     Logger.error(`User with email \`${email}\` was not found. Returning 404 response`);
     res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found.' });
@@ -53,7 +58,8 @@ export async function loginController(req: Request, res: Response) {
     return;
   }
   // password matches create token for account and store accountId in JWT store
-  const token = jwt.sign({ _id: account._id }, ENV_VARS.JWT_SECRET, {
+  const sessionAccount: SessionAccountType = { _id: account._id, accountType };
+  const token = jwt.sign(sessionAccount, ENV_VARS.JWT_SECRET, {
     expiresIn: SESSION_TIMEOUT,
   });
 
