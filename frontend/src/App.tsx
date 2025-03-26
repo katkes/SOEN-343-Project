@@ -21,6 +21,8 @@ import { EventStreaming } from './pages/EventStreaming';
 import { Discussion} from './pages/Discussion';
 
 import './App.css';
+import { SponsorSignUp } from './pages/SponsorSignUp';
+import { EventOrganizerSignUp } from './pages/EventOrganizerSignUp';
 
 
 const App = () => (
@@ -29,6 +31,8 @@ const App = () => (
       <Route path={FrontEndRoutes.Home} element={<Home />} />
       <Route path={FrontEndRoutes.Login} element={<Login />} />
       <Route path={FrontEndRoutes.SignUp} element={<SignUp />} />
+      <Route path={FrontEndRoutes.SponsorSignUp} element={<SponsorSignUp />} />
+      <Route path={FrontEndRoutes.EventOrganizerSignUp} element={<EventOrganizerSignUp />} />
       <Route path={FrontEndRoutes.CompanySignUp} element={<CompanySignUp />} />
       <Route path={FrontEndRoutes.AttendeeSignUp} element={<AttendeeSignUp />} />
       <Route path={FrontEndRoutes.CreateCompanyUser} element={<CreateCompanyUser />} />
