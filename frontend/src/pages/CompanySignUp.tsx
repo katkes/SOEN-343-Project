@@ -6,6 +6,7 @@ import loginPNG from '../assets/signup.png';
 import { EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import CustomButton from '../components/CustomButton';
 import NavBar from '../components/NavBar';
+import { authService } from '../services/backend/auth';
 
 export const CompanySignUp: React.FC = () => {
   const [companyName, setCompanyName] = useState('');
@@ -13,6 +14,22 @@ export const CompanySignUp: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [erroDisplay, setErrorDisplay] = useState('');
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await authService.companySignUp({
+        companyName,
+        email,
+        password,
+      });
+      navigate(FrontEndRoutes.Dashboard);
+    } catch (e) {
+      console.error("failed to signup as company account:", e)
+      setErrorDisplay("Email already in use.");
+    }
+  };
 
   return (
     <Main>
@@ -34,9 +51,10 @@ export const CompanySignUp: React.FC = () => {
             <h2 className="text-3xl font-semibold text-center mb-6 text-[#273266]">
               Company Account
             </h2>
-            <form onSubmit={() => {}} className="space-y-5">
+            <form onSubmit={onSubmit} className="space-y-5">
               <div className="relative">
                 <input
+                  required
                   type="text"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
@@ -47,6 +65,7 @@ export const CompanySignUp: React.FC = () => {
 
               <div className="relative">
                 <input
+                  required
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -63,6 +82,7 @@ export const CompanySignUp: React.FC = () => {
 
               <div className="relative">
                 <input
+                  required
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -87,10 +107,10 @@ export const CompanySignUp: React.FC = () => {
                 type="submit"
                 width="w-full"
                 hoverColor="hover:bg-[#3b4edb]"
-                onClick={() => navigate(FrontEndRoutes.CreateCompanyUser)}
               >
                 Create Company Account
               </CustomButton>
+              <p className='text-red-500 w-full text-center'>{erroDisplay}</p>
             </form>
           </div>
         </div>
