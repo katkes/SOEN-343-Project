@@ -40,7 +40,7 @@ export const EventOrganizerSignUp: React.FC = () => {
   return (
     <Main>
       <div className="min-h-screen bg-[#EAF5FF] flex items-center justify-center px-4 relative">
-        <NavBar showTabs={false} />
+        <NavBar showTabs={false} showSignUpLogIn={false} />
         <div className="flex flex-col-reverse md:flex-row items-center w-full max-w-6xl rounded-xl overflow-hidden shadow-lg p-16 bg-[#EAF5FF] form">
           <div className="w-full md:w-1/2 text-center px-6">
             <img src={loginPNG} alt="SignUp Visual" className="mx-auto w-80 h-80" />
@@ -64,7 +64,7 @@ export const EventOrganizerSignUp: React.FC = () => {
                   type="text"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder="Event Organizer Name"
+                  placeholder="Company Name"
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 />
               </div>
