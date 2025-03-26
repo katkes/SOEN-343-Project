@@ -1,5 +1,5 @@
 
-import { CompanySignUpDTO, CredentialsDTO, UserSignUpDTO } from '../../types/auth';
+import { CompanySignUpDTO, CredentialsDTO, EventSignUpDTO, UserSignUpDTO } from '../../types/auth';
 import { api } from './api';
 import { Endpoints } from './endpoints';
 
@@ -20,10 +20,15 @@ async function companySignUp (user: CompanySignUpDTO) {
   await api.post<void>(Endpoints.Company.SignUp, user);
 }
 
+async function createEvent (event: EventSignUpDTO) {
+  await api.post<void>(Endpoints.Event.Create, event);
+}
+
 // export the functions here in an object
 export const authService = {
   login,
   logout,
   userSignUp,
-  companySignUp
+  companySignUp,
+  createEvent
 } as const;
