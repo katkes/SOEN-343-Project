@@ -17,6 +17,7 @@ const createUserBodySchema = z.object({
   lastName: z.string().min(1, 'lastName field is required.'), // Ensures name is a non-empty string
   password: z.string().min(1, 'password field is required.'), // Ensures name is a non-empty string
   email: z.string().min(1).email('Invalid email format.'), // Ensures email is a valid email address
+  companyName: z.string().optional(), // Ensures companyName is optional
   role: z.enum(userRoles), // Ensures email is a valid email address
 });
 

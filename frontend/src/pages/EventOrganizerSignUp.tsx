@@ -9,14 +9,14 @@ import NavBar from '../components/NavBar';
 import { authService } from '../services/backend/auth';
 
 export const EventOrganizerSignUp: React.FC = () => {
-  const [eventOrganizerName, setEventOrganizerName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const [erroDisplay, setErrorDisplay] = useState('');
+  const [errorDisplay, setErrorDisplay] = useState('');
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,8 +25,10 @@ export const EventOrganizerSignUp: React.FC = () => {
         firstName,
         lastName,
         role: 'EventOrganizer',
+        companyName,
         email,
         password,
+
       });
       navigate(FrontEndRoutes.Dashboard);
     } catch (e) {
@@ -60,8 +62,8 @@ export const EventOrganizerSignUp: React.FC = () => {
                 <input
                   required
                   type="text"
-                  value={eventOrganizerName}
-                  onChange={(e) => setEventOrganizerName(e.target.value)}
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="Event Organizer Name"
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 />
@@ -136,7 +138,7 @@ export const EventOrganizerSignUp: React.FC = () => {
               >
                 Create Event Organizer Account
               </CustomButton>
-              <p className='text-red-500 w-full text-center'>{erroDisplay}</p>
+              <p className='text-red-500 w-full text-center'>{errorDisplay}</p>
             </form>
           </div>
         </div>

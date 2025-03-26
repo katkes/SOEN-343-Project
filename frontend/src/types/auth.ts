@@ -8,6 +8,7 @@ export type UserSignUpDTO =  CredentialsDTO & {
   firstName: string
   lastName: string
   role: UserType
+  companyName?: string
 }
 
 export type CompanySignUpDTO =  CredentialsDTO & {
