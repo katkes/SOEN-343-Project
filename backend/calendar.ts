@@ -58,7 +58,6 @@
 
 // app.listen(3000, () => console.log('Server running on http://localhost:3000'));
 
-import { env } from 'process';
 import nodemailer from 'nodemailer';
 
 // Configuration for email transport
@@ -67,8 +66,8 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, // true for 465, false for other ports
   auth: {
-    user: `${env.EMAIL}`,
-    pass: `${env.PASSWORD}`, // use app password if 2FA is enabled
+    user: `eventfulio99@gmail.com`,
+    pass: `nela irga yeeo zspy`, // use app password if 2FA is enabled
   },
   tls: {
     rejectUnauthorized: false, // Helps in some network environments
@@ -99,14 +98,17 @@ DTSTART:${formatDate(startTime)}
 DTEND:${formatDate(endTime)}
 SUMMARY:${subject}
 DESCRIPTION:${description}
-ORGANIZER;CN=Your Name:mailto:${env.EMAIL}
+ORGANIZER;CN=Your Name:mailto:eventfulio99@gmail.com
 ATTENDEE;CN=Invitee;RSVP=TRUE:mailto:${to}
 END:VEVENT
 END:VCALENDAR`;
 
+  //console.log(`${env.EMAIL}`);
+  //console.log(`${env.PASSWORD}`);
+
   // Configure email options
   const mailOptions = {
-    from: `${env.EMAIL}`,
+    from: `eventfulio99@gmail.com`,
     to: to,
     subject: 'Meeting Invite: ' + subject,
     text: description,
@@ -130,7 +132,7 @@ END:VCALENDAR`;
 }
 
 // Example usage
-const recipientEmail = 'jainammshah12@gmail.com';
+const recipientEmail = 'eventfulio99@gmail.com';
 const meetingSubject = 'Project Discussion';
 const meetingDescription = "Let's discuss the progress of our current project.";
 const meetingStart = '2025-03-30T15:00:00';
