@@ -48,14 +48,15 @@ async function initRouteConfig() {
     res.sendFile(path.join(reactBuildPath, 'index.html'));
   });
 
+  // register socket io before ultimate fall back
   const server = createServer(app);
   const io = new Server(server);
   setupSocket(io);
+
+  // Start the server
+  server.listen(ENV_VARS.PORT, () => {
+    Logger.info(`Server is running on http://localhost:${ENV_VARS.PORT}`);
+  });
 }
 
 initRouteConfig();
-
-// Start the server
-app.listen(ENV_VARS.PORT, () => {
-  Logger.info(`Server is running on http://localhost:${ENV_VARS.PORT}`);
-});

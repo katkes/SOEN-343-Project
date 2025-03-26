@@ -1,28 +1,30 @@
 import { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
+import { socket } from '../services/socket/socket';
 interface Message {
   _id?: string;
+  room: string;
   sender: string;
   content: string;
   timestamp?: string;
 }
 export const ChatRoom: React.FC = () => {
-  const socket = io();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const sender = 'User 1';
   const room = 'general';
 
   useEffect(() => {
+    console.log('join room')
     socket.emit('joinRoom', room);
 
     socket.on('receiveMessage', (message: Message) => {
       setMessages((prev) => [...prev, message]);
     });
 
-    return () => {
-      socket.disconnect();
-    };
+    // return () => {
+    //   console.log('disconnect from socket')
+    //   socket.disconnect();
+    // };
   }, []);
 
   const sendMessage = () => {

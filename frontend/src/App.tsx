@@ -21,6 +21,7 @@ import { EventStreaming } from './pages/EventStreaming';
 import { Discussion} from './pages/Discussion';
 
 import './App.css';
+import { ChatRoom } from './pages/ChatRoom';
 
 
 const App = () => (
@@ -45,6 +46,7 @@ const App = () => (
       <Route path={FrontEndRoutes.EventRegistration} element={<EventRegistration />} />
       <Route path={FrontEndRoutes.EventStreaming} element={<EventStreaming />} />
       <Route path={FrontEndRoutes.Discussion} element={<Discussion />} />
+      <Route path={"/message"} element={<ChatRoom />} />
     </Routes>
   </BrowserRouter>
 );

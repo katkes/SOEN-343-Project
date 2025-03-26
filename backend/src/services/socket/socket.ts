@@ -1,5 +1,6 @@
 import { Server } from 'socket.io';
 import { Message } from '../../models/message';
+import { Logger } from '../../configs/logger';
 
 export const setupSocket = (io: Server) => {
   io.on('connection', (socket) => {
@@ -19,4 +20,5 @@ export const setupSocket = (io: Server) => {
       console.log('User disconnected');
     });
   });
+  Logger.info('Socket IO successfully configured on server host.');
 };
