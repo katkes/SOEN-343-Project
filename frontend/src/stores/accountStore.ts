@@ -1,6 +1,5 @@
 import { authService } from '../services/backend/auth';
-import { Account, CompanyAccount, UserAccount } from '../types/account';
-import { CompanyResponse, UserResponse } from '../types/auth';
+import { Account, CompanyAccount, CompanyResponse, UserAccount, UserResponse } from '../types/account';
 import { StoreKeys } from './keys';
 
 export class AccountStore {

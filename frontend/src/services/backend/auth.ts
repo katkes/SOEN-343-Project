@@ -1,6 +1,7 @@
 
 import { AccountStore } from '../../stores/accountStore';
-import { CompanyResponse, CompanySignUpDTO, CredentialsDTO, UserResponse, UserSignUpDTO } from '../../types/auth';
+import { CompanyResponse, UserResponse } from '../../types/account';
+import { CompanySignUpDTO, CredentialsDTO, EventSignUpDTO, UserSignUpDTO } from '../../types/auth';
 import { api } from './api';
 import { Endpoints } from './endpoints';
 
@@ -26,11 +27,16 @@ function accountInfo () {
   return api.get<CompanyResponse | UserResponse>(Endpoints.Account.Info);
 }
 
+async function createEvent (event: EventSignUpDTO) {
+  await api.post<void>(Endpoints.Event.Create, event);
+}
+
 // export the functions here in an object
 export const authService = {
   accountInfo,
   login,
   logout,
   userSignUp,
-  companySignUp
+  companySignUp,
+  createEvent
 } as const;

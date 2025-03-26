@@ -1,4 +1,4 @@
-import { CompanyResponse, UserResponse, UserRole } from "./auth";
+import { UserRole } from "./auth";
 
 export abstract class Account {
   public readonly _id: string;
@@ -29,4 +29,19 @@ export class UserAccount extends Account {
     this.lastName = lastName;
     this.role = role;
   }
+}
+
+export interface UserResponse {
+  _id: string
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: UserRole;
+  companyName?: string;
+}
+
+export interface CompanyResponse {
+  _id: string
+  email: string;
+  companyName: string; // to be changed to object id
 }

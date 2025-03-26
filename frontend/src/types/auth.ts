@@ -16,17 +16,13 @@ export type CompanySignUpDTO =  CredentialsDTO & {
   companyName: string
 }
 
-export interface UserResponse {
-  _id: string
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: UserRole;
-  companyName?: string;
-}
-
-export interface CompanyResponse {
-  _id: string
-  email: string;
-  companyName: string; // to be changed to object id
+export type EventSignUpDTO = {
+  name: string
+  description: string
+  location: string
+  locationType: string
+  ticketsSold: number
+  maxCapacity: number
+  startDateAndTime: Date
+  timeDurationInMinutes: number
 }

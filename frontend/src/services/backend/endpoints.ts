@@ -11,5 +11,8 @@ export const Endpoints = {
   },
   Account: { 
     Info: "/api/auth/account-info"
+  },
+  Event: {
+    Create: "/api/event"
   }
 } as const;
