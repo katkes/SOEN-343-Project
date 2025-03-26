@@ -1,5 +1,4 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
-import { ICompanyDocument } from './company';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export const userRoles = ['Sponsor', 'EventOrganizer', 'Learner', 'Speaker', 'Admin'] as const;
 export type UserRole = (typeof userRoles)[number];
@@ -10,7 +9,7 @@ export interface IUser {
   email: string;
   hashedPassword: string;
   role: UserRole;
-  company?: Types.ObjectId | ICompanyDocument;
+  companyName?: string;
 }
 
 export interface IUserDocument extends Document, IUser {}
@@ -22,7 +21,7 @@ const UserSchema: Schema = new Schema(
     email: { type: String, required: true, unique: true },
     hashedPassword: { type: String, required: true },
     role: { type: String, required: true },
-    company: { type: Schema.Types.ObjectId, ref: 'Company', required: false },
+    companyName: { type: String, required: false },
   },
   // create two extra fields named createdAt and updatedAt in case we need it
   { timestamps: true },
