@@ -50,7 +50,7 @@ END:VCALENDAR`;
 
   // Configure email options
   const mailOptions = {
-    from: `eventfulio99@gmail.com`,
+    from: `#${process.env.EMAIL}`, // Your email address
     to: to,
     subject: 'Meeting Invite: ' + subject,
     text: description,
@@ -74,7 +74,7 @@ END:VCALENDAR`;
 }
 
 // Example usage
-const recipientEmail = 'eventfulio99@gmail.com';
+const recipientEmail = `${process.env.EMAIL}`;
 const meetingSubject = 'Project Discussion';
 const meetingDescription = "Let's discuss the progress of our current project.";
 const meetingStart = '2025-03-30T15:00:00';
