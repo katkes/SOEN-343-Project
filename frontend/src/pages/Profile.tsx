@@ -2,8 +2,24 @@ import { Main } from '../layouts/Main';
 import Sidebar from '../components/Sidebar';
 import Badge from '../components/Badge';
 import profilePic from '../assets/avatar.png';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { useNavigate } from 'react-router-dom';
+import { FrontEndRoutes } from './routes';
+import { useEffect } from 'react';
+
 
 export const Profile: React.FC = () => {
+
+  const account = useAccountInfo();
+  const navigate = useNavigate();
+  console.log("account", account);
+
+  useEffect(() => {
+    if ( account === null ) {
+      navigate(FrontEndRoutes.Login);
+    }
+  }, [account, navigate]);
+
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
