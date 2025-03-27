@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState, Fragment, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
@@ -24,26 +24,29 @@ export const EventForm: React.FC<EventFormProps> = ({
   isCreating = false,
   role: userRole,
   registered = false,
+  event
 }) => {
   const [eventTitle, setEventTitle] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [eventLocation, setEventLocation] = useState('');
-  const [eventDetails, setEventDetails] = useState([
-    '09:00 AM',
-    '05:00 PM',
-    ['John Doe'],
-    '123 Main St',
-  ]);
+  const [locationType, setLocationType] = useState<string>('In Person');
+  const [maxCapacity, setMaxCapacity] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
+  
+
+
+  // TODO: Please don't store the event details in an array. Store each detail in a separate state variable.
+  // const [eventDetails, setEventDetails] = useState<(string | string[])[]>([]);
+
+  const [localEditable, setLocalEditable] = useState(editable);
+  const formEditable = isCreating ? true : localEditable;
+  const isUser = userRole === 'attendee';
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [localEditable, setLocalEditable] = useState(editable);
-  const formEditable = isCreating ? true : localEditable;
-
-  const isUser = userRole === 'attendee';
-
+  // TODO: Maybe remove placeholders now that we have actual event data
   const placeholders = {
     title: 'Event Name',
     description: 'Add a description to your event',
@@ -51,11 +54,32 @@ export const EventForm: React.FC<EventFormProps> = ({
     location: 'Location',
   };
 
-  const handleEventDetailChange = (index: number, newValue: string | string[]) => {
-    const newDetails = [...eventDetails];
-    newDetails[index] = newValue;
-    setEventDetails(newDetails);
-  };
+  // Populate fields with event data when the event prop changes
+  useEffect(() => {
+    if (event) {
+      setEventTitle(event.name);
+      setEventDescription(event.description);
+      setEventDate(new Date(event.startDateAndTime).toLocaleDateString('en-CA')); // Format as yyyy-mm-dd
+      setEventLocation(event.location);
+      setLocationType(event.locationType);
+      setMaxCapacity(event.maxCapacity);
+      setDuration(event.timeDurationInMinutes);
+
+      // TODO: Please don't store the event details in an array. Store each detail in a separate state variable.
+      // setEventDetails([
+      //   '09:00 AM', // Placeholder for start time
+      //   '05:00 PM', // Placeholder for end time
+      //   ["John Doe"], // Placeholder for speakers
+      //   event.locationType,
+      // ]);
+    }
+  }, [event]);
+
+  // const handleEventDetailChange = (index: number, newValue: string | string[]) => {
+  //   const newDetails = [...eventDetails];
+  //   newDetails[index] = newValue;
+  //   setEventDetails(newDetails);
+  // };
 
   const MultiSpeakerSelector = ({
     selected,
@@ -169,6 +193,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   {isCreating ? 'Create Event' : registered ? 'Join Stream' : 'Register'}
                 </CustomButton>
               </div>
+
               {/* Show Edit button only for organizers */}
               {location.pathname === '/event/event-details' && !isCreating && !isUser && (
                 <CustomButton
@@ -178,12 +203,67 @@ export const EventForm: React.FC<EventFormProps> = ({
                   {formEditable ? 'Save' : 'Edit'}
                 </CustomButton>
               )}
+
             </div>
           </div>
           <div className="py-6 px-12 bg-white rounded-b-xl">
             <h3 className="text-xl font-semibold pt-2 pb-4">Event Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {eventDetails.map((detail, index) =>
+
+              {/* Max Capacity */}
+              <input
+                type="number"
+                disabled={!formEditable}
+                value={maxCapacity || ''}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value >= 0) setMaxCapacity(value);
+                }}
+                min="0"
+                placeholder="Max Capacity"
+                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                  formEditable
+                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+              />
+
+              {/* Duration */}
+              <input
+                type="number"
+                disabled={!formEditable}
+                value={duration || ''}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value >= 0) setDuration(value);
+                }}
+                min="0"
+                placeholder="Duration (mins)"
+                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                  formEditable
+                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+              />
+
+              {/* Location Type */}
+              <select
+                value={locationType || ''}
+                disabled={!formEditable}
+                onChange={(e) => setLocationType(e.target.value)}
+                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                  formEditable
+                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                <option value="in-person">In Person</option>
+                <option value="hybrid">Hybrid</option>
+                <option value="online">Online</option>
+              </select>
+              
+              {/* TODO: Replace the following code with individual input fields */}
+              {/* {eventDetails.map((detail, index) =>
                 index === 2 ? (
                   <MultiSpeakerSelector
                     key={index}
@@ -200,7 +280,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                     className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-gray-500 placeholder-gray-400"
                   />
                 )
-              )}
+              )} */}
             </div>
             {formEditable && (
               <FileUpload onFilesSelected={(files) => console.log('Files selected:', files)} />
