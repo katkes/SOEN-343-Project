@@ -2,10 +2,7 @@ import { Request, Response } from 'express';
 import { Logger } from '../configs/logger';
 import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
-import { ENV_VARS } from '../configs/env';
-import jwt from 'jsonwebtoken';
 import 'express-session';
-import { SESSION_TIMEOUT } from '../configs/constants';
 import { createEvent, CreateEventDTO, getAllEvents, getEventById } from '../services/mongo/event';
 
 // Create event validation schema when receiving request
@@ -41,11 +38,9 @@ export async function createEventController(req: Request, res: Response) {
       .json({ message: 'Error occurred while creating a new event.' });
     return;
   }
-  const event = await createEvent(body);
+  await createEvent(body);
 
   // create token for event and store eventId in JWT store
-  const token = jwt.sign({ _id: event._id }, ENV_VARS.JWT_SECRET, { expiresIn: SESSION_TIMEOUT });
-  req.session.token = token;
 
   // return success status
   res.status(StatusCodes.CREATED).json({});
