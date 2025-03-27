@@ -13,3 +13,14 @@ export type UserSignUpDTO =  CredentialsDTO & {
 export type CompanySignUpDTO =  CredentialsDTO & {
   companyName: string
 }
+
+export type EventSignUpDTO = {
+  name: string
+  description: string
+  location: string
+  locationType: string
+  ticketsSold: number
+  maxCapacity: number
+  startDateAndTime: Date
+  timeDurationInMinutes: number
+}

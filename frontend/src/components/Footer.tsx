@@ -15,18 +15,18 @@ export default function Footer() {
             </Link>
           </div>
           <p className="text-sm text-[#44516F] mb-4">
-            For further business and inquiries, feel free to contact us. We are always here to help
+            For further business and inquiries, feel free to contact us. We are always here to help!
           </p>
           <div className="flex items-center gap-2 text-sm text-[#44516F]">
             <PhoneIcon className="w-5 h-5 text-[#4B5FFA]" />
-            <span>+012 (345) 678 99</span>
+            <span>(514) 848-2424</span>
           </div>
         </div>
 
         <div>
           <h4 className="font-semibold mb-3">Resources</h4>
           <ul className="space-y-2 text-sm text-[#44516F]">
-            <li>Saas Development</li>
+            <li>SaaS Development</li>
             <li>Our Products</li>
             <li>User Strategy</li>
           </ul>
@@ -35,10 +35,10 @@ export default function Footer() {
         <div>
           <h4 className="font-semibold mb-3">Company</h4>
           <ul className="space-y-2 text-sm text-[#44516F]">
-            <li>About Landio</li>
+            <li>About Eventful.io</li>
             <li>Contact & Support</li>
             <li>Success History</li>
-            <li>Setting & Privacy</li>
+            <li>Settings & Privacy</li>
           </ul>
         </div>
 
@@ -55,7 +55,7 @@ export default function Footer() {
 
       <div className="max-w-7xl mx-auto mt-12 flex flex-col md:flex-row justify-between items-center border-t border-[#bcd5e8] pt-6">
         <div className="text-sm text-[#44516F] mb-4 md:mb-0">
-          &copy; {new Date().getFullYear()} MegaSoft.
+          &copy; {new Date().getFullYear()} MegaSoft Inc.
         </div>
         <div className="flex space-x-4">
           <a href="#">
