@@ -15,7 +15,8 @@ interface CustomButtonProps {
   children?: ReactNode;
   textSizes?: string;
   onClick?: () => void;
-  disableDefaults?: boolean; // new prop to disable default styling
+  disableDefaults?: boolean;
+  disabled?: boolean;
 }
 
 const CustomButton = ({
