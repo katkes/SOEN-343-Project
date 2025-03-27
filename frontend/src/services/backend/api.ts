@@ -5,13 +5,20 @@ import { FrontEndRoutes } from "../../pages/routes";
 const BASE_URL = ''; // Replace with your backend URL
 
 async function get<T>(url: string) {
-  const response = await fetch(`${BASE_URL}${url}`);
+  const response = await fetch(`${BASE_URL}${url}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
   return handleResponse<T>(response);
 }
 
 async function post<T> (url: string, data?: unknown) {
   const response = await fetch(`${BASE_URL}${url}`, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },

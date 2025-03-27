@@ -23,6 +23,7 @@ import { EventConfirmation } from './pages/EventConfirmation';
 import { EditProfile } from './pages/EditProfile';
 
 import './App.css';
+import { ChatRoom } from './pages/ChatRoom';
 import { SponsorSignUp } from './pages/SponsorSignUp';
 import { EventOrganizerSignUp } from './pages/EventOrganizerSignUp';
 
@@ -52,6 +53,7 @@ const App = () => {
       <Route path={FrontEndRoutes.EventRegistration} element={<EventRegistration />} />
       <Route path={FrontEndRoutes.EventStreaming} element={<EventStreaming />} />
       <Route path={FrontEndRoutes.Discussion} element={<Discussion />} />
+      <Route path={"/message"} element={<ChatRoom />} />
       <Route path={FrontEndRoutes.EventConfirmation} element={<EventConfirmation />} />
       <Route path={FrontEndRoutes.EditProfile} element={<EditProfile />} />
     </Routes>
