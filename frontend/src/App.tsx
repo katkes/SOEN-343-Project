@@ -19,6 +19,7 @@ import { EventDetails } from './pages/EventDetails';
 import { EventRegistration } from './pages/EventRegistration';
 import { EventStreaming } from './pages/EventStreaming';
 import { Discussion} from './pages/Discussion';
+import { EventConfirmation } from './pages/EventConfirmation';
 import { EditProfile } from './pages/EditProfile';
 
 import './App.css';
@@ -51,6 +52,7 @@ const App = () => {
       <Route path={FrontEndRoutes.EventRegistration} element={<EventRegistration />} />
       <Route path={FrontEndRoutes.EventStreaming} element={<EventStreaming />} />
       <Route path={FrontEndRoutes.Discussion} element={<Discussion />} />
+      <Route path={FrontEndRoutes.EventConfirmation} element={<EventConfirmation />} />
       <Route path={FrontEndRoutes.EditProfile} element={<EditProfile />} />
     </Routes>
   </BrowserRouter>

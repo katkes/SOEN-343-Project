@@ -4,8 +4,8 @@ import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import CustomButton from './CustomButton';
 import FileUpload from './FileUpload';
-
-export const userRole = 'attendee';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { CompanyAccount, UserAccount } from '../types/account';
 
 interface EventFormProps {
   editable?: boolean;
@@ -13,6 +13,14 @@ interface EventFormProps {
   isCreating?: boolean;
   role?: string;
   registered?: boolean;
+  eventTitle?: string;
+  eventDescription?: string;
+  eventDate?: string;
+  eventLocation?: string;
+  startTime?: string;
+  endTime?: string;
+  speakers?: string[];
+  address?: string;
 }
 
 const allSpeakers = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Michael Clark'];
@@ -20,27 +28,33 @@ const allSpeakers = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Michael Clark']
 export const EventForm: React.FC<EventFormProps> = ({
   editable = false,
   isCreating = false,
-  role: userRole,
   registered = false,
+  eventTitle: initialTitle = '',
+  eventDescription: initialDescription = '',
+  eventDate: initialDate = '',
+  eventLocation: initialLocation = '',
+  startTime = '09:00 AM',
+  endTime = '05:00 PM',
+  speakers = ['John Doe'],
+  address = '123 Main St',
 }) => {
-  const [eventTitle, setEventTitle] = useState('');
-  const [eventDescription, setEventDescription] = useState('');
-  const [eventDate, setEventDate] = useState('');
-  const [eventLocation, setEventLocation] = useState('');
-  const [eventDetails, setEventDetails] = useState([
-    '09:00 AM',
-    '05:00 PM',
-    ['John Doe'],
-    '123 Main St',
-  ]);
+  const [eventTitle, setEventTitle] = useState(initialTitle);
+  const [eventDescription, setEventDescription] = useState(initialDescription);
+  const [eventDate, setEventDate] = useState(initialDate);
+  const [eventLocation, setEventLocation] = useState(initialLocation);
+  const [eventDetails, setEventDetails] = useState([startTime, endTime, speakers, address]);
 
   const navigate = useNavigate();
   const location = useLocation();
 
+  const account = useAccountInfo();
+  const isEventCreator =
+    account instanceof CompanyAccount ||
+    (account instanceof UserAccount &&
+      ['EventOrganizer', 'Sponsor', 'Admin'].includes(account.role as string));
+
   const [localEditable, setLocalEditable] = useState(editable);
   const formEditable = isCreating ? true : localEditable;
-
-  const isUser = userRole === 'attendee';
 
   const placeholders = {
     title: 'Event Name',
@@ -53,6 +67,17 @@ export const EventForm: React.FC<EventFormProps> = ({
     const newDetails = [...eventDetails];
     newDetails[index] = newValue;
     setEventDetails(newDetails);
+  };
+
+  const eventInfo = {
+    title: eventTitle,
+    description: eventDescription,
+    date: eventDate,
+    location: eventLocation,
+    startTime,
+    endTime,
+    speakers,
+    address,
   };
 
   const MultiSpeakerSelector = ({
@@ -159,7 +184,8 @@ export const EventForm: React.FC<EventFormProps> = ({
                       navigate(
                         registered
                           ? '/event/event-details/streaming'
-                          : '/event/event-details/register'
+                          : '/event/event-details/register',
+                        { state: { event: eventInfo } }
                       );
                     }
                   }}
@@ -167,8 +193,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   {isCreating ? 'Create Event' : registered ? 'Join Stream' : 'Register'}
                 </CustomButton>
               </div>
-              {/* Show Edit button only for organizers */}
-              {location.pathname === '/event/event-details' && !isCreating && !isUser && (
+              {location.pathname === '/event/event-details' && !isCreating && isEventCreator && (
                 <CustomButton
                   className="text-white text-sm font-semibold py-2 rounded-xl"
                   onClick={() => setLocalEditable((prev) => !prev)}
@@ -213,7 +238,8 @@ export const EventForm: React.FC<EventFormProps> = ({
                     navigate(
                       registered
                         ? '/event/event-details/streaming'
-                        : '/event/event-details/register'
+                        : '/event/event-details/register',
+                      { state: { event: eventInfo } }
                     );
                   }
                 }}
