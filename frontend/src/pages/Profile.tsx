@@ -6,7 +6,7 @@ import { useAccountInfo } from '../hooks/useAccountInfo';
 import { useNavigate } from 'react-router-dom';
 import { FrontEndRoutes } from './routes';
 import { useEffect } from 'react';
-
+import { CompanyAccount, UserAccount } from '../types/account';
 
 export const Profile: React.FC = () => {
 
@@ -50,61 +50,112 @@ export const Profile: React.FC = () => {
                   className="w-24 h-24 rounded-full border-4 border-white shadow-md"
                 />
                 <div>
-                  <h1 className="text-2xl font-bold text-[#273266]">John Doe</h1>
-                  <Badge label="Organizer" className="bg-[#DDE6FB] text-sm px-3 py-1 mt-1" />
+                  {account instanceof UserAccount ? (
+                    <>
+                      <Badge label={account.role} className="bg-[#DDE6FB] text-sm px-3 py-1 mt-1" />
+                      <h1 className="text-2xl font-bold text-[#273266]">
+                        {account.firstName} {account.lastName}
+                      </h1>
+                      <p className="text-sm font-medium text-[#273266]">
+                        {account.email} · {account.role}
+                      </p>
+                    </>
+                  ) : account instanceof CompanyAccount ? (
+                    <>
+                      <Badge label={"Company"} className="bg-[#DDE6FB] text-sm px-3 py-1 mt-1" />
+                      <h1 className="text-2xl font-bold text-[#273266]">
+                        {account.companyName}
+                      </h1>
+                      <p className="text-sm font-medium text-[#273266]">
+                        {account.email}
+                      </p>
+                    </>
+                  ) : null}
                 </div>
               </div>
-              <button className="bg-gray-200 hover:bg-gray-300 text-[#273266] font-semibold px-6 py-2 rounded-xl shadow-sm">
+              <button onClick = {() => navigate('/profile/edit')}
+                className="bg-gray-200 hover:bg-gray-300 text-[#273266] font-semibold px-6 py-2 rounded-xl shadow-sm">
                 Edit
               </button>
             </div>
 
-            <div className="mt-6">
-              <h2 className="text-lg font-semibold text-[#273266] mb-2">About Me</h2>
-              <div className="bg-[#DDEEFF] text-[#273266] p-4 rounded-xl text-sm leading-relaxed">
-                Plan, manage, and optimize events with ease—powerful tools for seamless organization
-                and interactive experiences.
+            {account instanceof UserAccount && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div>
+                  <label className="block text-sm font-medium text-[#637381] mb-1">First Name</label>
+                  <input
+                    type="text"
+                    value={account.firstName}
+                    readOnly
+                    className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#637381] mb-1">Last Name</label>
+                  <input
+                    type="text"
+                    value={account.lastName}
+                    readOnly
+                    className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#637381] mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={account.email}
+                    readOnly
+                    className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#637381] mb-1">Role</label>
+                  <input
+                    type="text"
+                    value={account.role}
+                    readOnly
+                    className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <div>
-                <label className="block text-sm font-medium text-[#637381] mb-1">First Name</label>
-                <input
-                  type="text"
-                  value="Jane"
-                  readOnly
-                  className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#637381] mb-1">Last Name</label>
-                <input
-                  type="text"
-                  value="Doe"
-                  readOnly
-                  className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#637381] mb-1">Email</label>
-                <input
-                  type="email"
-                  value="my@organizer.com"
-                  readOnly
-                  className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#637381] mb-1">Role</label>
-                <input
-                  type="text"
-                  value="Organizer"
-                  readOnly
-                  className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
-                />
-              </div>
-            </div>
+            {account instanceof CompanyAccount && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                  <div>
+                    <label className="block text-sm font-medium text-[#637381] mb-1">Company name</label>
+                    <input
+                      type="text"
+                      value={account.companyName}
+                      readOnly
+                      className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#637381] mb-1">Company email</label>
+                    <input
+                      type="text"
+                      value={account.email}
+                      readOnly
+                      className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
+                    />
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <h2 className="text-xl font-semibold text-[#273266] mb-2">My Event Organizers</h2>
+                  {/* Render list or option to view event organizers */}
+                  <div className="bg-[#DDEEFF] text-[#273266] p-4 rounded-xl text-sm">No organizers added yet.</div>
+                </div>
+                <div className="mt-6">
+                  <h2 className="text-xl font-semibold text-[#273266] mb-2">My Sponsors</h2>
+                  {/* Render list or option to view sponsors */}
+                  <div className="bg-[#DDEEFF] text-[#273266] p-4 rounded-xl text-sm">No sponsors added yet.</div>
+                </div>
+              </>
+            )}
+
+
           </div>
         </div>
       </div>
