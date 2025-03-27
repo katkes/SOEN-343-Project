@@ -44,7 +44,7 @@ export const EditProfile: React.FC = () => {
           ? { firstName, lastName }
           : { companyName };
 
-      const response = await fetch('/api/profile', {
+      const response = await fetch('/api/users/edit', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -54,6 +54,7 @@ export const EditProfile: React.FC = () => {
         throw new Error(data.message || 'Failed to update profile');
       }
       console.log('Profile updated successfully.');
+      
       navigate(FrontEndRoutes.Profile);
     } catch (err: unknown) {
       if (err instanceof Error) {
