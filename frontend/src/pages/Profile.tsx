@@ -73,7 +73,7 @@ export const Profile: React.FC = () => {
                   ) : null}
                 </div>
               </div>
-              <button onClick = {() => navigate('/profile/edit')}
+              <button onClick = {() => navigate('/users/edit')}
                 className="bg-gray-200 hover:bg-gray-300 text-[#273266] font-semibold px-6 py-2 rounded-xl shadow-sm">
                 Edit
               </button>
