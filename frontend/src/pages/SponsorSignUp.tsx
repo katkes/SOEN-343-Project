@@ -1,53 +1,50 @@
 import React, { useState } from 'react';
 import { Main } from '../layouts/Main';
+import { useNavigate } from 'react-router';
+import { FrontEndRoutes } from './routes';
 import loginPNG from '../assets/signup.png';
 import { EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import CustomButton from '../components/CustomButton';
 import NavBar from '../components/NavBar';
 import { authService } from '../services/backend/auth';
-import { UserType } from '../types/auth';
-import { useNavigate } from 'react-router-dom';
-import { FrontEndRoutes } from './routes';
 
-export const AttendeeSignUp: React.FC = () => {
+export const SponsorSignUp: React.FC = () => {
+  const [companyName, setCompanyName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [role, setRole] = useState<UserType | ''>('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [erroDisplay, setErrorDisplay] = useState('');
   const navigate = useNavigate();
+  const [errorDisplay, setErrorDisplay] = useState('');
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (role == '') {
-      setErrorDisplay('Please select a role');
-      return;
-    }
     try {
       await authService.userSignUp({
         firstName,
         lastName,
-        role,
+        role: 'Sponsor',
+        companyName,
         email,
         password,
+    
       });
       navigate(FrontEndRoutes.Dashboard);
     } catch (e) {
-      console.error("failed to signup as attendee:", e)
+      console.error("failed to signup as Event Organizer account:", e)
       setErrorDisplay("Email already in use.");
     }
   };
-  
+
   return (
     <Main>
       <div className="min-h-screen bg-[#EAF5FF] flex items-center justify-center px-4 relative">
-        <NavBar showTabs={false} />
+        <NavBar showTabs={false} showSignUpLogIn={false} />
         <div className="flex flex-col-reverse md:flex-row items-center w-full max-w-6xl rounded-xl overflow-hidden shadow-lg p-16 bg-[#EAF5FF] form">
           <div className="w-full md:w-1/2 text-center px-6">
             <img src={loginPNG} alt="SignUp Visual" className="mx-auto w-80 h-80" />
-            <h2 className="text-2xl font-bold mt-6 text-[#273266]">Join as an Attendee</h2>
+            <h2 className="text-2xl font-bold mt-6 text-[#273266]">Sign Up Your Sponsor</h2>
             <p className="mt-2 text-[#637381]">
               Already have an account?{' '}
               <a href="/login" className="text-blue-600 font-medium hover:underline">
@@ -58,9 +55,20 @@ export const AttendeeSignUp: React.FC = () => {
 
           <div className="w-full md:w-1/2 bg-white p-10 rounded-2xl shadow-md">
             <h2 className="text-3xl font-semibold text-center mb-6 text-[#273266]">
-              Attendee Sign Up
+              Sponsor Account
             </h2>
             <form onSubmit={onSubmit} className="space-y-5">
+              <div className="relative">
+                <input
+                  required
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="Company Name"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+
               <div className="relative">
                 <input
                   required
@@ -83,19 +91,6 @@ export const AttendeeSignUp: React.FC = () => {
                 />
               </div>
 
-              <select
-                required
-                value={role}
-                onChange={(e) => setRole(e.target.value as UserType | '')}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              >
-                <option value="" selected disabled>
-                  Choose a Role
-                </option>
-                <option value="Learner">Learner</option>
-                <option value="Speaker">Speaker</option>
-              </select>
-
               <div className="relative">
                 <input
                   required
@@ -103,7 +98,7 @@ export const AttendeeSignUp: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 />
                 {email && (
                   <XMarkIcon
@@ -120,7 +115,7 @@ export const AttendeeSignUp: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 />
                 {password &&
                   (showPassword ? (
@@ -136,10 +131,14 @@ export const AttendeeSignUp: React.FC = () => {
                   ))}
               </div>
 
-              <CustomButton type="submit" width="w-full" hoverColor="hover:bg-[#3b4edb]">
-                Create Attendee Account
+              <CustomButton
+                type="submit"
+                width="w-full"
+                hoverColor="hover:bg-[#3b4edb]"
+              >
+                Create Sponsor Account
               </CustomButton>
-              <p className='text-red-500 w-full text-center'>{erroDisplay}</p>
+              <p className='text-red-500 w-full text-center'>{errorDisplay}</p>
             </form>
           </div>
         </div>
