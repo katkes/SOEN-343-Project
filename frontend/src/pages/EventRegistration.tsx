@@ -1,6 +1,6 @@
 import Sidebar from '../components/Sidebar';
 import CustomButton from '../components/CustomButton';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
 import { useEffect, useState } from 'react';
 import { EventResponseDTO } from '../types/event';
@@ -11,17 +11,6 @@ export const EventRegistration = () => {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventResponseDTO>();
   const navigate = useNavigate();
-  // const { state } = useLocation();
-  // const { event } = state || {};
-
-  // // Fallback event info if not available via state
-  // const displayEvent = {
-  //   title: event?.title || 'AI Conference 2025',
-  //   date: event?.date || 'April 4th 2025',
-  //   location: event?.location || 'SGW Concordia',
-  //   description: event?.description || 'Join us for a conference on Artificial Intelligence.',
-  //   type: event?.type || 'Seminar',
-  // };
 
   const handleCheckout = async () => {
     const validEventId = '645f3b2e8a8f3c0012345678'; // Dummy ID
@@ -49,7 +38,7 @@ export const EventRegistration = () => {
       if (response.ok) {
         console.log('Payment successful:', data);
         // Pass event info to EventConfirmation
-        navigate('/event/confirmation', { state: { event: event } });
+        navigate(`/event/${event?._id}/confirmation`, { state: { event: event } });
       } else {
         console.error('Payment failed:', data.message);
         console.error('Payment error:', data.error);
