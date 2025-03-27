@@ -9,6 +9,7 @@ import 'express-session';
 import { SESSION_TIMEOUT } from '../configs/constants';
 import { userRoles } from '../models/user';
 import { getCompanyByEmail } from '../services/mongo/company';
+import { getAllSpeakers } from '../services/mongo/user';
 
 // Create user validation schema when receiving request
 const createUserBodySchema = z.object({
@@ -81,5 +82,17 @@ export async function getUserByEmailController(req: Request, res: Response) {
     Logger.error('Error retrieving users: ');
     Logger.error('Received error: ', error);
     res.status(500).json({ error: 'Error occurred while getting users.' });
+  }
+}
+
+export async function getAllSpeakersController(req: Request, res: Response) {
+  try {
+    const speakers = await getAllSpeakers();
+    res.status(StatusCodes.OK).json(speakers);
+  } catch (error) {
+    Logger.error('Error retrieving speakers: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: 'Error occurred while getting speakers.' });
   }
 }

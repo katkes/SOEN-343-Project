@@ -10,3 +10,7 @@ export async function createUser(userData: CreateUserDTO) {
 export async function getUserByEmail(email: string) {
   return await User.findOne({ email });
 }
+
+export async function getAllSpeakers() {
+  return await User.find({ role: 'Speaker' });
+}
