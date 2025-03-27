@@ -59,7 +59,15 @@ export const EventForm: React.FC<EventFormProps> = ({
     if (event) {
       setEventTitle(event.name);
       setEventDescription(event.description);
-      setEventDate(new Date(event.startDateAndTime).toLocaleDateString('en-CA')); // Format as yyyy-mm-dd
+      setEventDate(
+        `${new Date(event.startDateAndTime).toLocaleDateString('en-CA')} ${new Date(
+          event.startDateAndTime
+        ).toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: true,
+        })}`
+      ); // Format as 'mm/dd/yyyy hh:mm AM/PM'
       setEventLocation(event.location);
       setLocationType(event.locationType);
       setMaxCapacity(event.maxCapacity);
@@ -186,8 +194,8 @@ export const EventForm: React.FC<EventFormProps> = ({
                     } else {
                       navigate(
                         registered
-                          ? '/event/event-details/streaming'
-                          : '/event/event-details/register'
+                          ? `/event/${event._id}/streaming`
+                          : `/event/${event._id}/register`
                       );
                     }
                   }}
@@ -296,8 +304,8 @@ export const EventForm: React.FC<EventFormProps> = ({
                   } else {
                     navigate(
                       registered
-                        ? '/event/event-details/streaming'
-                        : '/event/event-details/register'
+                        ? `/event/${event._id}/streaming`
+                        : `/event/${event._id}/register`
                     );
                   }
                 }}
