@@ -47,21 +47,28 @@ const CreateEventForm = () => {
       <div className="text-[#273266] rounded-xl shadow border-0.5">
         <div className="flex flex-col justify-center banner py-12 px-12 gap-6">
           <div className="flex flex-col md:flex-row gap-4 text-white text-sm font-medium">
-            <input
-              type="datetime-local"
-              id="eventDate"
-              name="eventDate"
-              value={eventDate}
-              onChange={(e) => setEventDate(e.target.value)}
-              className="bg-transparent placeholder-gray-100 border-b border-white/50 focus:border-white outline-none w-fit"
-            />
-            <input
-              type="text"
-              value={eventLocation}
-              onChange={(e) => setEventLocation(e.target.value)}
-              className="bg-transparent placeholder-gray-100 border-b border-white/50 focus:border-white outline-none w-fit"
-              placeholder="Location"
-            />
+            <div className="flex items-center gap-2">
+              <span>📅</span>
+              <input
+                type="datetime-local"
+                id="eventDate"
+                name="eventDate"
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
+                className="bg-transparent placeholder-gray-100 border-b border-white/50 focus:border-white outline-none w-fit"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span>📍</span>
+              <input
+                type="text"
+                value={eventLocation}
+                onChange={(e) => setEventLocation(e.target.value)}
+                className="bg-transparent placeholder-gray-100 border-b border-white/50 focus:border-white outline-none w-fit"
+                placeholder="Location"
+              />
+            </div>
+            
           </div>
 
           <input
@@ -71,12 +78,13 @@ const CreateEventForm = () => {
             placeholder="Event Title"
           />
 
-          <div className="bg-white w-2/5 rounded-xl p-1">
+          <div className="bg-white w-3/6 rounded-xl p-1">
             <textarea
               value={eventDescription}
               onChange={(e) => setEventDescription(e.target.value)}
               className="text-sm text-gray-500 w-full p-2 rounded-xl bg-white outline-none"
               placeholder="Description"
+              rows={6}
             />
           </div>
         </div>
