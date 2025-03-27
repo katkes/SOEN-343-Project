@@ -40,7 +40,7 @@ DTSTART:${formatDate(startTime)}
 DTEND:${formatDate(endTime)}
 SUMMARY:${subject}
 DESCRIPTION:${description}
-ORGANIZER;CN=Your Name:mailto:eventfulio99@gmail.com
+ORGANIZER;CN=Your Name:mailto:${process.env.EMAIL}
 ATTENDEE;CN=Invitee;RSVP=TRUE:mailto:${to}
 END:VEVENT
 END:VCALENDAR`;
