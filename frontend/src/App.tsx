@@ -22,14 +22,19 @@ import { Discussion} from './pages/Discussion';
 
 import './App.css';
 import { ChatRoom } from './pages/ChatRoom';
+import { SponsorSignUp } from './pages/SponsorSignUp';
+import { EventOrganizerSignUp } from './pages/EventOrganizerSignUp';
 
 
-const App = () => (
-  <BrowserRouter>
+const App = () => {
+
+  return <BrowserRouter>
     <Routes>
       <Route path={FrontEndRoutes.Home} element={<Home />} />
       <Route path={FrontEndRoutes.Login} element={<Login />} />
       <Route path={FrontEndRoutes.SignUp} element={<SignUp />} />
+      <Route path={FrontEndRoutes.SponsorSignUp} element={<SponsorSignUp />} />
+      <Route path={FrontEndRoutes.EventOrganizerSignUp} element={<EventOrganizerSignUp />} />
       <Route path={FrontEndRoutes.CompanySignUp} element={<CompanySignUp />} />
       <Route path={FrontEndRoutes.AttendeeSignUp} element={<AttendeeSignUp />} />
       <Route path={FrontEndRoutes.CreateCompanyUser} element={<CreateCompanyUser />} />
@@ -49,6 +54,6 @@ const App = () => (
       <Route path={"/message"} element={<ChatRoom />} />
     </Routes>
   </BrowserRouter>
-);
+};
 
 export default App;

@@ -3,6 +3,8 @@ import Sidebar from '../components/Sidebar';
 import dashboardGraphic from '../assets/dashboard-graphic.png';
 import Badge from '../components/Badge';
 import { useNavigate } from 'react-router-dom';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { CompanyAccount, UserAccount } from '../types/account';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -12,12 +14,24 @@ export const Dashboard: React.FC = () => {
     day: 'numeric',
     year: 'numeric',
   });
+  
+  const account = useAccountInfo();
+  
+  // LOGIC FOR EACH USERS.
+  console.log("is company:", account instanceof CompanyAccount);
+  console.log("is user:", account instanceof UserAccount);
+  if (account instanceof UserAccount) {
+    console.log("User account role:", account.role);
+  }
+  // LOGIC FOR EACH USERS.
+
   return (
     <Main>
       <div className="flex h-screen overflow-hidden bg-[#EAF5FF]">
         <Sidebar />
 
         <div className="flex-1 overflow-y-auto bg-[#EAF5FF] p-8">
+          
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-4xl font-bold text-[#273266] bg-white px-6 py-2 rounded-full shadow">
               Dashboard
@@ -27,6 +41,7 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
+          {/*  */}
           <div className="flex items-center justify-between bg-white p-6 rounded-2xl shadow mb-8">
             <div>
               <p className="text-sm text-[#637381]">
@@ -104,8 +119,35 @@ export const Dashboard: React.FC = () => {
                 </div>
               ))}
             </div>
+
+            
+          </div>
+          <div className="flex items-center justify-center bg-white p-6 rounded-2xl shadow mt-8">
+            <div className="text-center">
+              <p className="text-[#637381]">
+                Are you a sponsor?{' '}
+                <a
+                  href="/signup/sponsor"
+                  className="text-blue-600 hover:underline"
+                >
+                  Sign up here
+                </a>
+                .
+              </p>
+              <p className="text-[#637381] mt-2">
+                Want to organize events?{' '}
+                <a
+                  href="/signup/eventorganizer"
+                  className="text-blue-600 hover:underline"
+                >
+                  Join us as an organizer
+                </a>
+                .
+              </p>
+            </div>
           </div>
         </div>
+        
       </div>
     </Main>
   );
