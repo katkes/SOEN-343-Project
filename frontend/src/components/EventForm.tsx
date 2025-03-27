@@ -7,6 +7,8 @@ import FileUpload from './FileUpload';
 import { EventResponseDTO } from '../types/event';
 
 export const userRole = 'attendee';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { CompanyAccount, UserAccount } from '../types/account';
 
 interface EventFormProps {
   editable?: boolean;
@@ -22,7 +24,6 @@ interface EventFormProps {
 export const EventForm: React.FC<EventFormProps> = ({
   editable = false,
   isCreating = false,
-  role: userRole,
   registered = false,
   event
 }) => {
@@ -46,7 +47,12 @@ export const EventForm: React.FC<EventFormProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  // TODO: Maybe remove placeholders now that we have actual event data
+  const account = useAccountInfo();
+  const isEventCreator =
+    account instanceof CompanyAccount ||
+    (account instanceof UserAccount &&
+      ['EventOrganizer', 'Sponsor', 'Admin'].includes(account.role as string));
+
   const placeholders = {
     title: 'Event Name',
     description: 'Add a description to your event',
@@ -210,9 +216,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   {isCreating ? 'Create Event' : registered ? 'Join Stream' : 'Register'}
                 </CustomButton>
               </div>
-
-              {/* Show Edit button only for organizers */}
-              {location.pathname === '/event/event-details' && !isCreating && !isUser && (
+              {location.pathname === '/event/event-details' && !isCreating && isEventCreator && (
                 <CustomButton
                   className="text-white text-sm font-semibold py-2 rounded-xl"
                   onClick={() => setLocalEditable((prev) => !prev)}

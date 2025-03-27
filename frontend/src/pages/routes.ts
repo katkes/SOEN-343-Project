@@ -9,7 +9,7 @@ export const FrontEndRoutes = {
   EventOrganizerSignUp: '/signup/eventOrganizer',
   CreateCompanyUser: '/signup/company-user',
   Events: '/events',
-  EventDetails: '/event/:id/details',
+  
   Schedule: '/schedule',
   Community: '/community',
   Discussion: '/community/discussion',
@@ -19,5 +19,7 @@ export const FrontEndRoutes = {
   Support: '/support',
   Profile: '/profile',
   EventRegistration: '/event/:id/register',
+  EventDetails: '/event/:id/details',
   EventStreaming: '/event/:id/streaming',
+  EventConfirmation: '/event/confirmation',
 } as const;

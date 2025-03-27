@@ -5,19 +5,22 @@ import CustomButton from '../components/CustomButton';
 import { useNavigate } from 'react-router-dom';
 import CreateEventForm from '../components/CreateEventForm';
 import { PageHeader } from '../components/PageHeader';
-
-export const userRole = 'organizer';
-
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { CompanyAccount, UserAccount } from '../types/account';
 
 const Events = () => {
+  const account = useAccountInfo();
+  const isEventCreator =
+    account instanceof CompanyAccount ||
+    (account instanceof UserAccount &&
+      (['EventOrganizer', 'Sponsor', 'Admin'].includes(account.role as string)));
+
   const [creatingNewEvent, setCreatingNewEvent] = useState(false);
   const navigate = useNavigate();
 
   const [selectedEventType, setSelectedEventType] = useState<'myEvents' | 'otherEvents' | null>(
     'myEvents'
   );
-
-  const isEventCreator = (userRole as string) !== 'attendee';
 
   const allEvents = [
     {
@@ -140,8 +143,8 @@ const Events = () => {
                           onClick={() =>
                             navigate('/event/event-details', {
                               state: {
-                                registered: event.isUserRegistered,
-                                editable: isEventCreator && selectedEventType === 'myEvents',
+                                event,
+                                editable: isEventCreator && selectedEventType === 'myEvents'
                               },
                             })
                           }

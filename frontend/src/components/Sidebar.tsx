@@ -16,11 +16,30 @@ import { useNavigate, useLocation } from 'react-router';
 import { FrontEndRoutes } from '../pages/routes';
 import { authService } from '../services/backend/auth';
 import { useEffect, useState } from 'react';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { CompanyAccount, UserAccount } from '../types/account';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [active, setActive] = useState('');
+
+  const account = useAccountInfo();
+
+  let userFirstName: string;
+  if (account && account instanceof UserAccount) {
+    userFirstName = account.firstName;
+  } else {
+    const nameParts = (account?.name || 'John Doe').split(' ');
+    userFirstName = nameParts[0];
+  }
+
+  // LOGIC FOR EACH USERS.
+  console.log('is company:', account instanceof CompanyAccount);
+  console.log('is user:', account instanceof UserAccount);
+  if (account instanceof UserAccount) {
+    console.log('User account role:', account.role);
+  }
 
   const menuItems = [
     { name: 'Dashboard', icon: Squares2X2Icon, route: FrontEndRoutes.Dashboard },
@@ -98,7 +117,11 @@ const Sidebar = () => {
           <img src={Avatar} alt="Avatar" className="w-10 h-10 rounded-full" />
           <div>
             <p className="text-sm text-[#637381]">Welcome back 👋</p>
-            <p className="text-sm font-medium text-[#273266]">John · Organizer</p>
+            {account instanceof UserAccount && (
+              <p className="text-sm font-medium text-[#273266]">
+                {userFirstName} · {account.role}
+              </p>
+            )}
           </div>
         </div>
       </div>

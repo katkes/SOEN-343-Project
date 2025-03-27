@@ -1,7 +1,6 @@
 import Sidebar from '../components/Sidebar';
-// import { useState } from 'react';
 import CustomButton from '../components/CustomButton';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
 import { useEffect, useState } from 'react';
 import { EventResponseDTO } from '../types/event';
@@ -12,6 +11,53 @@ export const EventRegistration = () => {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventResponseDTO>();
   const navigate = useNavigate();
+  // const { state } = useLocation();
+  // const { event } = state || {};
+
+  // // Fallback event info if not available via state
+  // const displayEvent = {
+  //   title: event?.title || 'AI Conference 2025',
+  //   date: event?.date || 'April 4th 2025',
+  //   location: event?.location || 'SGW Concordia',
+  //   description: event?.description || 'Join us for a conference on Artificial Intelligence.',
+  //   type: event?.type || 'Seminar',
+  // };
+
+  const handleCheckout = async () => {
+    const validEventId = '645f3b2e8a8f3c0012345678'; // Dummy ID
+    const validUserId = '645f3b2e8a8f3c0012345679'; // Dummy ID
+
+    const paymentMethodId = 'pm_card_visa'; // Possibly replace with a different payment method, hardcode for now
+
+    const payload = {
+      eventId: validEventId, // TODO: Replace with real event ID
+      userId: validUserId, // TODO: Replace with real user ID
+      amount: 5000, // TODO: Replace with event ticket price in cents
+      currency: 'cad', // Could use 'usd' as well
+      paymentMethod: paymentMethodId, // Replace with Stripe PaymentMethod ID from Stripe Elements
+    };
+
+    try {
+      const response = await fetch('/api/payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Payment successful:', data);
+        // Pass event info to EventConfirmation
+        navigate('/event/confirmation', { state: { event: event } });
+      } else {
+        console.error('Payment failed:', data.message);
+        console.error('Payment error:', data.error);
+      }
+    } catch (error) {
+      console.error('Error during checkout:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -59,6 +105,24 @@ export const EventRegistration = () => {
 
         {/* Payment Form */}
         <div className="bg-white rounded-b-xl px-10 pb-10 pt-5 shadow mx-auto -mt-6">
+          Payment Tabs
+          {/* <div className="flex gap-4">
+            {['Card', 'EPS', 'Giropay'].map((method) => (
+              <CustomButton
+                key={method}
+                onClick={() => setPaymentMethod(method)}
+                disableDefaults
+                className={`px-6 py-3 rounded-lg text-sm font-medium border ${
+                  paymentMethod === method
+                    ? 'border-[#3D50FF] text-[#3D50FF] bg-[#F0F4FF]'
+                    : 'border-gray-200 text-gray-500 bg-white'
+                }`}
+              >
+                {method}
+              </CustomButton>
+            ))}
+          </div> */}
+
           {/* Card Details */}
           <div className="space-y-4 pt-6">
             <div>
@@ -110,7 +174,7 @@ export const EventRegistration = () => {
           </div>
 
           <CustomButton
-            onClick={() => navigate('/events')}
+            onClick={handleCheckout}
             className="bg-[#3D50FF] w-full py-3 text-white rounded-xl font-bold mt-6"
           >
             Checkout
