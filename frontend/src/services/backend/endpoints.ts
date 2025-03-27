@@ -15,5 +15,6 @@ export const Endpoints = {
   Event: {
     Create: "/api/event",
     GetAll: "/api/event",
+    GetById: "/api/event/:id",
   }
 } as const;
