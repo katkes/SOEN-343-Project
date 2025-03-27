@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Badge from '../components/Badge';
 import CustomButton from '../components/CustomButton';
@@ -7,7 +7,10 @@ import CreateEventForm from '../components/CreateEventForm';
 import { PageHeader } from '../components/PageHeader';
 import { useAccountInfo } from '../hooks/useAccountInfo';
 import { CompanyAccount, UserAccount } from '../types/account';
+import { eventService } from '../services/backend/event';
+import { EventResponseDTO } from '../types/event';
 
+// TO-DO: For now, it's called My Events, but it's actually showcasing all events. We will need to add bridging tables in the future to showcase all the events associated with the logged in user.
 const Events = () => {
   const account = useAccountInfo();
   const isEventCreator =
@@ -15,6 +18,7 @@ const Events = () => {
     (account instanceof UserAccount &&
       (['EventOrganizer', 'Sponsor', 'Admin'].includes(account.role as string)));
 
+  const [events, setEvents] = useState<EventResponseDTO[]>([]);
   const [creatingNewEvent, setCreatingNewEvent] = useState(false);
   const navigate = useNavigate();
 
@@ -22,51 +26,63 @@ const Events = () => {
     'myEvents'
   );
 
-  const allEvents = [
-    {
-      title: 'Security Workshop',
-      speaker: 'Jane Doe',
-      date: 'April 4th 2025',
-      location: 'SGW Campus',
-      organizer: 'MegaSoft Inc',
-      type: 'hybrid',
-      isUserRegistered: true,
-    },
-    {
-      title: 'AI Conference',
-      speaker: 'John Smith',
-      date: 'May 10th 2025',
-      location: 'Loyola Campus',
-      organizer: 'TechWorld',
-      type: 'in-person',
-      isUserRegistered: true,
-    },
-    {
-      title: 'Cloud Computing Seminar',
-      speaker: 'Alice Johnson',
-      date: 'June 15th 2025',
-      location: 'Online',
-      organizer: 'CloudTech',
-      type: 'virtual',
-      isUserRegistered: true,
-    },
-    {
-      title: 'Cybersecurity Meetup',
-      speaker: 'Bob Brown',
-      date: 'July 20th 2025',
-      location: 'SGW Campus',
-      organizer: 'SecureNet',
-      type: 'hybrid',
-      isUserRegistered: false,
-    },
-  ];
+  // const allEvents = [
+  //   {
+  //     title: 'Security Workshop',
+  //     speaker: 'Jane Doe',
+  //     date: 'April 4th 2025',
+  //     location: 'SGW Campus',
+  //     organizer: 'MegaSoft Inc',
+  //     type: 'hybrid',
+  //     isUserRegistered: true,
+  //   },
+  //   {
+  //     title: 'AI Conference',
+  //     speaker: 'John Smith',
+  //     date: 'May 10th 2025',
+  //     location: 'Loyola Campus',
+  //     organizer: 'TechWorld',
+  //     type: 'in-person',
+  //     isUserRegistered: true,
+  //   },
+  //   {
+  //     title: 'Cloud Computing Seminar',
+  //     speaker: 'Alice Johnson',
+  //     date: 'June 15th 2025',
+  //     location: 'Online',
+  //     organizer: 'CloudTech',
+  //     type: 'virtual',
+  //     isUserRegistered: true,
+  //   },
+  //   {
+  //     title: 'Cybersecurity Meetup',
+  //     speaker: 'Bob Brown',
+  //     date: 'July 20th 2025',
+  //     location: 'SGW Campus',
+  //     organizer: 'SecureNet',
+  //     type: 'hybrid',
+  //     isUserRegistered: false,
+  //   },
+  // ];
 
-  const fileredEvents = allEvents.filter((event) => {
-    if (selectedEventType === 'myEvents') {
-      return event.isUserRegistered;
-    }
-    return !event.isUserRegistered;
-  });
+  // Fetch events from the backend
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await eventService.getAllEvents();
+        const fetchedEvents = response.map((event: EventResponseDTO) => ({
+          ...event,
+          speaker: 'Test Speaker', // Default speaker
+          tags: ['NEW!'], // Default tags
+        }));
+        setEvents(fetchedEvents);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   return (
     <div className="flex bg-[#EAF5FF] min-h-screen">
@@ -136,12 +152,12 @@ const Events = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {fileredEvents.map((event, idx) => (
+                      {events.map((event, idx) => (
                         <tr
                           key={idx}
                           className="border-b cursor-pointer hover:bg-gray-100"
                           onClick={() =>
-                            navigate('/event/event-details', {
+                            navigate(`/event/${event._id}/details`, {
                               state: {
                                 event,
                                 editable: isEventCreator && selectedEventType === 'myEvents'
@@ -149,23 +165,32 @@ const Events = () => {
                             })
                           }
                         >
-                          <td className="px-4 py-3">{event.title}</td>
-                          <td className="px-4 py-3">{event.speaker}</td>
-                          <td className="px-4 py-3">{event.date}</td>
+                          <td className="px-4 py-3">{event.name}</td>
+                          <td className="px-4 py-3">Nicolas MacBeth</td>
+                          <td className="px-4 py-3">{event?.startDateAndTime
+                            ? new Date(event.startDateAndTime).toLocaleDateString('en-US', {
+                              month: 'long',
+                              day: 'numeric',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                              hour12: true,
+                            })
+                            : ''} </td>
                           <td className="px-4 py-3">
                             <Badge
-                              label={event.type}
+                              label={event.locationType}
                               className={`${
-                                event.type === 'virtual'
+                                event.locationType === 'virtual'
                                   ? 'bg-blue-100 text-blue-600'
-                                  : event.type === 'in-person'
+                                  : event.locationType === 'in-person'
                                     ? 'bg-green-100 text-green-600'
                                     : 'bg-purple-100 text-purple-600'
                               } px-3 py-1 text-xs`}
                             />
                           </td>
                           <td className="px-4 py-3">{event.location}</td>
-                          <td className="px-4 py-3">{event.organizer}</td>
+                          <td className="px-4 py-3">Google</td>
                         </tr>
                       ))}
                     </tbody>
