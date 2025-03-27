@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import CustomButton from '../components/CustomButton';
-import { userRoleE } from '../pages/Events';
 import { PageHeader } from '../components/PageHeader';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { CompanyAccount, UserAccount } from '../types/account';
 
 export const EventStreaming = () => {
   const [message, setMessage] = useState('');
@@ -26,7 +27,11 @@ export const EventStreaming = () => {
     location: event?.location || '',
   };
 
-  const isEventCreator = (userRoleE as string) !== 'attendee';
+  const account = useAccountInfo();
+  const isEventCreator =
+    account instanceof CompanyAccount ||
+    (account instanceof UserAccount &&
+      (['EventOrganizer', 'Sponsor', 'Admin', 'Speaker'].includes(account.role as string)));
 
   const handleSend = () => {
     if (message.trim()) {

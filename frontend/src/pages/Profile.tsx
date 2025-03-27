@@ -2,8 +2,19 @@ import { Main } from '../layouts/Main';
 import Sidebar from '../components/Sidebar';
 import Badge from '../components/Badge';
 import profilePic from '../assets/avatar.png';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { UserAccount } from '../types/account';
 
 export const Profile: React.FC = () => {
+  const account = useAccountInfo();
+  const userName = "John Doe";
+  const userEmail = account?.email || "my@organizer.com";
+  const userRole =
+    account && account instanceof UserAccount
+      ? account.role
+      : account
+        ? "Company"
+        : "Organizer";
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -34,8 +45,8 @@ export const Profile: React.FC = () => {
                   className="w-24 h-24 rounded-full border-4 border-white shadow-md"
                 />
                 <div>
-                  <h1 className="text-2xl font-bold text-[#273266]">John Doe</h1>
-                  <Badge label="Organizer" className="bg-[#DDE6FB] text-sm px-3 py-1 mt-1" />
+                  <h1 className="text-2xl font-bold text-[#273266]">{userName}</h1>
+                  <Badge label={userRole} className="bg-[#DDE6FB] text-sm px-3 py-1 mt-1" />
                 </div>
               </div>
               <button className="bg-gray-200 hover:bg-gray-300 text-[#273266] font-semibold px-6 py-2 rounded-xl shadow-sm">
@@ -56,7 +67,7 @@ export const Profile: React.FC = () => {
                 <label className="block text-sm font-medium text-[#637381] mb-1">First Name</label>
                 <input
                   type="text"
-                  value="Jane"
+                  value={userName.split(' ')[0]}
                   readOnly
                   className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
                 />
@@ -65,7 +76,7 @@ export const Profile: React.FC = () => {
                 <label className="block text-sm font-medium text-[#637381] mb-1">Last Name</label>
                 <input
                   type="text"
-                  value="Doe"
+                  value={userName.split(' ')[1] || ''}
                   readOnly
                   className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
                 />
@@ -74,7 +85,7 @@ export const Profile: React.FC = () => {
                 <label className="block text-sm font-medium text-[#637381] mb-1">Email</label>
                 <input
                   type="email"
-                  value="my@organizer.com"
+                  value={userEmail}
                   readOnly
                   className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
                 />
@@ -83,7 +94,7 @@ export const Profile: React.FC = () => {
                 <label className="block text-sm font-medium text-[#637381] mb-1">Role</label>
                 <input
                   type="text"
-                  value="Organizer"
+                  value={userRole}
                   readOnly
                   className="w-full p-3 rounded-xl bg-[#F4F6F8] text-[#273266] font-medium"
                 />

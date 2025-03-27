@@ -14,14 +14,14 @@ export const Dashboard: React.FC = () => {
     day: 'numeric',
     year: 'numeric',
   });
-  
+
   const account = useAccountInfo();
-  
+
   // LOGIC FOR EACH USERS.
-  console.log("is company:", account instanceof CompanyAccount);
-  console.log("is user:", account instanceof UserAccount);
+  console.log('is company:', account instanceof CompanyAccount);
+  console.log('is user:', account instanceof UserAccount);
   if (account instanceof UserAccount) {
-    console.log("User account role:", account.role);
+    console.log('User account role:', account.role);
   }
   // LOGIC FOR EACH USERS.
 
@@ -31,7 +31,6 @@ export const Dashboard: React.FC = () => {
         <Sidebar />
 
         <div className="flex-1 overflow-y-auto bg-[#EAF5FF] p-8">
-          
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-4xl font-bold text-[#273266] bg-white px-6 py-2 rounded-full shadow">
               Dashboard
@@ -44,21 +43,69 @@ export const Dashboard: React.FC = () => {
           {/*  */}
           <div className="flex items-center justify-between bg-white p-6 rounded-2xl shadow mb-8">
             <div>
-              <p className="text-sm text-[#637381]">
-                My Role /{' '}
-                <Badge
-                  label={'Organizer'}
-                  display="inline-block"
-                  className="bg-white text-center w-fit px-3 py-1 text-xs shadow"
-                />
-              </p>
-              <h2 className="text-3xl font-extrabold text-[#273266] mt-2">
-                Be a Great Event Organizer
-              </h2>
-              <p className="text-[#637381] mt-2 max-w-lg">
-                Plan, manage, and optimize events with ease—powerful tools for seamless organization
-                and interactive experiences.
-              </p>
+              {account instanceof UserAccount ? (
+                <>
+                  <p className="text-sm text-[#637381]">
+                    My Role /{' '}
+                    <Badge
+                      label={account.role}
+                      display="inline-block"
+                      className="bg-white text-center w-fit px-3 py-1 text-xs shadow"
+                    />
+                  </p>
+                  {account.role === 'EventOrganizer' ? (
+                    <>
+                      <h2 className="text-3xl font-extrabold text-[#273266] mt-2">
+                        Be a Great Event Organizer
+                      </h2>
+                      <p className="text-[#637381] mt-2 max-w-lg">
+                        Plan, manage, and optimize events with innovative tools for outstanding
+                        experiences.
+                      </p>
+                    </>
+                  ) : account.role === 'Learner' ? (
+                    <>
+                      <h2 className="text-3xl font-extrabold text-[#273266] mt-2">
+                        Discover Your Next Event
+                      </h2>
+                      <p className="text-[#637381] mt-2 max-w-lg">
+                        Explore events curated for your interests and join experiences that inspire
+                        you.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <h2 className="text-3xl font-extrabold text-[#273266] mt-2">
+                        Welcome to Your Dashboard
+                      </h2>
+                      <p className="text-[#637381] mt-2 max-w-lg">
+                        Stay updated with the latest events and personalized recommendations.
+                      </p>
+                    </>
+                  )}
+                </>
+              ) : account instanceof CompanyAccount ? (
+                <>
+                  <p className="text-sm text-[#637381]">
+                    Company Account /{' '}
+                    <Badge
+                      label="Company"
+                      display="inline-block"
+                      className="bg-white text-center w-fit px-3 py-1 text-xs shadow"
+                    />
+                  </p>
+                  <h2 className="text-3xl font-extrabold text-[#273266] mt-2">
+                    Manage Your Company Events
+                  </h2>
+                  <p className="text-[#637381] mt-2 max-w-lg">
+                    Leverage powerful tools to streamline event management and boost audience
+                    engagement.
+                  </p>
+                </>
+              ) : (
+                // Fallback for other account types
+                <p className="text-sm text-[#637381]">Welcome to your dashboard.</p>
+              )}
             </div>
             <img
               src={dashboardGraphic}
@@ -119,27 +166,19 @@ export const Dashboard: React.FC = () => {
                 </div>
               ))}
             </div>
-
-            
           </div>
           <div className="flex items-center justify-center bg-white p-6 rounded-2xl shadow mt-8">
             <div className="text-center">
               <p className="text-[#637381]">
                 Are you a sponsor?{' '}
-                <a
-                  href="/signup/sponsor"
-                  className="text-blue-600 hover:underline"
-                >
+                <a href="/signup/sponsor" className="text-blue-600 hover:underline">
                   Sign up here
                 </a>
                 .
               </p>
               <p className="text-[#637381] mt-2">
                 Want to organize events?{' '}
-                <a
-                  href="/signup/eventorganizer"
-                  className="text-blue-600 hover:underline"
-                >
+                <a href="/signup/eventorganizer" className="text-blue-600 hover:underline">
                   Join us as an organizer
                 </a>
                 .
@@ -147,7 +186,6 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
-        
       </div>
     </Main>
   );

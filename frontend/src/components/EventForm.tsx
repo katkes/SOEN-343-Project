@@ -4,7 +4,8 @@ import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import CustomButton from './CustomButton';
 import FileUpload from './FileUpload';
-import { userRoleE } from '../pages/Events';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { CompanyAccount, UserAccount } from '../types/account';
 
 interface EventFormProps {
   editable?: boolean;
@@ -12,7 +13,6 @@ interface EventFormProps {
   isCreating?: boolean;
   role?: string;
   registered?: boolean;
-  // New optional props for event details
   eventTitle?: string;
   eventDescription?: string;
   eventDate?: string;
@@ -28,9 +28,7 @@ const allSpeakers = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Michael Clark']
 export const EventForm: React.FC<EventFormProps> = ({
   editable = false,
   isCreating = false,
-  role: userRole,
   registered = false,
-  // Destructure new props with default values
   eventTitle: initialTitle = '',
   eventDescription: initialDescription = '',
   eventDate: initialDate = '',
@@ -40,25 +38,23 @@ export const EventForm: React.FC<EventFormProps> = ({
   speakers = ['John Doe'],
   address = '123 Main St',
 }) => {
-  // Update state initialization to use the passed values
   const [eventTitle, setEventTitle] = useState(initialTitle);
   const [eventDescription, setEventDescription] = useState(initialDescription);
   const [eventDate, setEventDate] = useState(initialDate);
   const [eventLocation, setEventLocation] = useState(initialLocation);
-  const [eventDetails, setEventDetails] = useState([
-    startTime,
-    endTime,
-    speakers,
-    address,
-  ]);
+  const [eventDetails, setEventDetails] = useState([startTime, endTime, speakers, address]);
 
   const navigate = useNavigate();
   const location = useLocation();
 
+  const account = useAccountInfo();
+  const isEventCreator =
+    account instanceof CompanyAccount ||
+    (account instanceof UserAccount &&
+      ['EventOrganizer', 'Sponsor', 'Admin'].includes(account.role as string));
+
   const [localEditable, setLocalEditable] = useState(editable);
   const formEditable = isCreating ? true : localEditable;
-
-  const isUser = userRole === userRoleE;
 
   const placeholders = {
     title: 'Event Name',
@@ -197,8 +193,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   {isCreating ? 'Create Event' : registered ? 'Join Stream' : 'Register'}
                 </CustomButton>
               </div>
-              {/* Show Edit button only for organizers */}
-              {location.pathname === '/event/event-details' && !isCreating && !isUser && (
+              {location.pathname === '/event/event-details' && !isCreating && isEventCreator && (
                 <CustomButton
                   className="text-white text-sm font-semibold py-2 rounded-xl"
                   onClick={() => setLocalEditable((prev) => !prev)}

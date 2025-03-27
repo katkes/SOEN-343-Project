@@ -2,7 +2,6 @@ import { useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';
 import EventForm from '../components/EventForm';
-import { userRoleE } from '../pages/Events';
 
 const EventDetails = () => {
   const location = useLocation();
@@ -14,7 +13,6 @@ const EventDetails = () => {
       <main className="flex-1 p-6 space-y-6">
         <PageHeader pageName="Event Details" />
         <EventForm
-          role={userRoleE}
           onSubmit={() => console.log('Event created/updated!')}
           eventTitle={event?.title || 'Tech Conference 2025'}
           eventDescription={event?.description || 'A conference about the latest in tech.'}
