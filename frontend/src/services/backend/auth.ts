@@ -1,5 +1,6 @@
 
-import { CompanySignUpDTO, CredentialsDTO, EventSignUpDTO, UserSignUpDTO } from '../../types/auth';
+import { CompanySignUpDTO, CredentialsDTO, UserSignUpDTO } from '../../types/auth';
+import { CreateEventDTO } from '../../types/event';
 import { api } from './api';
 import { Endpoints } from './endpoints';
 
@@ -20,7 +21,7 @@ async function companySignUp (user: CompanySignUpDTO) {
   await api.post<void>(Endpoints.Company.SignUp, user);
 }
 
-async function createEvent (event: EventSignUpDTO) {
+async function createEvent (event: CreateEventDTO) {
   await api.post<void>(Endpoints.Event.Create, event);
 }
 

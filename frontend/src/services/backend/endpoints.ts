@@ -10,6 +10,7 @@ export const Endpoints = {
     SignUp: "/api/company"
   },
   Event: {
-    Create: "/api/event"
+    Create: "/api/event",
+    GetAll: "/api/event",
   }
 } as const;

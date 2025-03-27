@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import CustomButton from '../components/CustomButton';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const EventDetails = () => {
+  // State to store event details
+  const { id } = useParams<{ id: string }>();
+  const [event, setEvent] = useState<any>(null);
+
+
   // Updated initial state with dummy data
   const [eventTitle, setEventTitle] = useState('AI Conference 2025');
   const [eventDescription, setEventDescription] = useState(
@@ -19,6 +24,33 @@ const EventDetails = () => {
     month: 'long',
     day: 'numeric',
   });
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        // // const response = await axios.get(`http://localhost:3000/api/event/${id}`);
+        // setEvent(response.data); // Set the event details
+      } catch (error) {
+        console.error('Error fetching event:', error);
+      }
+    };
+
+    if (id) {
+      fetchEvent();
+    }
+  }, [id]);
+
+  if (!event) {
+    return (
+      <div className="flex bg-[#EAF5FF]">
+        <Sidebar />
+        <main className="flex-1 p-6 space-y-6">
+          <div>Loading...</div>;
+        </main>
+      </div>
+    );
+  };
+  
 
   return (
     <div className="flex bg-[#EAF5FF]">

@@ -63,3 +63,16 @@ export async function getAllEventsController(req: Request, res: Response) {
       .json({ message: 'Error occurred while retrieving events.' });
   }
 }
+
+// Get all events from MongoDB
+export async function getEventById(req: Request, res: Response) {
+  try {
+    const events = await getAllEvents();
+    res.status(StatusCodes.OK).json(events);
+  } catch (error) {
+    Logger.error('Error retrieving events: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error occurred while retrieving events.' });
+  }
+}

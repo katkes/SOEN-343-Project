@@ -1,17 +1,44 @@
+import { useEffect, useState } from 'react';
 import { Main } from '../layouts/Main';
 import Sidebar from '../components/Sidebar';
 import dashboardGraphic from '../assets/dashboard-graphic.png';
 import Badge from '../components/Badge';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { eventService } from '../services/backend/event';
+import { FrontEndRoutes } from './routes';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [events, setEvents] = useState<any[]>([]);
+
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
     year: 'numeric',
   });
+
+  // Fetch events from the backend
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await eventService.getAllEvents();
+        const fetchedEvents = response.map((event: any) => ({
+          ...event,
+          speaker: 'Test Speaker', // Default speaker
+          tags: ['NEW!'], // Default tags
+        }));
+        setEvents(fetchedEvents);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+
   return (
     <Main>
       <div className="flex h-screen overflow-hidden bg-[#EAF5FF]">
@@ -61,45 +88,28 @@ export const Dashboard: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[
-                {
-                  title: 'Yapping 101',
-                  speaker: 'Daniel Lam',
-                  date: 'Now',
-                  tags: ['Hot Topic', 'Automation', 'Nonproductive'],
-                },
-                {
-                  title: 'How to be the GOAT',
-                  speaker: 'J. Carlos',
-                  date: 'March 31st',
-                  tags: ['Hot Topic', 'GOAT', 'Productivity'],
-                },
-                {
-                  title: 'Why the Job’s is NEVER Finished',
-                  speaker: 'Keshan',
-                  date: 'April 3rd',
-                  tags: ['Mamba Mentality', 'Productivity', 'Hot Topic'],
-                },
-              ].map((event, idx) => (
+              {events.map((event, idx) => (
                 <div
                   key={idx}
                   className="bg-[#EAF0FF] p-4 rounded-xl shadow cursor-pointer hover:bg-gray-100"
-                  onClick={() => navigate('/event/event-details')}
+                  onClick={() => navigate(FrontEndRoutes.EventDetails.replace(':id', event._id))}
                 >
                   <div className="flex items-center gap-2 text-sm text-[#273266] mb-2">
-                    📅 <span>{event.title}</span>
+                    📅 <span><b>{event.name}</b></span>
                   </div>
                   <p className="text-sm text-[#637381]">
-                    Write an amazing description in this dedicated card section.
+                    {event.description}
                   </p>
                   <p className="mt-2 text-sm font-medium text-[#273266]">
                     <span className="text-[#637381]">👤 Speaker:</span> {event.speaker}
                   </p>
-                  <p className="text-sm text-[#637381]">📅 Date: {event.date}</p>
+                  <p className="text-sm text-[#637381]">📅 Date: {event.startDateAndTime}</p>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {event.tags.map((tag) => (
+                    {/* {event.tags.map((tag: string) => (
                       <Badge key={tag} label={tag} className="bg-white px-3 py-1 text-xs shadow" />
-                    ))}
+                    ))} */}
+                    <Badge key="NEW!" label="NEW!" className="bg-red px-3 py-1 text-xs shadow" />
+                    <Badge key={event.locationType} label={event.locationType} className="bg-[#273266] text-white px-3 py-1 text-xs shadow" />
                   </div>
                 </div>
               ))}
