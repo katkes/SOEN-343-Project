@@ -26,6 +26,14 @@ const Sidebar = () => {
 
   const account = useAccountInfo();
 
+  let userFirstName: string;
+  if (account && account instanceof UserAccount) {
+    userFirstName = account.firstName;
+  } else {
+    const nameParts = (account?.name || 'John Doe').split(' ');
+    userFirstName = nameParts[0];
+  }
+
   // LOGIC FOR EACH USERS.
   console.log('is company:', account instanceof CompanyAccount);
   console.log('is user:', account instanceof UserAccount);
@@ -110,7 +118,9 @@ const Sidebar = () => {
           <div>
             <p className="text-sm text-[#637381]">Welcome back 👋</p>
             {account instanceof UserAccount && (
-              <p className="text-sm font-medium text-[#273266]">John · {account.role}</p>
+              <p className="text-sm font-medium text-[#273266]">
+                {userFirstName} · {account.role}
+              </p>
             )}
           </div>
         </div>

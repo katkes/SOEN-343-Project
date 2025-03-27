@@ -167,24 +167,26 @@ export const Dashboard: React.FC = () => {
               ))}
             </div>
           </div>
-          <div className="flex items-center justify-center bg-white p-6 rounded-2xl shadow mt-8">
-            <div className="text-center">
-              <p className="text-[#637381]">
-                Are you a sponsor?{' '}
-                <a href="/signup/sponsor" className="text-blue-600 hover:underline">
-                  Sign up here
-                </a>
-                .
-              </p>
-              <p className="text-[#637381] mt-2">
-                Want to organize events?{' '}
-                <a href="/signup/eventorganizer" className="text-blue-600 hover:underline">
-                  Join us as an organizer
-                </a>
-                .
-              </p>
+          {account instanceof CompanyAccount && (
+            <div className="flex items-center justify-center bg-white p-6 rounded-2xl shadow mt-8">
+              <div className="text-center">
+                <p className="text-[#637381]">
+                  Are you a sponsor?{' '}
+                  <a href="/signup/sponsor" className="text-blue-600 hover:underline">
+                    Sign up here
+                  </a>
+                  .
+                </p>
+                <p className="text-[#637381] mt-2">
+                  Want to organize events?{' '}
+                  <a href="/signup/eventorganizer" className="text-blue-600 hover:underline">
+                    Join us as an organizer
+                  </a>
+                  .
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </Main>
