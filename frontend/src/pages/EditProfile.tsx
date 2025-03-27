@@ -5,6 +5,7 @@ import { useAccountInfo } from '../hooks/useAccountInfo';
 import { useNavigate } from 'react-router-dom';
 import { FrontEndRoutes } from './routes';
 import { CompanyAccount, UserAccount } from '../types/account';
+import { AccountStore } from '../stores/accountStore';
 
 export const EditProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -49,13 +50,20 @@ export const EditProfile: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || 'Failed to update profile');
       }
+
       console.log('Profile updated successfully.');
-      
+
+      // Forcing a re-fetch of account info after successful update
+      await AccountStore.deleteInstance();
+
+      // Navigate to Profile page, which calls useAccountInfo to get fresh data
       navigate(FrontEndRoutes.Profile);
+
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.log(`Error updating profile: ${err.message}`);
@@ -75,6 +83,7 @@ export const EditProfile: React.FC = () => {
         <Sidebar />
         <div className="flex-1 overflow-y-auto p-8">
           <h1 className="text-4xl font-bold text-[#273266] mb-6">Edit Profile</h1>
+
           <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
             {account instanceof UserAccount ? (
               <>
@@ -116,7 +125,7 @@ export const EditProfile: React.FC = () => {
                 </div>
               )
             )}
-            
+
             {error && <p className="text-red-500 text-center">{error}</p>}
             <button
               type="submit"
