@@ -16,6 +16,7 @@ import { useNavigate, useLocation } from 'react-router';
 import { FrontEndRoutes } from '../pages/routes';
 import { authService } from '../services/backend/auth';
 import { useEffect, useState } from 'react';
+import { userRoleE } from '../pages/Events';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -98,7 +99,7 @@ const Sidebar = () => {
           <img src={Avatar} alt="Avatar" className="w-10 h-10 rounded-full" />
           <div>
             <p className="text-sm text-[#637381]">Welcome back 👋</p>
-            <p className="text-sm font-medium text-[#273266]">John · Organizer</p>
+            <p className="text-sm font-medium text-[#273266]">John · {userRoleE}</p>
           </div>
         </div>
       </div>
