@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import CustomButton from '../components/CustomButton';
-import { userRole } from '../pages/Events';
+import { userRoleE } from '../pages/Events';
 import { PageHeader } from '../components/PageHeader';
 
 export const EventStreaming = () => {
@@ -15,7 +16,17 @@ export const EventStreaming = () => {
   const [pollActive, setPollActive] = useState(false);
   const [selectedOption, setSelectedOption] = useState('');
 
-  const isEventCreator = (userRole as string) !== 'attendee';
+  const { state } = useLocation();
+  const { event } = state || {};
+
+  // Fallback event info if not provided
+  const displayEvent = {
+    title: event?.title || 'Unknown Event',
+    date: event?.date || '',
+    location: event?.location || '',
+  };
+
+  const isEventCreator = (userRoleE as string) !== 'attendee';
 
   const handleSend = () => {
     if (message.trim()) {
@@ -68,6 +79,16 @@ export const EventStreaming = () => {
       <Sidebar />
       <main className="flex-1 p-6 space-y-6">
         <PageHeader pageName="Event Streaming" />
+
+        {event && (
+          <div className="bg-[#3D50FF] text-white rounded-xl px-6 py-4 shadow mb-4">
+            <h1 className="text-2xl font-bold">{displayEvent.title}</h1>
+            <div className="text-sm">
+              {displayEvent.date && <p>📅 {displayEvent.date}</p>}
+              {displayEvent.location && <p>📍 {displayEvent.location}</p>}
+            </div>
+          </div>
+        )}
 
         {/* Streaming Section */}
         <div className="bg-white rounded-xl shadow overflow-hidden flex flex-col lg:flex-row">

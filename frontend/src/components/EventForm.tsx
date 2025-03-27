@@ -4,8 +4,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import CustomButton from './CustomButton';
 import FileUpload from './FileUpload';
-
-export const userRole = 'attendee';
+import { userRoleE } from '../pages/Events';
 
 interface EventFormProps {
   editable?: boolean;
@@ -13,6 +12,15 @@ interface EventFormProps {
   isCreating?: boolean;
   role?: string;
   registered?: boolean;
+  // New optional props for event details
+  eventTitle?: string;
+  eventDescription?: string;
+  eventDate?: string;
+  eventLocation?: string;
+  startTime?: string;
+  endTime?: string;
+  speakers?: string[];
+  address?: string;
 }
 
 const allSpeakers = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Michael Clark'];
@@ -22,16 +30,26 @@ export const EventForm: React.FC<EventFormProps> = ({
   isCreating = false,
   role: userRole,
   registered = false,
+  // Destructure new props with default values
+  eventTitle: initialTitle = '',
+  eventDescription: initialDescription = '',
+  eventDate: initialDate = '',
+  eventLocation: initialLocation = '',
+  startTime = '09:00 AM',
+  endTime = '05:00 PM',
+  speakers = ['John Doe'],
+  address = '123 Main St',
 }) => {
-  const [eventTitle, setEventTitle] = useState('');
-  const [eventDescription, setEventDescription] = useState('');
-  const [eventDate, setEventDate] = useState('');
-  const [eventLocation, setEventLocation] = useState('');
+  // Update state initialization to use the passed values
+  const [eventTitle, setEventTitle] = useState(initialTitle);
+  const [eventDescription, setEventDescription] = useState(initialDescription);
+  const [eventDate, setEventDate] = useState(initialDate);
+  const [eventLocation, setEventLocation] = useState(initialLocation);
   const [eventDetails, setEventDetails] = useState([
-    '09:00 AM',
-    '05:00 PM',
-    ['John Doe'],
-    '123 Main St',
+    startTime,
+    endTime,
+    speakers,
+    address,
   ]);
 
   const navigate = useNavigate();
@@ -40,7 +58,7 @@ export const EventForm: React.FC<EventFormProps> = ({
   const [localEditable, setLocalEditable] = useState(editable);
   const formEditable = isCreating ? true : localEditable;
 
-  const isUser = userRole === 'attendee';
+  const isUser = userRole === userRoleE;
 
   const placeholders = {
     title: 'Event Name',
@@ -53,6 +71,17 @@ export const EventForm: React.FC<EventFormProps> = ({
     const newDetails = [...eventDetails];
     newDetails[index] = newValue;
     setEventDetails(newDetails);
+  };
+
+  const eventInfo = {
+    title: eventTitle,
+    description: eventDescription,
+    date: eventDate,
+    location: eventLocation,
+    startTime,
+    endTime,
+    speakers,
+    address,
   };
 
   const MultiSpeakerSelector = ({
@@ -159,7 +188,8 @@ export const EventForm: React.FC<EventFormProps> = ({
                       navigate(
                         registered
                           ? '/event/event-details/streaming'
-                          : '/event/event-details/register'
+                          : '/event/event-details/register',
+                        { state: { event: eventInfo } }
                       );
                     }
                   }}
@@ -213,7 +243,8 @@ export const EventForm: React.FC<EventFormProps> = ({
                     navigate(
                       registered
                         ? '/event/event-details/streaming'
-                        : '/event/event-details/register'
+                        : '/event/event-details/register',
+                      { state: { event: eventInfo } }
                     );
                   }
                 }}

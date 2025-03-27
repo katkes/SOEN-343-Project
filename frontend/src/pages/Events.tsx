@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import CreateEventForm from '../components/CreateEventForm';
 import { PageHeader } from '../components/PageHeader';
 
-export const userRole = 'organizer';
+export const userRoleE = 'organizer';
 
 
 const Events = () => {
@@ -17,7 +17,7 @@ const Events = () => {
     'myEvents'
   );
 
-  const isEventCreator = (userRole as string) !== 'attendee';
+  const isEventCreator = (userRoleE as string) !== 'attendee';
 
   const allEvents = [
     {
@@ -140,8 +140,8 @@ const Events = () => {
                           onClick={() =>
                             navigate('/event/event-details', {
                               state: {
-                                registered: event.isUserRegistered,
-                                editable: isEventCreator && selectedEventType === 'myEvents',
+                                event, 
+                                editable: isEventCreator && selectedEventType === 'myEvents'
                               },
                             })
                           }
