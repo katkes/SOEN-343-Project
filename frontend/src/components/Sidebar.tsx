@@ -16,11 +16,14 @@ import { useNavigate, useLocation } from 'react-router';
 import { FrontEndRoutes } from '../pages/routes';
 import { authService } from '../services/backend/auth';
 import { useEffect, useState } from 'react';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { UserAccount, CompanyAccount } from "../types/account";
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [active, setActive] = useState('');
+  const account = useAccountInfo();
 
   const menuItems = [
     { name: 'Dashboard', icon: Squares2X2Icon, route: FrontEndRoutes.Dashboard },
@@ -97,8 +100,27 @@ const Sidebar = () => {
         >
           <img src={Avatar} alt="Avatar" className="w-10 h-10 rounded-full" />
           <div>
-            <p className="text-sm text-[#637381]">Welcome back 👋</p>
-            <p className="text-sm font-medium text-[#273266]">John · Organizer</p>
+            <div>
+              {account ? (
+                account instanceof UserAccount ? (
+                  <>
+                    <p className="text-sm text-[#637381]">Welcome back 👋</p>
+                    <p className="text-sm font-medium text-[#273266]">
+                      {`${account.firstName || 'User'} · ${account.role || 'Member'}`}
+                    </p>
+                  </>
+                ) : account instanceof CompanyAccount ? (
+                  <>
+                    <p className="text-sm text-[#637381]">Welcome back 👋</p>
+                    <p className="text-sm font-medium text-[#273266]">
+                      {`${account.companyName || 'Company'} · Admin`}
+                    </p>
+                  </>
+                ) : null
+              ) : (
+                <p className="text-sm text-[#637381]">Not signed in</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

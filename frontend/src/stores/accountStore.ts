@@ -45,7 +45,7 @@ export class AccountStore {
 
   static deleteInstance() {
     if (this.#accountStoreInstance) {
-      this.#accountStoreInstance.#account = undefined;
+      this.#accountStoreInstance = undefined
       this.#fetchPromise = undefined;
     }
 

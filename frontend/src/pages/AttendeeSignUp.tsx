@@ -39,6 +39,7 @@ export const AttendeeSignUp: React.FC = () => {
       setErrorDisplay("Email already in use.");
     }
   };
+  
   return (
     <Main>
       <div className="min-h-screen bg-[#EAF5FF] flex items-center justify-center px-4 relative">

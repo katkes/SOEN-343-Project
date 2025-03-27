@@ -1,7 +1,8 @@
 
+import { CreateEventDTO } from '../../types/event';
 import { AccountStore } from '../../stores/accountStore';
 import { CompanyResponse, UserResponse } from '../../types/account';
-import { CompanySignUpDTO, CredentialsDTO, EventSignUpDTO, UserSignUpDTO } from '../../types/auth';
+import { CompanySignUpDTO, CredentialsDTO, UserSignUpDTO } from '../../types/auth';
 import { api } from './api';
 import { Endpoints } from './endpoints';
 
@@ -27,7 +28,7 @@ function accountInfo () {
   return api.get<CompanyResponse | UserResponse>(Endpoints.Account.Info);
 }
 
-async function createEvent (event: EventSignUpDTO) {
+async function createEvent (event: CreateEventDTO) {
   await api.post<void>(Endpoints.Event.Create, event);
 }
 
