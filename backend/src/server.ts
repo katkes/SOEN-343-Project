@@ -8,7 +8,7 @@ import { Logger } from './configs/logger';
 import { StripeFacade } from './services/stripe/StripeFacade';
 import { Server } from 'socket.io';
 import { createServer } from 'node:http';
-import { setupSocket } from './services/socket/socket';
+import { SetupSocket } from './services/socket/socket';
 
 const app = express();
 
@@ -55,7 +55,7 @@ async function initRouteConfig() {
       credentials: true,
     },
   });
-  setupSocket(io);
+  SetupSocket(io);
 
   // Start the server
   server.listen(ENV_VARS.PORT, () => {

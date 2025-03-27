@@ -8,7 +8,6 @@ export class SocketFlyweight {
   static sockets = new Map<string, Socket>();
 
   static getSocket(nameSpace: string) {
-    console.log("hi there")
     let socket = this.sockets.get(nameSpace);
     if (socket) {
       return socket;

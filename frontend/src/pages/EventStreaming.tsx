@@ -1,13 +1,22 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import CustomButton from '../components/CustomButton';
 import { userRole } from '../pages/Events';
 import { PageHeader } from '../components/PageHeader';
+import { SocketFlyweight } from '../services/socket/socket';
+import { useParams } from 'react-router-dom';
+import { NameSpaceEndpoints } from '../config/constants';
+
+
+interface Message {
+  room: string;
+  sender: string;
+  content: string;
+}
 
 export const EventStreaming = () => {
-  const [message, setMessage] = useState('');
-
   // Polling state
+  const { id } = useParams<{ id: string }>()
   const [pollQuestion, setPollQuestion] = useState('');
   const [pollOptions, setPollOptions] = useState(['', '']);
   // const [hideVotes, setHideVotes] = useState(false);
@@ -17,10 +26,38 @@ export const EventStreaming = () => {
 
   const isEventCreator = (userRole as string) !== 'attendee';
 
-  const handleSend = () => {
-    if (message.trim()) {
-      setMessage('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const socket = useRef(SocketFlyweight.getSocket(NameSpaceEndpoints.ChatRoom));
+  const receiveMessage = useCallback((message: Message) => {
+    setMessages((prev) => [...prev, message]);
+  }, []);
+  
+  useEffect(() => {
+    if (!id) {
+      console.error('Event ID is not defined');
+      return;
     }
+    const currSocket = socket.current
+    currSocket.emit('joinRoom', id);
+    console.log('join room')
+
+    currSocket.on('receiveMessage', receiveMessage);
+    console.log('register function')
+
+    return () => {
+      console.log('disconnect from socket')
+      currSocket.off('receiveMessage', receiveMessage);
+      currSocket.emit('leaveRoom', id);
+    };  
+  }, [id, receiveMessage]);
+
+  const sendNewMessage = () => {
+    socket.current.emit('sendMessage', {
+      room: id,
+      content: newMessage,
+    });
+    setNewMessage('');
   };
 
   const handleAddOption = () => {
@@ -92,23 +129,29 @@ export const EventStreaming = () => {
               <h2 className="font-bold text-white text-sm">Welcome to the chat room!</h2>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-2 text-sm text-gray-200">
-              <p>
+              {messages.map((msg) => (
+                <p>
+                  <strong className="text-[#B4C5FF]">{msg.sender}</strong> {msg.content}
+                </p>
+              ))}
+              {/* <p>
                 <strong className="text-[#B4C5FF]">Alice:</strong> Really insightful!
               </p>
               <p>
                 <strong className="text-[#B4C5FF]">Bob:</strong> Will slides be available?
-              </p>
+              </p> */}
             </div>
+            {/* input to send a message to everyone */}
             <div className="flex border-t border-[#2E3247] p-3 gap-2">
               <input
                 type="text"
                 placeholder="Send a message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
                 className="flex-1 px-3 py-2 rounded-xl text-sm text-black outline-none"
               />
               <CustomButton
-                onClick={handleSend}
+                onClick={sendNewMessage}
                 className="bg-[#3D50FF] px-4 py-2 rounded-xl text-white font-semibold text-sm"
               >
                 Send

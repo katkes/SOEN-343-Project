@@ -1,8 +1,8 @@
 import { Server } from 'socket.io';
 import { IMessage, Message } from '../../../models/message';
-import { SocketNameSpaceBuilder } from '../socket';
 import { SocketContext } from '../../../types/socket';
 import { authMiddleware } from '../middleware/common';
+import { NameSpaceBuilder } from '../name-space-builder';
 
 const DirectMessageEvents = {
   joinRoom: 'joinRoom',
@@ -47,7 +47,7 @@ const disconnect = () => {
 // }
 
 export function createMessageNameSpace(io: Server, nameSpace: string) {
-  return new SocketNameSpaceBuilder()
+  return new NameSpaceBuilder()
     .setIo(io)
     .setNameSpace(nameSpace)
     .addMiddleware(authMiddleware)

@@ -6,12 +6,17 @@ import jwt from 'jsonwebtoken';
 import { ENV_VARS } from '../../../configs/env';
 import { SessionAccountType } from '../../../types/account';
 import { JWT_COOKIE_NAME } from '../../../configs/constants';
+import { getUserById } from '../../mongo/user';
+import { IUserDocument } from '../../../models/user';
 
 export interface AuthenticatedSocket extends Socket {
-  account?: SessionAccountType;
+  user?: IUserDocument;
 }
 
-export function authMiddleware(socket: AuthenticatedSocket, next: (_?: ExtendedError) => void) {
+export async function authMiddleware(
+  socket: AuthenticatedSocket,
+  next: (_?: ExtendedError) => void,
+) {
   const cookies = cookie.parse(socket.handshake.headers.cookie || '');
   const token = cookies[JWT_COOKIE_NAME];
 
@@ -21,7 +26,11 @@ export function authMiddleware(socket: AuthenticatedSocket, next: (_?: ExtendedE
 
   try {
     const decoded = jwt.verify(token, ENV_VARS.JWT_SECRET) as SessionAccountType;
-    socket.account = decoded;
+    const user = await getUserById(decoded._id);
+    if (!user) {
+      return next(new Error('Unauthorized: User not found'));
+    }
+    socket.user = user;
     next();
   } catch {
     return next(new Error('Unauthorized: Invalid token'));
