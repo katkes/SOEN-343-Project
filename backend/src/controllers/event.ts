@@ -6,7 +6,7 @@ import { ENV_VARS } from '../configs/env';
 import jwt from 'jsonwebtoken';
 import 'express-session';
 import { SESSION_TIMEOUT } from '../configs/constants';
-import { createEvent, CreateEventDTO } from '../services/mongo/event';
+import { createEvent, CreateEventDTO, getAllEvents, getEventById } from '../services/mongo/event';
 
 // Create event validation schema when receiving request
 const createEventBodySchema = z.object({
@@ -50,3 +50,35 @@ export async function createEventController(req: Request, res: Response) {
   // return success status
   res.status(StatusCodes.CREATED).json({});
 }
+
+// Get all events from MongoDB
+export async function getAllEventsController(req: Request, res: Response) {
+  try {
+    const events = await getAllEvents();
+    res.status(StatusCodes.OK).json(events);
+  } catch (error) {
+    Logger.error('Error retrieving events: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error occurred while retrieving events.' });
+  }
+}
+
+export const getEventByIdController = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const event = await getEventById(id);
+
+    if (!event) {
+      res.status(StatusCodes.NOT_FOUND).json({ message: 'Event not found' });
+    }
+
+    res.status(StatusCodes.OK).json(event);
+  } catch (error) {
+    Logger.error('Error retrieving event by ID: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error occurred while retrieving the event.' });
+  }
+};

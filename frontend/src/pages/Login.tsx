@@ -89,14 +89,6 @@ export const Login: React.FC = () => {
                 Log In
               </CustomButton>
             </form>
-            <CustomButton
-              type="submit"
-              width="w-full"
-              hoverColor="hover:bg-[#3b4edb]"
-              onClick={() => navigate(FrontEndRoutes.Dashboard)}
-            >
-              In
-            </CustomButton>
           </div>
         </div>
       </div>

@@ -1,20 +1,34 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import CustomButton from '../components/CustomButton';
 import { PageHeader } from '../components/PageHeader';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
+import { useEffect, useState } from 'react';
+import { EventResponseDTO } from '../types/event';
+import { eventService } from '../services/backend/event';
 
 export const EventConfirmation = () => {
+  const { id } = useParams<{ id: string }>();
+  const [event, setEvent] = useState<EventResponseDTO>();
   const navigate = useNavigate();
-  const { state } = useLocation();
-  const { event } = state || {};
-  
-  const displayEvent = {
-    date: event?.date || 'April 4th 2025',
-    location: event?.location || 'SGW Concordia',
-    title: event?.title || 'Security Workshop',
-    type: event?.type || 'Seminar'
-  };
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        if (!id) {
+          throw new Error('Event ID is undefined');
+        }
+        const responseJson = await eventService.getEventById(id);
+        setEvent(responseJson); // Set the event details
+      } catch (error) {
+        console.error('Error fetching event:', error);
+      }
+    };
+    
+    if (id) {
+      fetchEvent();
+    }
+  }, [id]);
 
   return (
     <div className="flex bg-[#EAF5FF] min-h-screen">
@@ -25,11 +39,21 @@ export const EventConfirmation = () => {
         {/* Confirmation Banner */}
         <div className="bg-[#3D50FF] text-white rounded-t-xl px-12 py-10 shadow relative">
           <div className="text-sm flex gap-6 font-medium">
-            <p>📅 {displayEvent.date}</p>
-            <p>📍 {displayEvent.location}</p>
+            <p>📅 {event?.startDateAndTime
+              ? new Date(event.startDateAndTime).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+              })
+              : ''} 
+            </p>
+            <p>📍 {event?.location} </p>
           </div>
-          <h1 className="text-4xl font-bold pt-2">{displayEvent.title}</h1>
-          <p className="text-[#C8D1FF] text-lg font-medium pt-1">{displayEvent.type}</p>
+          <h1 className="text-4xl font-bold pt-2">{event?.name}</h1>
+          <p className="text-[#C8D1FF] text-lg font-medium pt-1">{event?.description}</p>
         </div>
 
         {/* Confirmation Message */}

@@ -1,23 +1,16 @@
 import Sidebar from '../components/Sidebar';
-import { useState } from 'react';
 import CustomButton from '../components/CustomButton';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
+import { useEffect, useState } from 'react';
+import { EventResponseDTO } from '../types/event';
+import { eventService } from '../services/backend/event';
 
 export const EventRegistration = () => {
-  const [paymentMethod, setPaymentMethod] = useState('Card');
+  // const [paymentMethod, setPaymentMethod] = useState('Card');
+  const { id } = useParams<{ id: string }>();
+  const [event, setEvent] = useState<EventResponseDTO>();
   const navigate = useNavigate();
-  const { state } = useLocation();
-  const { event } = state || {};
-
-  // Fallback event info if not available via state
-  const displayEvent = {
-    title: event?.title || 'AI Conference 2025',
-    date: event?.date || 'April 4th 2025',
-    location: event?.location || 'SGW Concordia',
-    description: event?.description || 'Join us for a conference on Artificial Intelligence.',
-    type: event?.type || 'Seminar',
-  };
 
   const handleCheckout = async () => {
     const validEventId = '645f3b2e8a8f3c0012345678'; // Dummy ID
@@ -45,7 +38,7 @@ export const EventRegistration = () => {
       if (response.ok) {
         console.log('Payment successful:', data);
         // Pass event info to EventConfirmation
-        navigate('/event/confirmation', { state: { event: displayEvent } });
+        navigate(`/event/${event?._id}/confirmation`, { state: { event: event } });
       } else {
         console.error('Payment failed:', data.message);
         console.error('Payment error:', data.error);
@@ -54,6 +47,24 @@ export const EventRegistration = () => {
       console.error('Error during checkout:', error);
     }
   };
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        if (!id) {
+          throw new Error('Event ID is undefined');
+        }
+        const responseJson = await eventService.getEventById(id);
+        setEvent(responseJson); // Set the event details
+      } catch (error) {
+        console.error('Error fetching event:', error);
+      }
+    };
+  
+    if (id) {
+      fetchEvent();
+    }
+  }, [id]);
 
   return (
     <div className="flex bg-[#EAF5FF] min-h-screen">
@@ -64,17 +75,27 @@ export const EventRegistration = () => {
         {/* Event Info Banner */}
         <div className="bg-[#3D50FF] text-white rounded-t-xl px-12 py-10 shadow">
           <div className="text-sm flex gap-6 font-medium">
-            <p>📅 {displayEvent.date}</p>
-            <p>📍 {displayEvent.location}</p>
+            <p>📅 {event?.startDateAndTime
+              ? new Date(event.startDateAndTime).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+              })
+              : ''} 
+            </p>
+            <p>📍 {event?.location} </p>
           </div>
-          <h1 className="text-4xl font-bold py-2">{displayEvent.title}</h1>
-          <p className="text-[#C8D1FF]">{displayEvent.description}</p>
+          <h1 className="text-4xl font-bold py-2">{event?.name}</h1>
+          <p className="text-[#C8D1FF]">{event?.description}</p>
         </div>
 
         {/* Payment Form */}
         <div className="bg-white rounded-b-xl px-10 pb-10 pt-5 shadow mx-auto -mt-6">
-          {/* Payment Tabs */}
-          <div className="flex gap-4">
+          Payment Tabs
+          {/* <div className="flex gap-4">
             {['Card', 'EPS', 'Giropay'].map((method) => (
               <CustomButton
                 key={method}
@@ -89,7 +110,7 @@ export const EventRegistration = () => {
                 {method}
               </CustomButton>
             ))}
-          </div>
+          </div> */}
 
           {/* Card Details */}
           <div className="space-y-4 pt-6">

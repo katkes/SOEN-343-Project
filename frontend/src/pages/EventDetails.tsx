@@ -1,11 +1,43 @@
-import { useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
+import { useParams } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
-import EventForm from '../components/EventForm';
+import EventForm, { userRole } from '../components/EventForm';
+import { eventService } from '../services/backend/event';
+import { EventResponseDTO } from '../types/event';
 
 const EventDetails = () => {
-  const location = useLocation();
-  const { event } = location.state || {};
+  const { id } = useParams<{ id: string }>();
+  const [event, setEvent] = useState<EventResponseDTO>();
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        if (!id) {
+          throw new Error('Event ID is undefined');
+        }
+        const responseJson = await eventService.getEventById(id);
+        setEvent(responseJson); // Set the event details
+      } catch (error) {
+        console.error('Error fetching event:', error);
+      }
+    };
+
+    if (id) {
+      fetchEvent();
+    }
+  }, [id]);
+
+  if (!event) {
+    return (
+      <div className="flex bg-[#EAF5FF]">
+        <Sidebar />
+        <main className="flex-1 p-6 space-y-6">
+          <div>Loading...</div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex bg-[#EAF5FF]">
@@ -13,16 +45,10 @@ const EventDetails = () => {
       <main className="flex-1 p-6 space-y-6">
         <PageHeader pageName="Event Details" />
         <EventForm
-          onSubmit={() => console.log('Event created/updated!')}
-          eventTitle={event?.title || 'Tech Conference 2025'}
-          eventDescription={event?.description || 'A conference about the latest in tech.'}
-          eventDate={event?.date || '2025-04-15'}
-          eventLocation={event?.location || 'New York City'}
-          startTime={event?.startTime || '10:00 AM'}
-          endTime={event?.endTime || '4:00 PM'}
-          speakers={event?.speakers || [event?.speaker] || ['John Doe', 'Jane Smith']}
-          address={event?.address || '456 Tech Street, NY'}
-          registered={event?.isUserRegistered || false}
+          event={event} // Pass the fetched event data
+          role={userRole}
+          editable={false} // Set to true if you want the form to be editable
+          onSubmit={() => console.log('Event updated!')}
         />
       </main>
     </div>
