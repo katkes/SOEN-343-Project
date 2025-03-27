@@ -45,7 +45,7 @@ const EventDetails = () => {
       <div className="flex bg-[#EAF5FF]">
         <Sidebar />
         <main className="flex-1 p-6 space-y-6">
-          <div>Loading...</div>;
+          <div>Loading...</div>
         </main>
       </div>
     );

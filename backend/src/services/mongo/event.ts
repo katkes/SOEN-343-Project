@@ -6,10 +6,10 @@ export async function createEvent(eventData: CreateEventDTO) {
   return await Event.create({ ...eventData });
 }
 
-export async function getEventByName(name: string) {
-  return await Event.findOne({ name });
-}
-
 export async function getAllEvents() {
   return await Event.find({});
+}
+
+export async function getEventById(id: string) {
+  return await Event.findById(id);
 }
