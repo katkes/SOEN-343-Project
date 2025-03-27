@@ -18,6 +18,7 @@ export const FrontEndRoutes = {
   Notifications: '/notifications',
   Support: '/support',
   Profile: '/profile',
+  EditProfile: '/profile/edit',
   EventRegistration: '/event/:id/register',
   EventDetails: '/event/:id/details',
   EventStreaming: '/event/:id/streaming',

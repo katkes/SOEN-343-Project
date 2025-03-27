@@ -10,6 +10,8 @@ import { SESSION_TIMEOUT } from '../configs/constants';
 import { userRoles } from '../models/user';
 import { getCompanyByEmail } from '../services/mongo/company';
 import { SessionAccountType } from '../middleware/session';
+import { User } from '../models/user';
+import { Company } from '../models/company';
 
 // Create user validation schema when receiving request
 const createUserBodySchema = z.object({
@@ -84,5 +86,49 @@ export async function getUserByEmailController(req: Request, res: Response) {
     Logger.error('Error retrieving users: ');
     Logger.error('Received error: ', error);
     res.status(500).json({ error: 'Error occurred while getting users.' });
+  }
+}
+
+export async function updateProfileController(req: Request, res: Response) {
+  try {
+    // The authenticate middleware should have attached req.account
+    const sessionAccount = req.account;
+    if (!sessionAccount) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Unauthorized' });
+      Logger.error('Unauthorized request to update profile');
+      return;
+    }
+
+    // Read the fields sent by the client
+    const { firstName, lastName, companyName, description } = req.body;
+
+    if (sessionAccount.accountType === 'user') {
+      const updatedUser = await User.findByIdAndUpdate(
+        sessionAccount._id,
+        { firstName, lastName, description },
+        { new: true },
+      );
+      if (!updatedUser) {
+        res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
+        return;
+      }
+      res.status(StatusCodes.OK).json(updatedUser);
+    } else if (sessionAccount.accountType === 'company') {
+      const updatedCompany = await Company.findByIdAndUpdate(
+        sessionAccount._id,
+        { companyName, description },
+        { new: true },
+      );
+      if (!updatedCompany) {
+        res.status(StatusCodes.NOT_FOUND).json({ message: 'Company not found' });
+        return;
+      }
+      res.status(StatusCodes.OK).json(updatedCompany);
+    } else {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid account type' });
+    }
+  } catch (error: unknown) {
+    Logger.error('Error updating profile', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error updating profile' });
   }
 }

@@ -42,7 +42,6 @@ export const EventForm: React.FC<EventFormProps> = ({
 
   const [localEditable, setLocalEditable] = useState(editable);
   const formEditable = isCreating ? true : localEditable;
-  const isUser = userRole === 'attendee';
 
   const navigate = useNavigate();
   const location = useLocation();
