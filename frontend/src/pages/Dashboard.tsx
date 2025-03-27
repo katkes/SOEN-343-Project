@@ -116,7 +116,19 @@ export const Dashboard: React.FC = () => {
                   <p className="mt-2 text-sm font-medium text-[#273266]">
                     <span className="text-[#637381]">👤 Speaker:</span> {event.speaker}
                   </p>
-                  <p className="text-sm text-[#637381]">📅 Date: {event.startDateAndTime}</p>
+                  <p className="text-sm text-[#637381]">
+                    📅 Date:{' '}
+                    {event.startDateAndTime
+                      ? new Date(event.startDateAndTime).toLocaleString('en-US', {
+                          month: 'long',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                          hour12: true,
+                        })
+                      : ''}
+                  </p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {/* {event.tags.map((tag: string) => (
                       <Badge key={tag} label={tag} className="bg-white px-3 py-1 text-xs shadow" />
