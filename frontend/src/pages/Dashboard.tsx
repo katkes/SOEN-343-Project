@@ -186,6 +186,34 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </div>
               ))}
+              {/* DUMMY PR TO ALLOW USERS TO JOIN STREAMERS, PLEASE DELETE LATER */}
+              <div
+                key={"67e48cfee48b2a4d0439edererw"}
+                className="bg-[#EAF0FF] p-4 rounded-xl shadow cursor-pointer hover:bg-gray-100"
+                onClick={() => navigate(FrontEndRoutes.EventDetails.replace(':id', "67e48cfee48b2a4d0439edererw"))}
+              >
+                <div className="flex items-center gap-2 text-sm text-[#273266] mb-2">
+                  📅 <span><b>Data Fabrication Workshop</b></span>
+                </div>
+                <p className="text-sm text-[#637381]">
+                  Master the art of generating realistic fake data for testing, simulations, and educational purposes using modern tools and techniques
+                </p>
+                <p className="mt-2 text-sm font-medium text-[#273266]">
+                  <span className="text-[#637381]">👤 Speaker:</span> Nicolas MacBeth
+                </p>
+                <p className="text-sm text-[#637381]">
+                  📅 Date: May 15th, 2025 at 4:00 PM
+                </p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {/* {event.tags.map((tag: string) => (
+                    <Badge key={tag} label={tag} className="bg-white px-3 py-1 text-xs shadow" />
+                  ))} */}
+                  <Badge key="NEW!" label="NEW!" className="bg-red px-3 py-1 text-xs shadow" />
+                  <Badge key="Hybrid" label="Hybrid" className="bg-[#273266] text-white px-3 py-1 text-xs shadow" />
+                </div>
+              </div>
+              
+
             </div>
           </div>
           {account instanceof CompanyAccount && (
