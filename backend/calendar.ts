@@ -1,45 +1,96 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+dotenv.config();
 
-type EventDetails = {
-  title: string;
-  date: string;
-  time: string;
-};
+// Configuration for email transport
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com', // Use Gmail's SMTP server (change if using another provider)
+  port: 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL, // Your email address
+    pass: process.env.APP_PASSWORD, // use app password if 2FA is enabled
+  },
+  tls: {
+    rejectUnauthorized: false, // Helps in some network environments
+  },
+});
 
-// Mock function to send email invitation (No actual email sending)
-const sendEmailInvitation = async (email: string, eventDetails: EventDetails) => {
-  console.log(
-    `Simulating email invitation to ${email} for event: ${eventDetails.title} on ${eventDetails.date} at ${eventDetails.time}`,
-  );
-  nodemailer.createTransport(); // to remove
-};
+// Function to format date for iCalendar format
+function formatDate(dateStr: string | number | Date) {
+  const date = new Date(dateStr);
+  return date.toISOString().replace(/[-:]/g, '').split('.')[0]; // e.g. 20250326T150000
+}
 
-// Mock function to add event to a local calendar log (No external API usage)
-const addToLocalCalendar = async (eventDetails: EventDetails) => {
-  console.log(
-    `Simulating adding event to local calendar: ${eventDetails.title} on ${eventDetails.date} at ${eventDetails.time}`,
-  );
-};
+// Function to send calendar invite
+async function sendCalendarInvite(
+  to: string,
+  subject: string,
+  description: string,
+  startTime: string | number | Date,
+  endTime: string | number | Date,
+) {
+  // Create iCalendar content
+  const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+DTSTART:${formatDate(startTime)}
+DTEND:${formatDate(endTime)}
+SUMMARY:${subject}
+DESCRIPTION:${description}
+ORGANIZER;CN=Your Name:mailto:${process.env.EMAIL}
+ATTENDEE;CN=Invitee;RSVP=TRUE:mailto:${to}
+END:VEVENT
+END:VCALENDAR`;
 
-// Sample event details
-const eventDetails: EventDetails = {
-  title: 'Team Meeting',
-  date: '2025-04-01',
-  time: '14:00',
-};
-const recipientEmail = 'jainammshah12@gmail.com';
+  //console.log(`${env.EMAIL}`);
+  //console.log(`${env.PASSWORD}`);
 
-// Execute mock functions on startup
-(async () => {
+  // Configure email options
+  const mailOptions = {
+    from: `#${process.env.EMAIL}`, // Your email address
+    to: to,
+    subject: 'Meeting Invite: ' + subject,
+    text: description,
+    alternatives: [
+      {
+        contentType: 'text/calendar; method=REQUEST',
+        content: icsContent,
+      },
+    ],
+  };
+
   try {
-    await sendEmailInvitation(recipientEmail, eventDetails);
-    await addToLocalCalendar(eventDetails);
-    console.log('Event processing complete.');
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Calendar invite sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
   } catch (error) {
-    if (error instanceof Error) {
-      console.error('Error processing event:', error.message);
-    } else {
-      console.error('Error processing event:', error);
-    }
+    console.error('Failed to send calendar invite:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
-})();
+}
+
+// Example usage
+const recipientEmail = `${process.env.EMAIL}`;
+const meetingSubject = 'Project Discussion';
+const meetingDescription = "Let's discuss the progress of our current project.";
+const meetingStart = '2025-03-30T15:00:00';
+const meetingEnd = '2025-03-30T16:00:00';
+
+// Execute the function
+sendCalendarInvite(
+  recipientEmail,
+  meetingSubject,
+  meetingDescription,
+  meetingStart,
+  meetingEnd,
+).then((result) => {
+  if (result.success) {
+    console.log('Invite sent successfully!');
+  } else {
+    console.log('Failed to send invite:', result.error);
+  }
+});

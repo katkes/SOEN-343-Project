@@ -1,11 +1,13 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface ICompany {
   email: string;
   companyName: string; // to be changed to object id
   hashedPassword: string;
 }
-export interface ICompanyDocument extends Document, ICompany {}
+export interface ICompanyDocument extends Document, ICompany {
+  _id: Types.ObjectId;
+}
 
 const CompanySchema: Schema = new Schema(
   {

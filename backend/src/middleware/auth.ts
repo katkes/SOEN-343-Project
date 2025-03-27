@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import { Logger } from '../configs/logger';
+import { SessionAccountType } from './session';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'supersecretjwtkey';
 
@@ -14,8 +15,8 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
   }
 
   try {
-    const decoded = jwt.verify(token, SECRET_KEY) as { _id: string };
-    req.user = decoded;
+    const decoded = jwt.verify(token, SECRET_KEY) as SessionAccountType;
+    req.account = decoded;
     next();
   } catch (error) {
     Logger.error('Error authenticating user:', error);
