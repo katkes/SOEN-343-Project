@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getUserByEmail } from '../services/mongo/user';
+import { getUserByEmail, getUserById } from '../services/mongo/user';
 import { Logger } from '../configs/logger';
 import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
@@ -8,16 +8,22 @@ import jwt from 'jsonwebtoken';
 import 'express-session';
 import { compareHash } from '../utils/hash';
 import { SESSION_TIMEOUT } from '../configs/constants';
-import { getCompanyByEmail } from '../services/mongo/company';
+import { getCompanyByEmail, getCompanyById } from '../services/mongo/company';
+import { SessionAccountType } from '../middleware/session';
+import { Types } from 'mongoose';
 
-async function findUserOrCompanyAccountByEmail(email: string) {
-  let account: { _id: unknown; hashedPassword: string } | null = await getUserByEmail(email);
-
+type Account = { _id: Types.ObjectId; hashedPassword: string };
+async function findUserOrCompanyAccountByEmail(
+  email: string,
+): Promise<[Account | null, 'company' | 'user']> {
+  let account: Account | null = await getUserByEmail(email);
+  let accountType: 'company' | 'user' = 'user';
   // if user not found, check in company table
   if (!account) {
     account = await getCompanyByEmail(email);
+    accountType = 'company';
   }
-  return account;
+  return [account, accountType];
 }
 
 // Login schema for validation
@@ -39,7 +45,7 @@ export async function loginController(req: Request, res: Response) {
     return;
   }
   const { email, password } = body;
-  const account = await findUserOrCompanyAccountByEmail(email);
+  const [account, accountType] = await findUserOrCompanyAccountByEmail(email);
   if (!account) {
     Logger.error(`User with email \`${email}\` was not found. Returning 404 response`);
     res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found.' });
@@ -53,7 +59,8 @@ export async function loginController(req: Request, res: Response) {
     return;
   }
   // password matches create token for account and store accountId in JWT store
-  const token = jwt.sign({ _id: account._id }, ENV_VARS.JWT_SECRET, {
+  const sessionAccount: SessionAccountType = { _id: account._id, accountType };
+  const token = jwt.sign(sessionAccount, ENV_VARS.JWT_SECRET, {
     expiresIn: SESSION_TIMEOUT,
   });
 
@@ -70,4 +77,29 @@ export async function logoutController(req: Request, res: Response) {
     }
     res.sendStatus(StatusCodes.NO_CONTENT);
   });
+}
+
+export async function accountInfoController(req: Request, res: Response) {
+  // Email checks
+  const account: SessionAccountType = req.account;
+  if (!account) {
+    Logger.error('Error retrieving account information. Account not found.');
+    res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Unauthorized' });
+    return;
+  }
+  let result;
+  switch (account.accountType) {
+    case 'user':
+      result = await getUserById(account._id);
+      break;
+    case 'company':
+      result = await getCompanyById(account._id);
+      break;
+  }
+  if (!result) {
+    Logger.error('Error retrieving info from account id.');
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error retrieving info' });
+    return;
+  }
+  res.status(StatusCodes.OK).json({ ...result.toJSON(), accountType: account.accountType });
 }

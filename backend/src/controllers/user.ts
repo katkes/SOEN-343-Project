@@ -9,6 +9,7 @@ import 'express-session';
 import { SESSION_TIMEOUT } from '../configs/constants';
 import { userRoles } from '../models/user';
 import { getCompanyByEmail } from '../services/mongo/company';
+import { SessionAccountType } from '../middleware/session';
 
 // Create user validation schema when receiving request
 const createUserBodySchema = z.object({
@@ -16,6 +17,7 @@ const createUserBodySchema = z.object({
   lastName: z.string().min(1, 'lastName field is required.'), // Ensures name is a non-empty string
   password: z.string().min(1, 'password field is required.'), // Ensures name is a non-empty string
   email: z.string().min(1).email('Invalid email format.'), // Ensures email is a valid email address
+  companyName: z.string().optional(), // Ensures companyName is optional
   role: z.enum(userRoles), // Ensures email is a valid email address
 });
 
@@ -46,7 +48,8 @@ export async function createUserController(req: Request, res: Response) {
   const user = await createUser(body);
 
   // create token for user and store userId in JWT store
-  const token = jwt.sign({ _id: user._id }, ENV_VARS.JWT_SECRET, { expiresIn: SESSION_TIMEOUT });
+  const account: SessionAccountType = { _id: user._id, accountType: 'user' };
+  const token = jwt.sign(account, ENV_VARS.JWT_SECRET, { expiresIn: SESSION_TIMEOUT });
   req.session.token = token;
 
   // return success status

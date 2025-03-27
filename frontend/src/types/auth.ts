@@ -3,11 +3,13 @@ export type CredentialsDTO = {
   password: string;
 }
 
-export type UserType = 'Sponsor' | 'EventOrganizer' | 'Learner' | 'Speaker' | 'Admin'
+export type UserRole = 'Sponsor' | 'EventOrganizer' | 'Learner' | 'Speaker' | 'Admin'
+
 export type UserSignUpDTO =  CredentialsDTO & {
   firstName: string
   lastName: string
-  role: UserType
+  role: UserRole
+  companyName?: string
 }
 
 export type CompanySignUpDTO =  CredentialsDTO & {
