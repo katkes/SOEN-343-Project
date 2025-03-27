@@ -5,6 +5,7 @@ import authRoute from './auth';
 import companyRoute from './company';
 import paymentRoute from './payment';
 import eventRoute from './event';
+import getSpeakerRoute from './getSpeaker';
 import { SessionMiddleware } from '../middleware/session';
 import { StatusCodes } from 'http-status-codes';
 const router = Router();
@@ -29,6 +30,9 @@ router.use('/payment', paymentRoute);
 
 // api/event
 router.use('/event', eventRoute);
+
+//api/getSpeaker
+router.use('/getSpeaker', getSpeakerRoute);
 
 // Catch all route for api/ group.
 router.all('*', (_, res) => {

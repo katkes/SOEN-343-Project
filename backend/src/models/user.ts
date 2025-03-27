@@ -23,6 +23,7 @@ const UserSchema: Schema = new Schema(
     hashedPassword: { type: String, required: true },
     role: { type: String, required: true },
     company: { type: Schema.Types.ObjectId, ref: 'Company', required: false },
+    _id: { type: mongoose.Types.ObjectId, auto: true },
   },
   // create two extra fields named createdAt and updatedAt in case we need it
   { timestamps: true },
