@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { socket } from '../services/socket/socket';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { SocketFlyweight } from '../services/socket/socket';
 interface Message {
   _id?: string;
   room: string;
@@ -11,24 +11,28 @@ export const ChatRoom: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const sender = 'User 1';
+  const nameSpace = '/message';
   const room = 'general';
-
+  const socket = useRef(SocketFlyweight.getSocket(nameSpace));
+  const receiveMessage = useCallback((message: Message) => {
+    setMessages((prev) => [...prev, message]);
+  }, []);
   useEffect(() => {
     console.log('join room')
-    socket.emit('joinRoom', room);
+    socket.current.emit('joinRoom', room);
 
-    socket.on('receiveMessage', (message: Message) => {
-      setMessages((prev) => [...prev, message]);
-    });
+    socket.current.on('receiveMessage', receiveMessage);
 
-    // return () => {
-    //   console.log('disconnect from socket')
-    //   socket.disconnect();
-    // };
+    return () => {
+      console.log('disconnect from socket')
+      socket.current.off('receiveMessage', receiveMessage);
+      socket.current.emit('leaveRoom', room);
+
+    };
   }, []);
 
   const sendMessage = () => {
-    socket.emit('sendMessage', {
+    socket.current.emit('sendMessage', {
       room,
       sender,
       content: newMessage,
@@ -48,6 +52,10 @@ export const ChatRoom: React.FC = () => {
       </div>
       <input value={newMessage} onChange={(e) => setNewMessage(e.target.value)} />
       <button onClick={sendMessage}>Send</button>
+      <br></br>
+      <button onClick={() => socket.current.emit('leaveRoom', "general")}>Leave</button>
+      <br></br>
+      <button onClick={() => socket.current.emit('joinRoom', "general")}>Join</button>
     </div>
   );
 };

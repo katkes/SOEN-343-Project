@@ -7,10 +7,10 @@ import { ENV_VARS } from '../configs/env';
 import jwt from 'jsonwebtoken';
 import 'express-session';
 import { compareHash } from '../utils/hash';
-import { SESSION_TIMEOUT } from '../configs/constants';
+import { DefaultCookieConfig, JWT_COOKIE_NAME, SESSION_TIMEOUT } from '../configs/constants';
 import { getCompanyByEmail, getCompanyById } from '../services/mongo/company';
-import { SessionAccountType } from '../middleware/session';
 import { Types } from 'mongoose';
+import { SessionAccountType } from '../types/account';
 
 type Account = { _id: Types.ObjectId; hashedPassword: string };
 async function findUserOrCompanyAccountByEmail(
@@ -64,19 +64,15 @@ export async function loginController(req: Request, res: Response) {
     expiresIn: SESSION_TIMEOUT,
   });
 
-  req.session.token = token;
+  res.cookie(JWT_COOKIE_NAME, token, DefaultCookieConfig);
 
   // return success status
   res.sendStatus(StatusCodes.NO_CONTENT);
 }
 
 export async function logoutController(req: Request, res: Response) {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Logout failed' });
-    }
-    res.sendStatus(StatusCodes.NO_CONTENT);
-  });
+  res.clearCookie(JWT_COOKIE_NAME, DefaultCookieConfig);
+  res.sendStatus(StatusCodes.NO_CONTENT);
 }
 
 export async function accountInfoController(req: Request, res: Response) {

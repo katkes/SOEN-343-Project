@@ -50,7 +50,11 @@ async function initRouteConfig() {
 
   // register socket io before ultimate fall back
   const server = createServer(app);
-  const io = new Server(server);
+  const io = new Server(server, {
+    cors: {
+      credentials: true,
+    },
+  });
   setupSocket(io);
 
   // Start the server
