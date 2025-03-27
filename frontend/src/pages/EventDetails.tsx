@@ -4,10 +4,11 @@ import { useParams } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
 import EventForm, { userRole } from '../components/EventForm';
 import { eventService } from '../services/backend/event';
+import { EventResponseDTO } from '../types/event';
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const [event, setEvent] = useState<any>(null);
+  const [event, setEvent] = useState<EventResponseDTO>();
 
   useEffect(() => {
     const fetchEvent = async () => {

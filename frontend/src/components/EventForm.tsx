@@ -1,7 +1,7 @@
-import { useState, Fragment, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Listbox, Transition } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
+// import { Listbox, Transition } from '@headlessui/react';
+// import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import CustomButton from './CustomButton';
 import FileUpload from './FileUpload';
 import { EventResponseDTO } from '../types/event';
@@ -17,7 +17,7 @@ interface EventFormProps {
   event: EventResponseDTO;
 }
 
-const allSpeakers = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Michael Clark'];
+// const allSpeakers = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Michael Clark'];
 
 export const EventForm: React.FC<EventFormProps> = ({
   editable = false,
@@ -75,65 +75,67 @@ export const EventForm: React.FC<EventFormProps> = ({
     }
   }, [event]);
 
+  // TODO: Commented out since we're not using the eventDetails array
   // const handleEventDetailChange = (index: number, newValue: string | string[]) => {
   //   const newDetails = [...eventDetails];
   //   newDetails[index] = newValue;
   //   setEventDetails(newDetails);
   // };
 
-  const MultiSpeakerSelector = ({
-    selected,
-    onChange,
-    disabled,
-  }: {
-    selected: string[];
-    onChange: (newValues: string[]) => void;
-    disabled: boolean;
-  }) => (
-    <Listbox value={selected} onChange={onChange} multiple disabled={disabled}>
-      <div className="relative mt-1">
-        <Listbox.Button className="relative w-full cursor-default rounded-xl bg-[#F4F6F8] py-2 pl-3 pr-10 text-left text-sm text-gray-600 border border-gray-300">
-          <span className="block truncate">
-            {selected.length > 0 ? selected.join(', ') : 'Select Speakers'}
-          </span>
-          <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center pr-2">
-            <ChevronUpDownIcon className="h-4 w-4 text-gray-400" />
-          </span>
-        </Listbox.Button>
-        <Transition
-          as={Fragment}
-          leave="transition ease-in duration-100"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-sm text-gray-700 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-            {allSpeakers.map((speaker, index) => (
-              <Listbox.Option
-                key={index}
-                className={({ active }) =>
-                  `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'}`
-                }
-                value={speaker}
-              >
-                {({ selected }) => (
-                  <>
-                    <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                      {speaker}
-                    </span>
-                    {selected && (
-                      <span className="absolute inset-y-0 left-2 flex items-center text-blue-600">
-                        <CheckIcon className="h-4 w-4" />
-                      </span>
-                    )}
-                  </>
-                )}
-              </Listbox.Option>
-            ))}
-          </Listbox.Options>
-        </Transition>
-      </div>
-    </Listbox>
-  );
+  // TODO: Uncomment the following code to implement the MultiSpeakerSelector component
+  // const MultiSpeakerSelector = ({
+  //   selected,
+  //   onChange,
+  //   disabled,
+  // }: {
+  //   selected: string[];
+  //   onChange: (newValues: string[]) => void;
+  //   disabled: boolean;
+  // }) => (
+  //   <Listbox value={selected} onChange={onChange} multiple disabled={disabled}>
+  //     <div className="relative mt-1">
+  //       <Listbox.Button className="relative w-full cursor-default rounded-xl bg-[#F4F6F8] py-2 pl-3 pr-10 text-left text-sm text-gray-600 border border-gray-300">
+  //         <span className="block truncate">
+  //           {selected.length > 0 ? selected.join(', ') : 'Select Speakers'}
+  //         </span>
+  //         <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center pr-2">
+  //           <ChevronUpDownIcon className="h-4 w-4 text-gray-400" />
+  //         </span>
+  //       </Listbox.Button>
+  //       <Transition
+  //         as={Fragment}
+  //         leave="transition ease-in duration-100"
+  //         leaveFrom="opacity-100"
+  //         leaveTo="opacity-0"
+  //       >
+  //         <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-sm text-gray-700 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+  //           {allSpeakers.map((speaker, index) => (
+  //             <Listbox.Option
+  //               key={index}
+  //               className={({ active }) =>
+  //                 `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'}`
+  //               }
+  //               value={speaker}
+  //             >
+  //               {({ selected }) => (
+  //                 <>
+  //                   <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+  //                     {speaker}
+  //                   </span>
+  //                   {selected && (
+  //                     <span className="absolute inset-y-0 left-2 flex items-center text-blue-600">
+  //                       <CheckIcon className="h-4 w-4" />
+  //                     </span>
+  //                   )}
+  //                 </>
+  //               )}
+  //             </Listbox.Option>
+  //           ))}
+  //         </Listbox.Options>
+  //       </Transition>
+  //     </div>
+  //   </Listbox>
+  // );
 
   return (
     <div className="flex flex-col">
@@ -258,8 +260,8 @@ export const EventForm: React.FC<EventFormProps> = ({
                 }`}
               >
                 <option value="in-person">In Person</option>
-                <option value="hybrid">Hybrid</option>
-                <option value="online">Online</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Online">Online</option>
               </select>
               
               {/* TODO: Replace the following code with individual input fields */}

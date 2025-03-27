@@ -114,8 +114,8 @@ const CreateEventForm = () => {
               className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
             >
               <option value="in-person">In Person</option>
-              <option value="hybrid">Hybrid</option>
-              <option value="online">Online</option>
+              <option value="Hybrid">Hybrid</option>
+              <option value="Online">Online</option>
             </select>
           </div>
 
