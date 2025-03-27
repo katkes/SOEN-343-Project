@@ -53,6 +53,9 @@ export const EventStreaming = () => {
   }, [id, receiveMessage]);
 
   const sendNewMessage = () => {
+    if (newMessage.trim() === '' || !id) {
+      return;
+    }
     socket.current.emit('sendMessage', {
       room: id,
       content: newMessage,
@@ -131,7 +134,7 @@ export const EventStreaming = () => {
             <div className="flex-1 overflow-y-auto p-4 space-y-2 text-sm text-gray-200">
               {messages.map((msg) => (
                 <p>
-                  <strong className="text-[#B4C5FF]">{msg.sender}</strong> {msg.content}
+                  <strong className="text-[#B4C5FF]">{`${msg.sender}: `}</strong> {msg.content}
                 </p>
               ))}
               {/* <p>
@@ -148,7 +151,8 @@ export const EventStreaming = () => {
                 placeholder="Send a message"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-xl text-sm text-black outline-none"
+                onKeyDown={(e) => e.key === 'Enter' && sendNewMessage()}
+                className="text-white flex-1 px-3 py-2 rounded-xl text-sm text-black outline-none"
               />
               <CustomButton
                 onClick={sendNewMessage}
