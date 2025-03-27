@@ -1,11 +1,11 @@
 
-import { CreateEventDTO, EventResponseDTO } from '../../types/event';
+import { EventResponseDTO } from '../../types/event';
 import { api } from './api';
 import { Endpoints } from './endpoints';
 
 
 async function getAllEvents () {
-  return api.get<CreateEventDTO[]>(Endpoints.Event.GetAll)
+  return api.get<EventResponseDTO[]>(Endpoints.Event.GetAll)
 }
 
 async function getEventById (id: string) {
@@ -14,8 +14,8 @@ async function getEventById (id: string) {
 
 // export the functions here in an object
 export const eventService = {
-    getAllEvents,
-    getEventById
+  getAllEvents,
+  getEventById
 } as const;
 
 

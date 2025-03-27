@@ -8,10 +8,11 @@ import { eventService } from '../services/backend/event';
 import { FrontEndRoutes } from './routes';
 import { useAccountInfo } from '../hooks/useAccountInfo';
 import { CompanyAccount, UserAccount } from '../types/account';
+import { EventResponseDTO } from '../types/event';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<EventResponseDTO[]>([]);
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -25,7 +26,7 @@ export const Dashboard: React.FC = () => {
     const fetchEvents = async () => {
       try {
         const response = await eventService.getAllEvents();
-        const fetchedEvents = response.map((event: any) => ({
+        const fetchedEvents = response.map((event: EventResponseDTO) => ({
           ...event,
           speaker: 'Test Speaker', // Default speaker
           tags: ['NEW!'], // Default tags
@@ -161,19 +162,19 @@ export const Dashboard: React.FC = () => {
                     {event.description}
                   </p>
                   <p className="mt-2 text-sm font-medium text-[#273266]">
-                    <span className="text-[#637381]">👤 Speaker:</span> {event.speaker}
+                    <span className="text-[#637381]">👤 Speaker:</span> Nicolas MacBeth
                   </p>
                   <p className="text-sm text-[#637381]">
                     📅 Date:{' '}
                     {event.startDateAndTime
                       ? new Date(event.startDateAndTime).toLocaleString('en-US', {
-                          month: 'long',
-                          day: 'numeric',
-                          year: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric',
-                          hour12: true,
-                        })
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        hour12: true,
+                      })
                       : ''}
                   </p>
                   <div className="flex flex-wrap gap-2 mt-2">
