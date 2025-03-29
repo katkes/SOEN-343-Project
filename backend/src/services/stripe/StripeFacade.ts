@@ -23,30 +23,50 @@ export class StripeFacade {
   }
 
   /**
-   * Create a Payment Intent using the provided amount, currency, and PaymentMethod.
-   *
-   * Documentation for creating a Payment Intent: https://docs.stripe.com/api/payment_intents/create
+   * Create a PaymentMethod from raw card details.
    */
-  public async createPaymentIntent(
-    amount: number,
-    currency: string,
-    paymentMethod: string,
-  ): Promise<Stripe.PaymentIntent> {
+  public async createPaymentMethod(
+    cardNumber: string,
+    expMonth: number,
+    expYear: number,
+    cvc: string,
+  ): Promise<Stripe.PaymentMethod> {
     try {
-      const paymentIntent = await this.stripe.paymentIntents.create({
-        amount,
-        currency,
-        payment_method: paymentMethod,
-        payment_method_types: ['card'],
-        confirm: true,
+      const paymentMethod = await this.stripe.paymentMethods.create({
+        type: 'card',
+        card: { number: cardNumber, exp_month: expMonth, exp_year: expYear, cvc },
       });
-      return paymentIntent;
+      return paymentMethod;
     } catch (error: unknown) {
       // Check if the error is a StripeError
       if (error instanceof Stripe.errors.StripeError) {
         throw new Error(`Payment Intent creation failed: ${error.message}`);
       }
       throw new Error('An unknown error occurred while creating the Payment Intent.');
+    }
+  }
+
+  /**
+   * Create and confirm a PaymentIntent with a given PaymentMethod ID.
+   */
+  public async createPaymentIntentWithMethod(
+    amount: number,
+    currency: string,
+    paymentMethodId: string,
+  ): Promise<Stripe.PaymentIntent> {
+    try {
+      const paymentIntent = await this.stripe.paymentIntents.create({
+        amount,
+        currency,
+        payment_method_types: ['card'],
+        payment_method: paymentMethodId,
+        confirmation_method: 'automatic',
+        confirm: true,
+      });
+      return paymentIntent;
+    } catch (error) {
+      Logger.error('Failed to create PaymentIntent:', error);
+      throw error;
     }
   }
 }

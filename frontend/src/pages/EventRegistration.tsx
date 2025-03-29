@@ -5,26 +5,56 @@ import { PageHeader } from '../components/PageHeader';
 import { useEffect, useState } from 'react';
 import { EventResponseDTO } from '../types/event';
 import { eventService } from '../services/backend/event';
+import { useAccountInfo } from '../hooks/useAccountInfo';
 
 export const EventRegistration = () => {
-  // const [paymentMethod, setPaymentMethod] = useState('Card');
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventResponseDTO>();
   const navigate = useNavigate();
 
-  const handleCheckout = async () => {
-    const validEventId = '645f3b2e8a8f3c0012345678'; // Dummy ID
-    const validUserId = '645f3b2e8a8f3c0012345679'; // Dummy ID
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiry, setExpiry] = useState(''); // Format: MM/YY
+  const [cvc, setCvc] = useState('');
 
-    const paymentMethodId = 'pm_card_visa'; // Possibly replace with a different payment method, hardcode for now
+  const account = useAccountInfo();
+
+
+  const parseExpiry = (expiryStr: string) => {
+    const [monthStr, yearStr] = expiryStr.split('/');
+    const expMonth = parseInt(monthStr.trim(), 10);
+    let expYear = parseInt(yearStr.trim(), 10);
+    if (expYear < 100) {
+      // Assume 20xx if short year is provided
+      expYear += 2000;
+    }
+    return { expMonth, expYear };
+  };
+
+  const handleCheckout = async () => {
+
+    if (!account) {
+      console.error('No account information available');
+      return;
+    }
+
+    const { expMonth, expYear } = parseExpiry(expiry);
+    if (!expMonth || !expYear) {
+      console.error('Invalid expiry date');
+      return;
+    }
 
     const payload = {
-      eventId: validEventId, // TODO: Replace with real event ID
-      userId: validUserId, // TODO: Replace with real user ID
-      amount: 5000, // TODO: Replace with event ticket price in cents
-      currency: 'cad', // Could use 'usd' as well
-      paymentMethod: paymentMethodId, // Replace with Stripe PaymentMethod ID from Stripe Elements
+      eventId: id,         // Use real event ID from URL
+      userId: '645f3b2e8a8f3c0012345679', // Replace with real user ID from session/store
+      amount: 5000,        // In cents (e.g., $50.00)
+      currency: 'cad',     // or 'usd'
+      cardNumber,
+      expMonth,
+      expYear,
+      cvc,
     };
+
+    console.log('Payload for payment:', payload);
 
     try {
       const response = await fetch('/api/payment', {
@@ -35,6 +65,7 @@ export const EventRegistration = () => {
         body: JSON.stringify(payload),
       });
       const data = await response.json();
+      console.log('Payment response:', data);
       if (response.ok) {
         console.log('Payment successful:', data);
         // Pass event info to EventConfirmation
@@ -55,6 +86,8 @@ export const EventRegistration = () => {
           throw new Error('Event ID is undefined');
         }
         const responseJson = await eventService.getEventById(id);
+        console.log('Event details:', responseJson);
+        console.log('Event ID:', id);
         setEvent(responseJson); // Set the event details
       } catch (error) {
         console.error('Error fetching event:', error);
@@ -94,23 +127,7 @@ export const EventRegistration = () => {
 
         {/* Payment Form */}
         <div className="bg-white rounded-b-xl px-10 pb-10 pt-5 shadow mx-auto -mt-6">
-          Payment Tabs
-          {/* <div className="flex gap-4">
-            {['Card', 'EPS', 'Giropay'].map((method) => (
-              <CustomButton
-                key={method}
-                onClick={() => setPaymentMethod(method)}
-                disableDefaults
-                className={`px-6 py-3 rounded-lg text-sm font-medium border ${
-                  paymentMethod === method
-                    ? 'border-[#3D50FF] text-[#3D50FF] bg-[#F0F4FF]'
-                    : 'border-gray-200 text-gray-500 bg-white'
-                }`}
-              >
-                {method}
-              </CustomButton>
-            ))}
-          </div> */}
+        Enter Payment Details
 
           {/* Card Details */}
           <div className="space-y-4 pt-6">
@@ -118,7 +135,9 @@ export const EventRegistration = () => {
               <label className="block text-sm font-semibold mb-1">Card number</label>
               <input
                 type="text"
-                placeholder="1234 1234 1234 1234"
+                value={cardNumber}
+                onChange={(e) => setCardNumber(e.target.value)}
+                placeholder="4242 4242 4242 4242"
                 className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266]"
               />
             </div>
@@ -128,7 +147,9 @@ export const EventRegistration = () => {
                 <label className="block text-sm font-semibold mb-1">Expiry</label>
                 <input
                   type="text"
-                  placeholder="MM / YY"
+                  value={expiry}
+                  onChange={(e) => setExpiry(e.target.value)}
+                  placeholder="01/26"
                   className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm"
                 />
               </div>
@@ -136,7 +157,9 @@ export const EventRegistration = () => {
                 <label className="block text-sm font-semibold mb-1">CVC</label>
                 <input
                   type="text"
-                  placeholder="CVC"
+                  value={cvc}
+                  onChange={(e) => setCvc(e.target.value)}
+                  placeholder="123"
                   className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm"
                 />
               </div>

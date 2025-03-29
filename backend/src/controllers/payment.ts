@@ -10,16 +10,39 @@ import { Logger } from '../configs/logger';
  *   "eventId": "string",
  *   "userId": "string",
  *   "amount": number,         // in cents, e.g., 5000 for $50.00
- *   "currency": "usd",
- *   "paymentMethod": "string" // e.g., 'pm_card_visa' from Stripe Elements or a test token
+ *   "currency": "usd" | "cad",
+ *   "cardNumber": "string",
+ *   "expMonth": number,
+ *   "expYear": number,
+ *   "cvc": "string"
  * }
  */
 export const purchaseTicket = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { eventId, userId, amount, currency, paymentMethod } = req.body;
+    const { eventId, userId, amount, currency, cardNumber, expMonth, expYear, cvc } = req.body;
+
+    Logger.info('Received payment request:', {
+      eventId,
+      userId,
+      amount,
+      currency,
+      cardNumber,
+      expMonth,
+      expYear,
+      cvc,
+    });
 
     // Validate request fields
-    if (!eventId || !userId || !amount || !currency || !paymentMethod) {
+    if (
+      !eventId ||
+      !userId ||
+      !amount ||
+      !currency ||
+      !cardNumber ||
+      !expMonth ||
+      !expYear ||
+      !cvc
+    ) {
       Logger.warn('Missing required fields in payment request.');
       res.status(400).json({ success: false, message: 'Missing required fields.' });
       return;
@@ -28,8 +51,20 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
     // Instantiate your Stripe facade
     const stripeFacade = new StripeFacade();
 
-    // Create a Payment Intent using the facade
-    const paymentIntent = await stripeFacade.createPaymentIntent(amount, currency, paymentMethod);
+    // Create a PaymentMethod from raw card details
+    const paymentMethod = await stripeFacade.createPaymentMethod(
+      cardNumber,
+      expMonth,
+      expYear,
+      cvc,
+    );
+
+    // Create and confirm a PaymentIntent using the PaymentMethod ID
+    const paymentIntent = await stripeFacade.createPaymentIntentWithMethod(
+      amount,
+      currency,
+      paymentMethod.id,
+    );
 
     // Handle Payment Intent status:
     if (
