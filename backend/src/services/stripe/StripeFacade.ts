@@ -25,7 +25,7 @@ export class StripeFacade {
   /**
    * Create a PaymentMethod from raw card details.
    */
-  public async createPaymentMethod(
+  public async verifyPaymentMethod(
     cardNumber: string,
     expMonth: number,
     expYear: number,

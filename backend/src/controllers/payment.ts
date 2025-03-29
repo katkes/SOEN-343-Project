@@ -52,7 +52,7 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
     const stripeFacade = new StripeFacade();
 
     // Create a PaymentMethod from raw card details
-    const paymentMethod = await stripeFacade.createPaymentMethod(
+    const paymentMethod = await stripeFacade.verifyPaymentMethod(
       cardNumber,
       expMonth,
       expYear,
