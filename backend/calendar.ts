@@ -1,96 +1,187 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import ical, { ICalAttendeeStatus, ICalEventStatus } from 'ical-generator';
+
+// Load environment variables
 dotenv.config();
 
-// Configuration for email transport
+// Create reusable transporter object using Gmail as the SMTP transport
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com', // Use Gmail's SMTP server (change if using another provider)
-  port: 587,
-  secure: false, // true for 465, false for other ports
+  service: 'gmail',
   auth: {
-    user: process.env.EMAIL, // Your email address
-    pass: process.env.APP_PASSWORD, // use app password if 2FA is enabled
+    user: process.env.EMAIL,
+    pass: process.env.APP_PASSWORD,
   },
-  tls: {
-    rejectUnauthorized: false, // Helps in some network environments
-  },
+  logger: true, // Enable logging for debugging
 });
 
-// Function to format date for iCalendar format
-function formatDate(dateStr: string | number | Date) {
-  const date = new Date(dateStr);
-  return date.toISOString().replace(/[-:]/g, '').split('.')[0]; // e.g. 20250326T150000
-}
+// Verify connection configuration
+transporter.verify(function (error) {
+  if (error) {
+    console.error('SMTP connection error:', error);
+  } else {
+    console.log('Server is ready to take our messages');
+  }
+});
 
-// Function to send calendar invite
+/**
+ * Send calendar invite to one or multiple recipients
+ *
+ * @param {string|string[]} to - Email address(es) of recipient(s)
+ * @param {string} subject - Subject of the meeting
+ * @param {string} description - Description of the meeting
+ * @param {Date|string} startTime - Start time of the meeting
+ * @param {Date|string} endTime - End time of the meeting
+ * @param {string} [location] - Optional location of the meeting
+ * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
+ */
 async function sendCalendarInvite(
-  to: string,
+  to: string | string[],
   subject: string,
   description: string,
-  startTime: string | number | Date,
-  endTime: string | number | Date,
+  startTime: Date | string,
+  endTime: Date | string,
+  location?: string,
 ) {
-  // Create iCalendar content
-  const icsContent = `BEGIN:VCALENDAR
-VERSION:2.0
-CALSCALE:GREGORIAN
-METHOD:REQUEST
-BEGIN:VEVENT
-DTSTART:${formatDate(startTime)}
-DTEND:${formatDate(endTime)}
-SUMMARY:${subject}
-DESCRIPTION:${description}
-ORGANIZER;CN=Your Name:mailto:${process.env.EMAIL}
-ATTENDEE;CN=Invitee;RSVP=TRUE:mailto:${to}
-END:VEVENT
-END:VCALENDAR`;
-
-  //console.log(`${env.EMAIL}`);
-  //console.log(`${env.PASSWORD}`);
-
-  // Configure email options
-  const mailOptions = {
-    from: `#${process.env.EMAIL}`, // Your email address
-    to: to,
-    subject: 'Meeting Invite: ' + subject,
-    text: description,
-    alternatives: [
-      {
-        contentType: 'text/calendar; method=REQUEST',
-        content: icsContent,
-      },
-    ],
-  };
-
   try {
-    // Send the email
+    // Ensure recipients is an array
+    const recipients = Array.isArray(to) ? to : [to];
+
+    // Create calendar event using ical-generator
+    const calendar = ical({ name: subject });
+    const event = calendar.createEvent({
+      start: new Date(startTime),
+      end: new Date(endTime),
+      summary: subject,
+      description: description,
+      location: location,
+      organizer: {
+        name: 'Meeting Organizer',
+        email: process.env.EMAIL || '',
+        mailto: process.env.EMAIL || '',
+      },
+      status: ICalEventStatus.CONFIRMED,
+    });
+
+    // Add attendees
+    recipients.forEach((email) => {
+      event.createAttendee({
+        email: email,
+        rsvp: true,
+        status: ICalAttendeeStatus.NEEDSACTION,
+      });
+    });
+
+    // Email options
+    const mailOptions = {
+      from: `"Eventful.io" <${process.env.EMAIL}>`,
+      to: recipients.join(','),
+      subject: `Meeting Invitation: ${subject}`,
+      text: `
+You are invited to: ${subject}
+
+When: ${new Date(startTime).toLocaleString()} - ${new Date(endTime).toLocaleString()}
+${location ? `Where: ${location}` : ''}
+
+Details:
+${description}
+
+This invitation contains a calendar event. Please respond to indicate if you can attend.
+      `,
+      html: `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <h2 style="color: #3066BE;">Meeting Invitation: ${subject}</h2>
+  <p><strong>When:</strong> ${new Date(startTime).toLocaleString()} - ${new Date(endTime).toLocaleString()}</p>
+  ${location ? `<p><strong>Where:</strong> ${location}</p>` : ''}
+  <div style="margin: 20px 0; padding: 15px; background-color: #f5f5f5; border-left: 4px solid #3066BE;">
+    <h3>Details:</h3>
+    <p>${description.replace(/\n/g, '<br>')}</p>
+  </div>
+  <p>This invitation contains a calendar event. Please respond to indicate if you can attend.</p>
+</div>
+      `,
+      icalEvent: {
+        filename: 'invitation.ics',
+        method: 'REQUEST',
+        content: calendar.toString(),
+      },
+    };
+
+    // Send mail with defined transport object
     const info = await transporter.sendMail(mailOptions);
     console.log('Calendar invite sent successfully:', info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('Failed to send calendar invite:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+// Simple function to send a test email to verify configuration
+async function sendTestEmail(to: string) {
+  const testMailOptions = {
+    from: `"Email Tester" <${process.env.EMAIL}>`,
+    to: to,
+    subject: 'Test Email from Nodemailer',
+    text: 'If you receive this email, your Nodemailer configuration is working correctly.',
+    html: '<p>If you receive this email, your <b>Nodemailer configuration</b> is working correctly.</p>',
+  };
+
+  try {
+    const info = await transporter.sendMail(testMailOptions);
+    console.log('Test email sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Failed to send test email:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
   }
 }
 
 // Example usage
-const recipientEmail = `${process.env.EMAIL}`;
-const meetingSubject = 'Project Discussion';
-const meetingDescription = "Let's discuss the progress of our current project.";
-const meetingStart = '2025-03-30T15:00:00';
-const meetingEnd = '2025-03-30T16:00:00';
+async function main() {
+  // First verify if email sending works with a simple test email
+  console.log('Sending test email...');
+  const testResult = await sendTestEmail('recipient@example.com'); // Replace with actual recipient
 
-// Execute the function
-sendCalendarInvite(
-  recipientEmail,
-  meetingSubject,
-  meetingDescription,
-  meetingStart,
-  meetingEnd,
-).then((result) => {
-  if (result.success) {
-    console.log('Invite sent successfully!');
+  if (testResult.success) {
+    console.log('Test email sent successfully! Now sending calendar invite...');
+
+    // Example calendar invitation
+    const recipients = ['jainammshah12@gmail.com']; // Replace with actual recipients
+    const meetingSubject = 'Project Discussion';
+    const meetingDescription =
+      "Let's discuss the progress of our current project and plan the next steps.";
+    const meetingStart = new Date('2025-04-10T15:00:00');
+    const meetingEnd = new Date('2025-04-10T16:30:00');
+    const meetingLocation = 'Conference Room A';
+
+    const inviteResult = await sendCalendarInvite(
+      recipients,
+      meetingSubject,
+      meetingDescription,
+      meetingStart,
+      meetingEnd,
+      meetingLocation,
+    );
+
+    if (inviteResult.success) {
+      console.log('Calendar invite sent successfully!');
+    } else {
+      console.log('Failed to send calendar invite:', inviteResult.error);
+    }
   } else {
-    console.log('Failed to send invite:', result.error);
+    console.log('Test email failed. Please check your SMTP configuration:', testResult.error);
   }
-});
+}
+
+// Run the main function
+main().catch(console.error);
+
+// Export functions if you want to use them in other files
+export { sendCalendarInvite, sendTestEmail };
