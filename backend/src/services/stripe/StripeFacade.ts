@@ -1,6 +1,12 @@
 import Stripe from 'stripe';
 import { Logger } from '../../configs/logger';
 
+/***
+ *
+ * StripeFacade is a class that provides a simplified interface for interacting with the Stripe API.
+ * The Facade pattern is used here to encapsulate the complexity of the Stripe API and provide a cleaner interface.
+ *
+ */
 export class StripeFacade {
   private stripe: Stripe;
 

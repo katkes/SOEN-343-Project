@@ -3,7 +3,12 @@ import { ENV_VARS } from './env';
 import { Logger } from './logger';
 
 /**
+ *
  * Singleton pattern for Database connection
+ * The singleton pattern ensures that only one instance of the Database class is created
+ * and that it manages the connection to the MongoDB database.
+ * This is useful for preventing multiple connections to the database in a single application.
+ *
  */
 class Database {
   private static instance: Database;
