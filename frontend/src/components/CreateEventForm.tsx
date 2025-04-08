@@ -113,51 +113,63 @@ const CreateEventForm = () => {
         <div className="py-6 px-12 bg-white rounded-b-xl">
           <h3 className="text-xl font-semibold pt-2 pb-4">Event Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <input
-              type="number"
-              value={maxCapacity || ''}
-              onChange={(e) => {
-                const value = Number(e.target.value);
-                if (value >= 0) setMaxCapacity(value);
-              }}
-              min="0"
-              placeholder="Max Capacity"
-              className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Max Capacity:</label>
+              <input
+                type="number"
+                value={maxCapacity || ''}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value >= 0) setMaxCapacity(value);
+                }}
+                min="0"
+                placeholder="Max Capacity"
+                className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
+              />
+            </div>
 
-            <input
-              type="number"
-              value={duration || ''}
-              onChange={(e) => {
-                const value = Number(e.target.value);
-                if (value >= 0) setDuration(value);
-              }}
-              min="0"
-              placeholder="Duration (mins)"
-              className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Duration (mins):</label>
+              <input
+                type="number"
+                value={duration || ''}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value >= 0) setDuration(value);
+                }}
+                min="0"
+                placeholder="Duration (mins)"
+                className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
+              />
+            </div>
 
-            <select
-              value={selectedSpeaker || ''}
-              onChange={(e) => setSelectedSpeaker(e.target.value)}
-              className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-            >
-              <option value="in-person">In Person</option>
-              <option value="Hybrid">Hybrid</option>
-              <option value="Online">Online</option>
-            </select>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Location Type:</label>
+              <select
+                value={selectedSpeaker || ''}
+                onChange={(e) => setSelectedSpeaker(e.target.value)}
+                className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
+              >
+                <option value="in-person">In Person</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Online">Online</option>
+              </select>
+            </div>
 
-            <select
-              value={locationType || ''}
-              onChange={(e) => setLocationType(e.target.value)}
-              className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-            >
-              {speakers.map((speaker) => (
-                <option key={speaker._id} value={speaker._id}>
-                  {speaker.firstName} {speaker.lastName}
-                </option>
-              ))}
-            </select>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Speaker:</label>
+              <select
+                value={locationType || ''}
+                onChange={(e) => setLocationType(e.target.value)}
+                className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
+              >
+                {speakers.map((speaker) => (
+                  <option key={speaker._id} value={speaker._id}>
+                    {speaker.firstName} {speaker.lastName}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>

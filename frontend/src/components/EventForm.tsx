@@ -231,73 +231,84 @@ export const EventForm: React.FC<EventFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
               {/* Max Capacity */}
-              <input
-                type="number"
-                disabled={!formEditable}
-                value={maxCapacity || ''}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  if (value >= 0) setMaxCapacity(value);
-                }}
-                min="0"
-                placeholder="Max Capacity"
-                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
-                  formEditable
-                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
-                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Max Capacity:</label>
+                <input
+                  type="number"
+                  disabled={!formEditable}
+                  value={maxCapacity || ''}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value >= 0) setMaxCapacity(value);
+                  }}
+                  min="0"
+                  placeholder="Max Capacity"
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                />
+              </div>
 
               {/* Duration */}
-              <input
-                type="number"
-                disabled={!formEditable}
-                value={duration || ''}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  if (value >= 0) setDuration(value);
-                }}
-                min="0"
-                placeholder="Duration (mins)"
-                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
-                  formEditable
-                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
-                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Duration (mins):</label>
+                <input
+                  type="number"
+                  disabled={!formEditable}
+                  value={duration || ''}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value >= 0) setDuration(value);
+                  }}
+                  min="0"
+                  placeholder="Duration (mins)"
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                />
+              </div>
 
               {/* Location Type */}
-              <select
-                value={locationType || ''}
-                disabled={!formEditable}
-                onChange={(e) => setLocationType(e.target.value)}
-                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
-                  formEditable
-                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
-                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                <option value="in-person">In Person</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Online">Online</option>
-              </select>
-              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Location Type:</label>
+                <select
+                  value={locationType || ''}
+                  disabled={!formEditable}
+                  onChange={(e) => setLocationType(e.target.value)}
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  <option value="in-person">In Person</option>
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="Online">Online</option>
+                </select>
+              </div>
                 
               {/* Speaker */}
-              <select
-                value={locationType || ''}
-                disabled={!formEditable}
-                onChange={(e) => setLocationType(e.target.value)}
-                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
-                  formEditable
-                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
-                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                <option value="in-person">In Person</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Online">Online</option>
-              </select>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Speaker:</label>
+                <select
+                  value={locationType || ''}
+                  disabled={!formEditable}
+                  onChange={(e) => setLocationType(e.target.value)}
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  <option value="in-person">In Person</option>
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="Online">Online</option>
+                </select>
+              </div>
               
               {/* TODO: Replace the following code with individual input fields */}
               {/* {eventDetails.map((detail, index) =>
