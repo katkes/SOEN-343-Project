@@ -5,14 +5,14 @@ import { EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import CustomButton from '../components/CustomButton';
 import NavBar from '../components/NavBar';
 import { authService } from '../services/backend/auth';
-import { UserType } from '../types/auth';
+import { UserRole } from '../types/auth';
 import { useNavigate } from 'react-router-dom';
 import { FrontEndRoutes } from './routes';
 
 export const AttendeeSignUp: React.FC = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [role, setRole] = useState<UserType | ''>('');
+  const [role, setRole] = useState<UserRole | ''>('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -86,7 +86,7 @@ export const AttendeeSignUp: React.FC = () => {
               <select
                 required
                 value={role}
-                onChange={(e) => setRole(e.target.value as UserType | '')}
+                onChange={(e) => setRole(e.target.value as UserRole | '')}
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               >
                 <option value="" selected disabled>

@@ -14,3 +14,12 @@ export const SERVER_ART = `
 `;
 
 export const SESSION_TIMEOUT = '1h';
+
+export const DefaultCookieConfig = {
+  httpOnly: true,
+  maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
+  secure: true,
+  sameSite: 'lax',
+} as const;
+
+export const JWT_COOKIE_NAME = 'jwt';

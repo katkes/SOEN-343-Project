@@ -6,11 +6,10 @@ import { StatusCodes } from 'http-status-codes';
 import { ENV_VARS } from '../configs/env';
 import jwt from 'jsonwebtoken';
 import 'express-session';
-import { SESSION_TIMEOUT } from '../configs/constants';
+import { DefaultCookieConfig, JWT_COOKIE_NAME, SESSION_TIMEOUT } from '../configs/constants';
 import { userRoles } from '../models/user';
 import { getCompanyByEmail } from '../services/mongo/company';
-import { getAllSpeakers } from '../services/mongo/user';
-import { SessionAccountType } from '../middleware/session';
+import { SessionAccountType } from '../types/account';
 import { User } from '../models/user';
 import { Company } from '../models/company';
 
@@ -53,7 +52,8 @@ export async function createUserController(req: Request, res: Response) {
   // create token for user and store userId in JWT store
   const account: SessionAccountType = { _id: user._id, accountType: 'user' };
   const token = jwt.sign(account, ENV_VARS.JWT_SECRET, { expiresIn: SESSION_TIMEOUT });
-  req.session.token = token;
+
+  res.cookie(JWT_COOKIE_NAME, token, DefaultCookieConfig);
 
   // return success status
   res.status(StatusCodes.CREATED).json({});
