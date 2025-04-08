@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createUser, CreateUserDTO, getUserByEmail } from '../services/mongo/user';
+import { createUser, CreateUserDTO, getAllSpeakers, getUserByEmail } from '../services/mongo/user';
 import { Logger } from '../configs/logger';
 import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
@@ -101,6 +101,7 @@ export async function getAllSpeakersController(req: Request, res: Response) {
       .json({ error: 'Error occurred while getting speakers.' });
   }
 }
+
 export async function updateProfileController(req: Request, res: Response) {
   try {
     // The authenticate middleware should have attached req.account

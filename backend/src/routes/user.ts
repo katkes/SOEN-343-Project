@@ -10,8 +10,8 @@ import { authenticate } from '../middleware/auth';
 const router = Router();
 
 router.post('/', createUserController);
-router.get('/:email', getUserByEmailController);
 router.get('/speakers', getAllSpeakersController);
+router.get('/:email', getUserByEmailController);
 router.put('/edit', authenticate, updateProfileController);
 
 export default router;

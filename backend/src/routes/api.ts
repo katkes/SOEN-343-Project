@@ -29,9 +29,6 @@ router.use('/payment', paymentRoute);
 // api/event
 router.use('/event', eventRoute);
 
-//api/getSpeaker
-// router.use('/getSpeaker', getSpeakerRoute);
-
 // Catch all route for api/ group.
 router.all('*', (_, res) => {
   res.status(StatusCodes.NOT_FOUND).json({ error: 'Route not found.' });
