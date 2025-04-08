@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CustomButton from './CustomButton';
 import { format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { authService } from '../services/backend/auth';
 import { useNavigate } from 'react-router-dom';
 import { FrontEndRoutes } from '../pages/routes';
+import { userService } from '../services/backend/user';
+import { UserAccount } from '../types/account';
 
 const CreateEventForm = () => {
+  const [selectedSpeaker, setSelectedSpeaker] = useState<UserAccount>(); // New state for selected speaker
+  const [speakers, setSpeakers] = useState<UserAccount[]>([]);
   const [eventDate, setEventDate] = useState(() => {
     const now = new Date();
     const estZone = 'America/New_York'; // EST timezone
@@ -22,6 +26,23 @@ const CreateEventForm = () => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchSpeakers = async () => {
+      try {
+        const responseJson = await userService.getAllSpeakers();
+        setSpeakers(responseJson); // Set the event details
+        console.log('Speakers:', responseJson); // Log the fetched speakers
+        if (responseJson.length > 0) {
+          setSelectedSpeaker(responseJson[0]); // Set default to the first speaker
+        }
+      } catch (error) {
+        console.error('Error fetching event:', error);
+      }
+    };
+
+    fetchSpeakers();
+  }, []);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -33,7 +54,8 @@ const CreateEventForm = () => {
         ticketsSold: 0,
         maxCapacity: Number(maxCapacity),
         startDateAndTime: new Date(eventDate),
-        timeDurationInMinutes: Number(duration)
+        timeDurationInMinutes: Number(duration),
+        speaker: selectedSpeaker?.email || '',
       });
       navigate(FrontEndRoutes.Dashboard);
     } catch (e) {
@@ -92,39 +114,67 @@ const CreateEventForm = () => {
         <div className="py-6 px-12 bg-white rounded-b-xl">
           <h3 className="text-xl font-semibold pt-2 pb-4">Event Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <input
-              type="number"
-              value={maxCapacity || ''}
-              onChange={(e) => {
-                const value = Number(e.target.value);
-                if (value >= 0) setMaxCapacity(value);
-              }}
-              min="0"
-              placeholder="Max Capacity"
-              className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Max Capacity:</label>
+              <input
+                type="number"
+                value={maxCapacity || ''}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value >= 0) setMaxCapacity(value);
+                }}
+                min="0"
+                placeholder="Max Capacity"
+                className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
+              />
+            </div>
 
-            <input
-              type="number"
-              value={duration || ''}
-              onChange={(e) => {
-                const value = Number(e.target.value);
-                if (value >= 0) setDuration(value);
-              }}
-              min="0"
-              placeholder="Duration (mins)"
-              className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Duration (mins):</label>
+              <input
+                type="number"
+                value={duration || ''}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value >= 0) setDuration(value);
+                }}
+                min="0"
+                placeholder="Duration (mins)"
+                className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
+              />
+            </div>
 
-            <select
-              value={locationType || ''}
-              onChange={(e) => setLocationType(e.target.value)}
-              className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-            >
-              <option value="in-person">In Person</option>
-              <option value="Hybrid">Hybrid</option>
-              <option value="Online">Online</option>
-            </select>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Location Type:</label>
+              <select
+                value={locationType || ''}
+                onChange={(e) => setLocationType(e.target.value)}
+                className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
+              >
+                <option value="in-person">In Person</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Online">Online</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Speaker:</label>
+              <select
+                value={selectedSpeaker?._id || ''}
+                onChange={(e) => {
+                  const selected = speakers.find(speaker => speaker._id === e.target.value);
+                  setSelectedSpeaker(selected);
+                }}
+                className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
+                
+              >
+                {speakers.map((speaker) => (
+                  <option key={speaker._id} value={speaker._id}>
+                    {speaker.firstName} {speaker.lastName}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
