@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CustomButton from './CustomButton';
 import { format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { authService } from '../services/backend/auth';
 import { useNavigate } from 'react-router-dom';
 import { FrontEndRoutes } from '../pages/routes';
+import { userService } from '../services/backend/user';
+import { UserAccount } from '../types/account';
 
 const CreateEventForm = () => {
+  const [selectedSpeaker, setSelectedSpeaker] = useState<string>(''); // New state for selected speaker
+  const [speakers, setSpeakers] = useState<UserAccount[]>([]);
   const [eventDate, setEventDate] = useState(() => {
     const now = new Date();
     const estZone = 'America/New_York'; // EST timezone
@@ -21,6 +25,23 @@ const CreateEventForm = () => {
   const [duration, setDuration] = useState<number>(0);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchSpeakers = async () => {
+      try {
+        const responseJson = await userService.getAllSpeakers();
+        setSpeakers(responseJson); // Set the event details
+        console.log('Speakers:', responseJson); // Log the fetched speakers
+        if (responseJson.length > 0) {
+          setSelectedSpeaker(responseJson[0]._id); // Set default to the first speaker's ID
+        }
+      } catch (error) {
+        console.error('Error fetching event:', error);
+      }
+    };
+
+    fetchSpeakers();
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,13 +138,25 @@ const CreateEventForm = () => {
             />
 
             <select
-              value={locationType || ''}
-              onChange={(e) => setLocationType(e.target.value)}
+              value={selectedSpeaker || ''}
+              onChange={(e) => setSelectedSpeaker(e.target.value)}
               className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
             >
               <option value="in-person">In Person</option>
               <option value="Hybrid">Hybrid</option>
               <option value="Online">Online</option>
+            </select>
+
+            <select
+              value={locationType || ''}
+              onChange={(e) => setLocationType(e.target.value)}
+              className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
+            >
+              {speakers.map((speaker) => (
+                <option key={speaker._id} value={speaker._id}>
+                  {speaker.firstName} {speaker.lastName}
+                </option>
+              ))}
             </select>
           </div>
 

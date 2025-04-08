@@ -282,6 +282,23 @@ export const EventForm: React.FC<EventFormProps> = ({
                 <option value="Online">Online</option>
               </select>
               
+                
+              {/* Speaker */}
+              <select
+                value={locationType || ''}
+                disabled={!formEditable}
+                onChange={(e) => setLocationType(e.target.value)}
+                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                  formEditable
+                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                <option value="in-person">In Person</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Online">Online</option>
+              </select>
+              
               {/* TODO: Replace the following code with individual input fields */}
               {/* {eventDetails.map((detail, index) =>
                 index === 2 ? (

@@ -5,6 +5,7 @@ export const Endpoints = {
   },
   User: {
     SignUp: "/api/users",
+    GetAllSpeakers: "/api/users/speakers",
   },
   Company: {
     SignUp: "/api/company"
