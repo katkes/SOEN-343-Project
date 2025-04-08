@@ -9,7 +9,7 @@ import { userService } from '../services/backend/user';
 import { UserAccount } from '../types/account';
 
 const CreateEventForm = () => {
-  const [selectedSpeaker, setSelectedSpeaker] = useState<string>(''); // New state for selected speaker
+  const [selectedSpeaker, setSelectedSpeaker] = useState<UserAccount>(); // New state for selected speaker
   const [speakers, setSpeakers] = useState<UserAccount[]>([]);
   const [eventDate, setEventDate] = useState(() => {
     const now = new Date();
@@ -33,7 +33,7 @@ const CreateEventForm = () => {
         setSpeakers(responseJson); // Set the event details
         console.log('Speakers:', responseJson); // Log the fetched speakers
         if (responseJson.length > 0) {
-          setSelectedSpeaker(responseJson[0]._id); // Set default to the first speaker's ID
+          setSelectedSpeaker(responseJson[0]); // Set default to the first speaker
         }
       } catch (error) {
         console.error('Error fetching event:', error);
@@ -54,7 +54,8 @@ const CreateEventForm = () => {
         ticketsSold: 0,
         maxCapacity: Number(maxCapacity),
         startDateAndTime: new Date(eventDate),
-        timeDurationInMinutes: Number(duration)
+        timeDurationInMinutes: Number(duration),
+        speaker: selectedSpeaker?._id || '',
       });
       navigate(FrontEndRoutes.Dashboard);
     } catch (e) {
@@ -146,8 +147,8 @@ const CreateEventForm = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Location Type:</label>
               <select
-                value={selectedSpeaker || ''}
-                onChange={(e) => setSelectedSpeaker(e.target.value)}
+                value={locationType || ''}
+                onChange={(e) => setLocationType(e.target.value)}
                 className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
               >
                 <option value="in-person">In Person</option>
@@ -159,9 +160,13 @@ const CreateEventForm = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Speaker:</label>
               <select
-                value={locationType || ''}
-                onChange={(e) => setLocationType(e.target.value)}
+                value={selectedSpeaker?._id || ''}
+                onChange={(e) => {
+                  const selected = speakers.find(speaker => speaker._id === e.target.value);
+                  setSelectedSpeaker(selected);
+                }}
                 className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
+                
               >
                 {speakers.map((speaker) => (
                   <option key={speaker._id} value={speaker._id}>
