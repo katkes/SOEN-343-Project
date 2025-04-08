@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { IUser, User } from '../../models/user';
 import { hashPassword } from '../../utils/hash';
 
@@ -15,7 +16,6 @@ export async function getAllSpeakers() {
   return await User.find({ role: 'Speaker' });
 }
 
-// UNUSED
-// export async function getUserById(_id: Types.ObjectId | string) {
-//   return await User.findOne({ _id });
-// }
+export async function getUserById(_id: Types.ObjectId | string) {
+  return await User.findOne({ _id });
+}
