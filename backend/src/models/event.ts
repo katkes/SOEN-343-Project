@@ -9,7 +9,7 @@ export interface IEvent {
   startDateAndTime: Date;
   timeDurationInMinutes: number;
   description: string;
-  speaker: Types.ObjectId;
+  speaker: string;
 }
 export interface IEventDocument extends Document, IEvent {
   _id: Types.ObjectId;
@@ -25,7 +25,7 @@ const EventSchema: Schema = new Schema(
     startDateAndTime: { type: Date, required: true },
     timeDurationInMinutes: { type: Number, required: true },
     description: { type: String, required: true },
-    speaker: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    speaker: { type: String, required: true },
   },
   // create two extra fields named createdAt and updatedAt in case we need it
   { timestamps: true },

@@ -6,6 +6,7 @@ export const Endpoints = {
   User: {
     SignUp: "/api/users",
     GetAllSpeakers: "/api/users/speakers",
+    GetUserByEmail: "/api/users/:email",
   },
   Company: {
     SignUp: "/api/company"

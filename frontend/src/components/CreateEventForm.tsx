@@ -55,7 +55,7 @@ const CreateEventForm = () => {
         maxCapacity: Number(maxCapacity),
         startDateAndTime: new Date(eventDate),
         timeDurationInMinutes: Number(duration),
-        speaker: selectedSpeaker?._id || '',
+        speaker: selectedSpeaker?.email || '',
       });
       navigate(FrontEndRoutes.Dashboard);
     } catch (e) {

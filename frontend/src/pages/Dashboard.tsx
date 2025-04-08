@@ -9,6 +9,7 @@ import { FrontEndRoutes } from './routes';
 import { useAccountInfo } from '../hooks/useAccountInfo';
 import { CompanyAccount, UserAccount } from '../types/account';
 import { EventResponseDTO } from '../types/event';
+import { userService } from '../services/backend/user';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -26,11 +27,22 @@ export const Dashboard: React.FC = () => {
     const fetchEvents = async () => {
       try {
         const response = await eventService.getAllEvents();
-        const fetchedEvents = response.map((event: EventResponseDTO) => ({
-          ...event,
-          speaker: 'Test Speaker', // Default speaker
-          tags: ['NEW!'], // Default tags
-        }));
+        
+        // const fetchedEvents = response.map((event: EventResponseDTO) => ({
+        //   ...event,
+        //   tags: ['NEW!'], // Default tags
+        // }));
+        const fetchedEvents = await Promise.all(
+          response.map(async (event: EventResponseDTO) => {
+            const speaker = await userService.getUserByEmail(event.speaker); // Fetch speaker details
+            console.log('Speaker:', speaker); // Log the fetched speaker details
+            return {
+              ...event,
+              speaker: speaker.firstName + ' ' + speaker.lastName,
+              tags: ['NEW!'],
+            };
+          })
+        );
         setEvents(fetchedEvents);
       } catch (error) {
         console.error('Error fetching events:', error);
@@ -162,7 +174,7 @@ export const Dashboard: React.FC = () => {
                     {event.description}
                   </p>
                   <p className="mt-2 text-sm font-medium text-[#273266]">
-                    <span className="text-[#637381]">👤 Speaker:</span> Nicolas MacBeth
+                    <span className="text-[#637381]">👤 Speaker:</span> {event.speaker}
                   </p>
                   <p className="text-sm text-[#637381]">
                     📅 Date:{' '}

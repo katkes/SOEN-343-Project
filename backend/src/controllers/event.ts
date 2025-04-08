@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
 import 'express-session';
 import { createEvent, CreateEventDTO, getAllEvents, getEventById } from '../services/mongo/event';
-import mongoose from 'mongoose';
 
 // Create event validation schema when receiving request
 const createEventBodySchema = z.object({
@@ -21,10 +20,7 @@ const createEventBodySchema = z.object({
     }),
   timeDurationInMinutes: z.number().min(0, 'Time duration must be at least 0 minutes.'),
   description: z.string().min(1, 'Description field is required.'),
-  speaker: z
-    .string()
-    .min(1, 'Speaker field is required.')
-    .transform((val) => new mongoose.Types.ObjectId(val)),
+  speaker: z.string().min(1, 'Speaker email field is required.'),
 });
 
 /**
