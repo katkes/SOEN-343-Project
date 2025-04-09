@@ -23,6 +23,7 @@ const CreateEventForm = () => {
   const [locationType, setLocationType] = useState<string>('In Person');
   const [maxCapacity, setMaxCapacity] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
+  const [price, setPrice] = useState<number>(0);
 
   const navigate = useNavigate();
 
@@ -56,6 +57,8 @@ const CreateEventForm = () => {
         startDateAndTime: new Date(eventDate),
         timeDurationInMinutes: Number(duration),
         speaker: selectedSpeaker?.email || '',
+        price: price,
+        sponsoredBy: '', // Add sponsoredBy if needed
       });
       navigate(FrontEndRoutes.Dashboard);
     } catch (e) {
@@ -113,6 +116,22 @@ const CreateEventForm = () => {
 
         <div className="py-6 px-12 bg-white rounded-b-xl">
           <h3 className="text-xl font-semibold pt-2 pb-4">Event Details</h3>
+          {/* New Price Input Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Price ($):</label>
+            <input
+              type="number"
+              value={price || ''}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value);
+                if (value >= 0) setPrice(value);
+              }}
+              min="0"
+              step="0.01" // Allows decimal values
+              placeholder="Price"
+              className="w-full max-w-[500px] p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400 mb-4"
+            />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Max Capacity:</label>

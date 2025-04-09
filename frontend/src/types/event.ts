@@ -8,6 +8,8 @@ export type CreateEventDTO = {
     startDateAndTime: Date
     timeDurationInMinutes: number
     speaker: string
+    price: number
+    sponsoredBy?: string | undefined
 }
 
 export type EventResponseDTO = CreateEventDTO & {
