@@ -20,6 +20,7 @@ const createEventBodySchema = z.object({
     }),
   timeDurationInMinutes: z.number().min(0, 'Time duration must be at least 0 minutes.'),
   description: z.string().min(1, 'Description field is required.'),
+  speaker: z.string().min(1, 'Speaker email field is required.'),
 });
 
 /**

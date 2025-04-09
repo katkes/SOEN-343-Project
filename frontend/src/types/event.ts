@@ -7,6 +7,7 @@ export type CreateEventDTO = {
     maxCapacity: number
     startDateAndTime: Date
     timeDurationInMinutes: number
+    speaker: string
 }
 
 export type EventResponseDTO = CreateEventDTO & {

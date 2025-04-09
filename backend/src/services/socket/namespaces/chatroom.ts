@@ -41,13 +41,11 @@ const sendMessage = ({ socket, nameSpace }: SocketContext) => {
       return;
     }
     Logger.info(`User ${user.firstName} ${user.lastName} sent message: ${content}`);
-    nameSpace
-      .to(room)
-      .emit('receiveMessage', {
-        room,
-        sender: `${user.firstName} ${user.lastName}`,
-        content,
-      } as Message);
+    nameSpace.to(room).emit('receiveMessage', {
+      room,
+      sender: `${user.firstName} ${user.lastName}`,
+      content,
+    } as Message);
     // nameSpace.to(room).emit('receiveMessage', message);
   };
 };

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createUser, CreateUserDTO, getUserByEmail } from '../services/mongo/user';
+import { createUser, CreateUserDTO, getAllSpeakers, getUserByEmail } from '../services/mongo/user';
 import { Logger } from '../configs/logger';
 import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
@@ -87,6 +87,18 @@ export async function getUserByEmailController(req: Request, res: Response) {
     Logger.error('Error retrieving users: ');
     Logger.error('Received error: ', error);
     res.status(500).json({ error: 'Error occurred while getting users.' });
+  }
+}
+
+export async function getAllSpeakersController(req: Request, res: Response) {
+  try {
+    const speakers = await getAllSpeakers();
+    res.status(StatusCodes.OK).json(speakers);
+  } catch (error) {
+    Logger.error('Error retrieving speakers: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: 'Error occurred while getting speakers.' });
   }
 }
 

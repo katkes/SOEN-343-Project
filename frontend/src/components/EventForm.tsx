@@ -9,6 +9,7 @@ import { EventResponseDTO } from '../types/event';
 export const userRole = 'attendee';
 import { useAccountInfo } from '../hooks/useAccountInfo';
 import { CompanyAccount, UserAccount } from '../types/account';
+import { userService } from '../services/backend/user';
 
 interface EventFormProps {
   editable?: boolean;
@@ -27,6 +28,7 @@ export const EventForm: React.FC<EventFormProps> = ({
   registered = false,
   event
 }) => {
+  
   const [eventTitle, setEventTitle] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const [eventDate, setEventDate] = useState('');
@@ -34,7 +36,8 @@ export const EventForm: React.FC<EventFormProps> = ({
   const [locationType, setLocationType] = useState<string>('In Person');
   const [maxCapacity, setMaxCapacity] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
-  
+  const [selectedSpeaker, setSelectedSpeaker] = useState<UserAccount>(); // New state for selected speaker
+  const [speakers, setSpeakers] = useState<UserAccount[]>([]);
 
 
   // TODO: Please don't store the event details in an array. Store each detail in a separate state variable.
@@ -78,6 +81,26 @@ export const EventForm: React.FC<EventFormProps> = ({
       setMaxCapacity(event.maxCapacity);
       setDuration(event.timeDurationInMinutes);
 
+      const fetchCurrentSpeaker = async () => {
+        const currentSpeaker = await userService.getUserByEmail(event.speaker);
+        setSelectedSpeaker(currentSpeaker); // Set the selected speaker based on the event data
+      };
+      fetchCurrentSpeaker();
+
+      const fetchSpeakers = async () => {
+        try {
+          const responseJson = await userService.getAllSpeakers();
+          setSpeakers(responseJson); // Set the event details
+          // console.log('Speakers:', responseJson); // Log the fetched speakers
+          // if (responseJson.length > 0) {
+          //   setSelectedSpeaker(responseJson[0]); // Set default to the first speaker
+          // }
+        } catch (error) {
+          console.error('Error fetching event:', error);
+        }
+      };
+  
+      fetchSpeakers();
       // TODO: Please don't store the event details in an array. Store each detail in a separate state variable.
       // setEventDetails([
       //   '09:00 AM', // Placeholder for start time
@@ -231,56 +254,89 @@ export const EventForm: React.FC<EventFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
               {/* Max Capacity */}
-              <input
-                type="number"
-                disabled={!formEditable}
-                value={maxCapacity || ''}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  if (value >= 0) setMaxCapacity(value);
-                }}
-                min="0"
-                placeholder="Max Capacity"
-                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
-                  formEditable
-                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
-                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Max Capacity:</label>
+                <input
+                  type="number"
+                  disabled={!formEditable}
+                  value={maxCapacity || ''}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value >= 0) setMaxCapacity(value);
+                  }}
+                  min="0"
+                  placeholder="Max Capacity"
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                />
+              </div>
 
               {/* Duration */}
-              <input
-                type="number"
-                disabled={!formEditable}
-                value={duration || ''}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  if (value >= 0) setDuration(value);
-                }}
-                min="0"
-                placeholder="Duration (mins)"
-                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
-                  formEditable
-                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
-                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Duration (mins):</label>
+                <input
+                  type="number"
+                  disabled={!formEditable}
+                  value={duration || ''}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value >= 0) setDuration(value);
+                  }}
+                  min="0"
+                  placeholder="Duration (mins)"
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                />
+              </div>
 
               {/* Location Type */}
-              <select
-                value={locationType || ''}
-                disabled={!formEditable}
-                onChange={(e) => setLocationType(e.target.value)}
-                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
-                  formEditable
-                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
-                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                <option value="in-person">In Person</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Online">Online</option>
-              </select>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Location Type:</label>
+                <select
+                  value={locationType || ''}
+                  disabled={!formEditable}
+                  onChange={(e) => setLocationType(e.target.value)}
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  <option value="in-person">In Person</option>
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="Online">Online</option>
+                </select>
+              </div>
+                
+              {/* Speaker */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Speaker:</label>
+                <select
+                  value={selectedSpeaker?._id || ''}
+                  disabled={!formEditable}
+                  onChange={(e) => {
+                    const selected = speakers.find(speaker => speaker._id === e.target.value);
+                    setSelectedSpeaker(selected);
+                  }}
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  {speakers.map((speaker) => (
+                    <option key={speaker._id} value={speaker._id}>
+                      {speaker.firstName} {speaker.lastName}
+                    </option>
+                  ))}
+                </select>
+              </div>
               
               {/* TODO: Replace the following code with individual input fields */}
               {/* {eventDetails.map((detail, index) =>
