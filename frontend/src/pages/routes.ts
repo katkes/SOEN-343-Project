@@ -1,3 +1,4 @@
+
 export const FrontEndRoutes = {
   Dashboard: '/dashboard',
   Home: '/',
@@ -23,4 +24,5 @@ export const FrontEndRoutes = {
   EventDetails: '/event/:id/details',
   EventStreaming: '/event/:id/streaming',
   EventConfirmation: '/event/:id/confirmation',
+  SponsorConfirmation: '/event/:id/sponsorConfirmation',
 } as const;
