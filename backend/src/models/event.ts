@@ -10,6 +10,8 @@ export interface IEvent {
   timeDurationInMinutes: number;
   description: string;
   speaker: string;
+  sponsoredBy?: string | undefined; // Optional field
+  price: number;
 }
 export interface IEventDocument extends Document, IEvent {
   _id: Types.ObjectId;
@@ -26,6 +28,8 @@ const EventSchema: Schema = new Schema(
     timeDurationInMinutes: { type: Number, required: true },
     description: { type: String, required: true },
     speaker: { type: String, required: true },
+    price: { type: Number, required: true },
+    sponsoredBy: { type: String, required: false },
   },
   // create two extra fields named createdAt and updatedAt in case we need it
   { timestamps: true },
