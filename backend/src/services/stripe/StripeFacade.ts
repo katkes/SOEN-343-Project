@@ -75,4 +75,58 @@ export class StripeFacade {
       throw error;
     }
   }
+
+  /**
+   * Create a Stripe Checkout Session for embedded checkout.
+   */
+  public async createCheckoutSession(
+    amount: number,
+    currency: string,
+    eventId: string,
+    userId: string,
+  ): Promise<Stripe.Checkout.Session> {
+    try {
+      const session = await this.stripe.checkout.sessions.create({
+        ui_mode: 'embedded',
+        line_items: [
+          {
+            price_data: {
+              currency,
+              product_data: {
+                name: `Event Ticket for Event ID: ${eventId}`,
+              },
+              unit_amount: amount,
+            },
+            quantity: 1,
+          },
+        ],
+        mode: 'payment',
+        success_url: `${process.env.DOMAIN}/return?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.DOMAIN}/checkout`,
+        metadata: {
+          eventId,
+          userId,
+        },
+      });
+
+      Logger.info(`Checkout session created with ID: ${session.id}`);
+      return session;
+    } catch (error) {
+      Logger.error('Failed to create Checkout Session:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Retrieve the status of a Stripe Checkout Session.
+   */
+  public async getSessionStatus(sessionId: string): Promise<Stripe.Checkout.Session> {
+    try {
+      const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+      return session;
+    } catch (error) {
+      Logger.error('Failed to retrieve Checkout Session:', error);
+      throw error;
+    }
+  }
 }
