@@ -105,6 +105,7 @@ export class StripeFacade {
           eventId,
           userId,
         },
+        redirect_on_completion: 'never',
       });
 
       Logger.info(`Checkout session created with ID: ${session.id}`);
