@@ -63,3 +63,31 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
     }
   }
 };
+
+export const getSessionStatus = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { session_id } = req.query;
+
+    if (!session_id) {
+      res.status(400).json({ success: false, message: 'Session ID is required.' });
+      return;
+    }
+
+    const stripeFacade = new StripeFacade();
+    const session = await stripeFacade.getSessionStatus(session_id as string);
+
+    res.status(200).json({
+      success: true,
+      status: session.status,
+      customer_email: session.customer_details?.email,
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      Logger.error(`Error retrieving session status: ${error.message}`);
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      Logger.error('Unexpected error occurred while retrieving session status.');
+      res.status(500).json({ success: false, message: 'An unexpected error occurred.' });
+    }
+  }
+};
