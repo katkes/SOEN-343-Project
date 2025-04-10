@@ -1,52 +1,16 @@
 import Sidebar from '../components/Sidebar';
-import CustomButton from '../components/CustomButton';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
 import { useEffect, useState } from 'react';
 import { EventResponseDTO } from '../types/event';
 import { eventService } from '../services/backend/event';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import CheckoutForm from '../components/CheckoutForm';
 
 export const EventRegistration = () => {
-  // const [paymentMethod, setPaymentMethod] = useState('Card');
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventResponseDTO>();
-  const navigate = useNavigate();
-
-  const handleCheckout = async () => {
-    const validEventId = '645f3b2e8a8f3c0012345678'; // Dummy ID
-    const validUserId = '645f3b2e8a8f3c0012345679'; // Dummy ID
-
-    const paymentMethodId = 'pm_card_visa'; // Possibly replace with a different payment method, hardcode for now
-
-    const payload = {
-      eventId: validEventId, // TODO: Replace with real event ID
-      userId: validUserId, // TODO: Replace with real user ID
-      amount: 5000, // TODO: Replace with event ticket price in cents
-      currency: 'cad', // Could use 'usd' as well
-      paymentMethod: paymentMethodId, // Replace with Stripe PaymentMethod ID from Stripe Elements
-    };
-
-    try {
-      const response = await fetch('/api/payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log('Payment successful:', data);
-        // Pass event info to EventConfirmation
-        navigate(`/event/${event?._id}/confirmation`, { state: { event: event } });
-      } else {
-        console.error('Payment failed:', data.message);
-        console.error('Payment error:', data.error);
-      }
-    } catch (error) {
-      console.error('Error during checkout:', error);
-    }
-  };
+  const account = useAccountInfo();
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -60,11 +24,15 @@ export const EventRegistration = () => {
         console.error('Error fetching event:', error);
       }
     };
-  
+
     if (id) {
       fetchEvent();
     }
   }, [id]);
+
+  if (!event || !account) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex bg-[#EAF5FF] min-h-screen">
@@ -75,99 +43,34 @@ export const EventRegistration = () => {
         {/* Event Info Banner */}
         <div className="bg-[#3D50FF] text-white rounded-t-xl px-12 py-10 shadow">
           <div className="text-sm flex gap-6 font-medium">
-            <p>📅 {event?.startDateAndTime
-              ? new Date(event.startDateAndTime).toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true,
-              })
-              : ''} 
+            <p>
+              📅{' '}
+              {event.startDateAndTime
+                ? new Date(event.startDateAndTime).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                  hour12: true,
+                })
+                : ''}
             </p>
-            <p>📍 {event?.location} </p>
+            <p>📍 {event.location} </p>
           </div>
-          <h1 className="text-4xl font-bold py-2">{event?.name}</h1>
-          <p className="text-[#C8D1FF]">{event?.description}</p>
+          <h1 className="text-4xl font-bold py-2">{event.name}</h1>
+          <p className="text-[#C8D1FF]">{event.description}</p>
         </div>
 
-        {/* Payment Form */}
+        {/* Embedded Checkout Form */}
         <div className="bg-white rounded-b-xl px-10 pb-10 pt-5 shadow mx-auto -mt-6">
-          Payment Tabs
-          {/* <div className="flex gap-4">
-            {['Card', 'EPS', 'Giropay'].map((method) => (
-              <CustomButton
-                key={method}
-                onClick={() => setPaymentMethod(method)}
-                disableDefaults
-                className={`px-6 py-3 rounded-lg text-sm font-medium border ${
-                  paymentMethod === method
-                    ? 'border-[#3D50FF] text-[#3D50FF] bg-[#F0F4FF]'
-                    : 'border-gray-200 text-gray-500 bg-white'
-                }`}
-              >
-                {method}
-              </CustomButton>
-            ))}
-          </div> */}
-
-          {/* Card Details */}
-          <div className="space-y-4 pt-6">
-            <div>
-              <label className="block text-sm font-semibold mb-1">Card number</label>
-              <input
-                type="text"
-                placeholder="1234 1234 1234 1234"
-                className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266]"
-              />
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-1/2">
-                <label className="block text-sm font-semibold mb-1">Expiry</label>
-                <input
-                  type="text"
-                  placeholder="MM / YY"
-                  className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm"
-                />
-              </div>
-              <div className="w-1/2">
-                <label className="block text-sm font-semibold mb-1">CVC</label>
-                <input
-                  type="text"
-                  placeholder="CVC"
-                  className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-1/2">
-                <label className="block text-sm font-semibold mb-1">Country</label>
-                <select className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm">
-                  <option>United States</option>
-                  <option>Canada</option>
-                  <option>Germany</option>
-                </select>
-              </div>
-              <div className="w-1/2">
-                <label className="block text-sm font-semibold mb-1">Postal code</label>
-                <input
-                  type="text"
-                  placeholder="90210"
-                  className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm"
-                />
-              </div>
-            </div>
-          </div>
-
-          <CustomButton
-            onClick={handleCheckout}
-            className="bg-[#3D50FF] w-full py-3 text-white rounded-xl font-bold mt-6"
-          >
-            Checkout
-          </CustomButton>
+          <h2 className="text-xl font-semibold mb-6">Complete Your Payment</h2>
+          <CheckoutForm
+            eventId={event._id}
+            userId={account._id}
+            amount={Math.round(event.price * 100)}
+            eventName={event.name} 
+          />
         </div>
       </main>
     </div>
