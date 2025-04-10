@@ -41,12 +41,16 @@ export const EventForm: React.FC<EventFormProps> = ({
   const location = useLocation();
 
   const account = useAccountInfo();
+  const directJoinEligible =
+    account &&
+    'companyName' in account &&
+    ((account.role === 'Sponsor' || account.role === 'EventOrganizer') &&
+      (event.sponsoredBy === account.companyName || event.organizedBy === account.companyName));
   const isEventCreator =
     account instanceof CompanyAccount ||
     (account instanceof UserAccount &&
       ['EventOrganizer', 'Admin'].includes(account.role as string));
 
-  const isSponsor = account instanceof UserAccount && account.role === 'Sponsor';
 
   const placeholders = {
     title: 'Event Name',
@@ -169,14 +173,14 @@ export const EventForm: React.FC<EventFormProps> = ({
                       // do something
                     } else {
                       navigate(
-                        registered
+                        registered || directJoinEligible
                           ? `/event/${event._id}/streaming`
                           : `/event/${event._id}/register`
                       );
                     }
                   }}
                 >
-                  {isCreating ? 'Create Event' : registered ? 'Join Stream' : 'Register'}
+                  {isCreating ? 'Create Event' : (registered || directJoinEligible) ? 'Join Stream' : 'Register'}
                 </CustomButton>
               </div>
               {location.pathname === '/event/event-details' && !isCreating && isEventCreator && (
@@ -327,11 +331,9 @@ export const EventForm: React.FC<EventFormProps> = ({
                 onClick={() => {
                   if (isCreating) {
                     // do something
-                  } else if (isSponsor) {
-                    navigate(`/event/${event._id}/sponsorConfirmation`);
                   } else {
                     navigate(
-                      registered
+                      registered || directJoinEligible
                         ? `/event/${event._id}/streaming`
                         : `/event/${event._id}/register`
                     );
@@ -341,9 +343,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                 {(() => {
                   if (isCreating) {
                     return 'Create Event';
-                  } else if (isSponsor) {
-                    return 'Sponsor';
-                  } else if (registered) {
+                  } else if (registered || directJoinEligible) {
                     return 'Join Stream';
                   } else {
                     return 'Register';
