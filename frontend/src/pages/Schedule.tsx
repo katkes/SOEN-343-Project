@@ -124,7 +124,7 @@ export const Schedule: React.FC = () => {
                       : ''}
                   </p>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    <Badge key="NEW!" label="NEW!" className="bg-red px-3 py-1 text-xs shadow" />
+                    <Badge key={event.price} label={`$${event.price}`} className="bg-red px-3 py-1 text-xs shadow" />
                     <Badge
                       key={event.locationType}
                       label={event.locationType}
