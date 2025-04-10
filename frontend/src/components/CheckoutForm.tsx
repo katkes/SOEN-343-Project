@@ -21,7 +21,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ eventId, userId, amount, ev
         eventId,
         userId,
         amount,
-        currency: 'usd', 
+        currency: 'cad', 
         eventName,
       }),
     })
