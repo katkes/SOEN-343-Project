@@ -4,6 +4,10 @@ import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
 import 'express-session';
 import { createEvent, CreateEventDTO, getAllEvents, getEventById } from '../services/mongo/event';
+import { getAllEmails } from '../services/mongo/user';
+import { EmailService } from '../services/email/email';
+import { generateEventPromotionHtml } from '../services/email/email-templates/event-promote';
+import { EventDetails } from '../services/email/email-templates/event-promote';
 
 // Create event validation schema when receiving request
 const createEventBodySchema = z.object({
@@ -47,6 +51,29 @@ export async function createEventController(req: Request, res: Response) {
 
   // return success status
   res.status(StatusCodes.CREATED).json({});
+  const eventDetails: EventDetails = {
+    date: body.startDateAndTime,
+    speakers: [{ name: body.speaker, title: '' }],
+    category: body.locationType,
+    title: body.name,
+    image: '',
+    description: body.description,
+    location: body.location,
+    price: body.price.toString(),
+    registrationUrl: '',
+  };
+  const html = generateEventPromotionHtml(eventDetails);
+  const users = await getAllEmails();
+  const result = await new EmailService()
+    .createMailBuilder()
+    .subject('Check out this new event!')
+    .to(users)
+    .html(html)
+    .send();
+  console.log(
+    result.success ? 'Emails sent successfully!' : 'Failed to send emails:',
+    result.error,
+  );
 }
 
 // Get all events from MongoDB

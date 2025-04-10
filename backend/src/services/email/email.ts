@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { ENV_VARS } from '../../configs/env';
 
 // Load environment variables
 dotenv.config();
@@ -17,8 +18,8 @@ class EmailService {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL,
-        pass: process.env.APP_PASSWORD,
+        user: ENV_VARS.EMAIL,
+        pass: ENV_VARS.APP_PASSWORD,
       },
       logger: true,
     });
@@ -51,7 +52,7 @@ class EmailBuilder {
   constructor(transporter: nodemailer.Transporter) {
     this.transporter = transporter;
     this.mailOptions = {
-      from: `"Event Management" <${process.env.EMAIL}>`,
+      from: `"Eventful.io" <${ENV_VARS.EMAIL}>`,
       to: '',
       subject: '',
       text: '',

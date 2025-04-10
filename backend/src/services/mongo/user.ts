@@ -19,3 +19,7 @@ export async function getAllSpeakers() {
 export async function getUserById(_id: Types.ObjectId | string) {
   return await User.findOne({ _id });
 }
+
+export async function getAllEmails() {
+  return (await User.find().select('email').lean()).map((u) => u.email);
+}

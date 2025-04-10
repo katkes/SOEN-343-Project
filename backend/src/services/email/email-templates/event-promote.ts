@@ -1,4 +1,4 @@
-interface EventDetails {
+export interface EventDetails {
   date: Date;
   speakers: { name: string; title: string }[];
   category: string;
@@ -53,15 +53,15 @@ export function generateEventPromotionHtml(eventDetails: EventDetails): string {
   <title>New Event Announcement</title>
   <style>
     body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
-    .header { background-color: #FF5722; color: white; padding: 20px; text-align: center; }
+    .header { background-color: #4F52FF; color: white; padding: 20px; text-align: center; }
     .content { padding: 20px; }
     .event-image { width: 100%; max-height: 300px; object-fit: cover; margin-bottom: 20px; }
     .event-details { margin: 20px 0; }
     .event-meta { background-color: #f5f5f5; padding: 15px; margin: 15px 0; }
     .event-meta p { margin: 5px 0; }
-    .category { display: inline-block; background-color: #FF5722; color: white; padding: 5px 10px; 
+    .category { display: inline-block; background-color: #4F52FF; color: white; padding: 5px 10px; 
                 border-radius: 4px; font-size: 14px; margin-bottom: 10px; }
-    .cta-button { display: inline-block; background-color: #FF5722; color: white; padding: 12px 25px; 
+    .cta-button { display: inline-block; background-color: #4F52FF; color: white; padding: 12px 25px; 
                   text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 15px; }
     .speakers { margin: 20px 0; }
     .speakers ul { padding-left: 20px; }
