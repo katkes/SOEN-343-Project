@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { StripeFacade } from '../services/stripe/StripeFacade';
 import { Ticket } from '../services/mongo/ticket';
 import { Logger } from '../configs/logger';
-
+import { StatusCodes } from 'http-status-codes';
+import { getAllSpeakers } from '../services/mongo/user';
 /**
  * POST /api/payment
  * Expected request body:
@@ -14,6 +15,19 @@ import { Logger } from '../configs/logger';
  *   "paymentMethod": "string" // e.g., 'pm_card_visa' from Stripe Elements or a test token
  * }
  */
+
+export async function getAllSpeakersController(req: Request, res: Response) {
+  try {
+    const speakers = await getAllSpeakers();
+    res.status(StatusCodes.OK).json(speakers);
+  } catch (error) {
+    Logger.error('Error retrieving speakers: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: 'Error occurred while getting speakers.' });
+  }
+}
+
 export const purchaseTicket = async (req: Request, res: Response): Promise<void> => {
   try {
     const { eventId, userId, amount, currency, paymentMethod } = req.body;

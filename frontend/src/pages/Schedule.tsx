@@ -8,10 +8,13 @@ import { eventService } from '../services/backend/event';
 import { FrontEndRoutes } from './routes';
 import { EventResponseDTO } from '../types/event';
 import { userService } from '../services/backend/user';
+import { useAccountInfo } from '../hooks/useAccountInfo';
 
 export const Schedule: React.FC = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState<EventResponseDTO[]>([]);
+  const account = useAccountInfo();
+  const accountId = account?._id;
 
   // Fetch events from the backend
   useEffect(() => {

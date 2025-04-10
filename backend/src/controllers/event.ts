@@ -66,7 +66,7 @@ export async function updateEventController(req: Request, res: Response) {
       return res.status(404).send('Event not found');
     }
 
-    res.status(200).send(event);
+    res.status(StatusCodes.OK).send(event);
   } catch (error) {
     res.status(500).send('Error updating event: ' + error);
   }

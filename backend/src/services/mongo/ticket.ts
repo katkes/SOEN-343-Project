@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import { Types } from 'mongoose';
+import { IUser, User } from '../../models/user';
 
 const ticketSchema = new mongoose.Schema({
   eventId: {
@@ -24,5 +26,9 @@ const ticketSchema = new mongoose.Schema({
     default: false,
   },
 });
+
+export async function getTicketsByUserID(userId: Types.ObjectId | string) {
+  return await Ticket.find({ userId });
+}
 
 export const Ticket = mongoose.model('Ticket', ticketSchema);
