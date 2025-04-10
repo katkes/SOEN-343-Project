@@ -146,6 +146,7 @@ const Events = () => {
 
                       {/* Map through events and display them in the table */}
                       {(selectedEventType === 'allEvents' ? events : companyEvents).map((event, idx) => (
+                        console.log('Event:', event._id),
                         <tr
                           key={idx}
                           className="border-b cursor-pointer hover:bg-gray-100"

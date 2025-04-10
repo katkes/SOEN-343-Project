@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import CustomButton from '../components/CustomButton';
 import { PageHeader } from '../components/PageHeader';
 import { SocketFlyweight } from '../services/socket/socket';
-import { useParams } from 'react-router-dom';
 import { NameSpaceEndpoints } from '../config/constants';
 import { useAccountInfo } from '../hooks/useAccountInfo';
 import { CompanyAccount, UserAccount } from '../types/account';
@@ -15,6 +14,14 @@ interface Message {
   sender: string;
   content: string;
 }
+
+interface EventDetails {
+  name: string;
+  description: string;
+  date: string;
+  location: string;
+}
+
 export const EventStreaming = () => {
   const { id } = useParams<{ id: string }>();
 
@@ -25,6 +32,8 @@ export const EventStreaming = () => {
   const [sessionTitle, setSessionTitle] = useState('');
   const [sessionTime, setSessionTime] = useState('');
   const [sessionDescription, setSessionDescription] = useState('');
+
+  const [eventDetails, setEventDetails] = useState<EventDetails | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -42,6 +51,22 @@ export const EventStreaming = () => {
     fetchSessions();
     const interval = setInterval(fetchSessions, 15000);
     return () => clearInterval(interval);
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    const fetchEvent = async () => {
+      try {
+        const res = await fetch(`/api/event/${id}`);
+        const data = await res.json();
+        console.log('Retrieved event data:', data);
+        // If the API returns the event object directly instead of inside a property, set it directly.
+        setEventDetails(data);
+      } catch (err) {
+        console.error('Failed to fetch event details', err);
+      }
+    };
+    fetchEvent();
   }, [id]);
 
   const saveSessions = async (updated: Session[]) => {
@@ -75,9 +100,10 @@ export const EventStreaming = () => {
   };
 
   const displayEvent = {
-    title: event?.title || 'Unknown Event',
-    date: event?.date || '',
-    location: event?.location || '',
+    title: event?.name || eventDetails?.name || 'Unknown Event',
+    description: event?.description || eventDetails?.description || '',
+    date: event?.date || eventDetails?.date || '',
+    location: event?.location || eventDetails?.location || '',
   };
 
   const account = useAccountInfo();
@@ -132,6 +158,7 @@ export const EventStreaming = () => {
         {event && (
           <div className="bg-[#3D50FF] text-white rounded-xl px-6 py-4 shadow mb-4">
             <h1 className="text-2xl font-bold">{displayEvent.title}</h1>
+            {displayEvent.description && <p className="mt-1">{displayEvent.description}</p>}
             <div className="text-sm">
               {displayEvent.date && <p>📅 {displayEvent.date}</p>}
               {displayEvent.location && <p>📍 {displayEvent.location}</p>}
@@ -191,11 +218,8 @@ export const EventStreaming = () => {
         {/* Session Description */}
         <div className="flex flex-col space-y-4">
           <div className="bg-white rounded-xl shadow p-6 space-y-4 w-full">
-            <h2 className="text-xl font-bold text-[#273266]">Session: Key Trends in AI</h2>
-            <p className="text-sm text-gray-600">
-              Dive into the latest advancements in artificial intelligence, featuring insights on
-              large language models, generative AI, and industry adoption.
-            </p>
+            <h2 className="text-xl font-bold text-[#273266]">{displayEvent.title}</h2>
+            <p className="text-sm text-gray-600">{displayEvent.description}</p>
 
             <div>
               <h2 className="text-xl font-bold text-[#273266] mb-4">Itinerary</h2>
