@@ -68,7 +68,7 @@ export const EventRegistration = () => {
           <CheckoutForm
             eventId={event._id}
             userId={account._id}
-            amount={Math.round(event.price) * 100}
+            amount={Math.round(event.price * 100)}
             eventName={event.name} 
           />
         </div>
