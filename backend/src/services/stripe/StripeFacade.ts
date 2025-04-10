@@ -84,6 +84,7 @@ export class StripeFacade {
     currency: string,
     eventId: string,
     userId: string,
+    eventName: string,
   ): Promise<Stripe.Checkout.Session> {
     try {
       const session = await this.stripe.checkout.sessions.create({
@@ -93,7 +94,7 @@ export class StripeFacade {
             price_data: {
               currency,
               product_data: {
-                name: `Event Ticket for Event ID: ${eventId}`,
+                name: `Event Ticket for ${eventName} event`,
               },
               unit_amount: amount,
             },

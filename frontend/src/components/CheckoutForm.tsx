@@ -8,9 +8,10 @@ interface CheckoutFormProps {
   eventId: string;
   userId: string;
   amount: number; // Amount in cents
+  eventName: string;
 }
 
-const CheckoutForm: React.FC<CheckoutFormProps> = ({ eventId, userId, amount }) => {
+const CheckoutForm: React.FC<CheckoutFormProps> = ({ eventId, userId, amount, eventName }) => {
 
   const fetchClientSecret = useCallback(() => {
     return fetch('/api/payment', {
@@ -21,6 +22,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ eventId, userId, amount }) 
         userId,
         amount,
         currency: 'usd', 
+        eventName,
       }),
     })
       .then((res) => res.json())

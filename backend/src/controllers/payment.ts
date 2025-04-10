@@ -10,16 +10,17 @@ import { Logger } from '../configs/logger';
  *   "userId": "string",
  *   "amount": number,         // in cents, e.g., 5000 for $50.00
  *   "currency": "usd" | "cad",
+ *   "eventName": "string"     // Name of the event for the ticket
  * }
  */
 export const purchaseTicket = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { eventId, userId, amount, currency } = req.body;
+    const { eventId, userId, amount, currency, eventName } = req.body;
 
-    Logger.info('Received payment request:', { eventId, userId, amount, currency });
+    Logger.info('Received payment request:', { eventId, userId, amount, currency, eventName });
 
     // Validate request fields
-    if (!eventId || !userId || !amount || !currency) {
+    if (!eventId || !userId || !amount || !currency || !eventName) {
       Logger.warn('Missing required fields in payment request.');
       res.status(400).json({ success: false, message: 'Missing required fields.' });
       return;
@@ -27,7 +28,13 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
 
     // Instantiate Stripe facade and create Checkout Session
     const stripeFacade = new StripeFacade();
-    const session = await stripeFacade.createCheckoutSession(amount, currency, eventId, userId);
+    const session = await stripeFacade.createCheckoutSession(
+      amount,
+      currency,
+      eventId,
+      userId,
+      eventName,
+    );
 
     // Check if session was created successfully
     res.status(200).json({ success: true, clientSecret: session.client_secret });
