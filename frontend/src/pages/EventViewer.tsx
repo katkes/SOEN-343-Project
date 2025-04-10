@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import CustomButton from '../components/CustomButton';
@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom';
 import { useAccountInfo } from '../hooks/useAccountInfo';
 import { CompanyAccount, UserAccount } from '../types/account';
 import { useChatRoom } from '../hooks/useChatRoom';
-import { useStreamViewer } from '../hooks/useStreamViewer';
+import { useStreamBroadcaster } from '../hooks/useStreamBroadcaster';
 
 export const EventViewer = () => {
   // Polling state
@@ -32,7 +32,8 @@ export const EventViewer = () => {
   // Configure chatroom connection
   const [newMessage, setNewMessage] = useState("")
   const [messages, sendNewMessage] = useChatRoom(id || "")
-  const videoRef = useStreamViewer();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useStreamBroadcaster(videoRef);;
 
   // Retrieve user account information
   const account = useAccountInfo();
