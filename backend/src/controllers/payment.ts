@@ -13,18 +13,39 @@ import { generateEventInviteHtml } from '../services/email/email-templates/event
  *   "userId": "string",
  *   "amount": number,         // in cents, e.g., 5000 for $50.00
  *   "currency": "usd" | "cad",
- *   "eventName": "string",    // Name of the event for the ticket
- *   "email": "string"         // Email of the user
+ *   "eventName": "string",
+ *   "email": "string",
+ *   "eventDate": "string",
+ *   "location": "string",
  * }
  */
 export const purchaseTicket = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { eventId, userId, amount, currency, eventName } = req.body;
+    // Extract new parameters from the request body.
+    const { eventId, userId, amount, currency, eventName, email, eventDate, location } = req.body;
 
-    Logger.info('Received payment request:', { eventId, userId, amount, currency, eventName });
+    Logger.info('Received payment request:', {
+      eventId,
+      userId,
+      amount,
+      currency,
+      eventName,
+      email,
+      eventDate,
+      location,
+    });
 
     // Validate request fields
-    if (!eventId || !userId || !amount || !currency || !eventName) {
+    if (
+      !eventId ||
+      !userId ||
+      !amount ||
+      !currency ||
+      !eventName ||
+      !email ||
+      !eventDate ||
+      !location
+    ) {
       Logger.warn('Missing required fields in payment request.');
       res.status(400).json({ success: false, message: 'Missing required fields.' });
       return;
@@ -43,27 +64,24 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
     if (session && session.client_secret) {
       Logger.info(`Checkout session created with ID: ${session.id}`);
 
-      // Create a ticket in the database after successful session creation.
-      // We link the ticket to the event and user, and store the payment session id.
+      // Create a ticket in the database.
       const ticket = new Ticket({
         eventId,
         userId,
         paymentId: session.id,
-        isAttending: false, // Mark as not yet confirmed for attendance until payment is finished
+        isAttending: false, // Not yet confirmed until payment is finished.
         purchaseDate: new Date(),
       });
       await ticket.save();
       Logger.info(`Ticket created for event ${eventId} and user ${userId}.`);
 
       // --- Start: Send confirmation email to user ---
-      const recipientEmail = req.body.email || 'user@example.com';
-
+      const recipientEmail = email;
       const emailHtml = generateEventInviteHtml(
         eventName,
         `Thank you for purchasing a ticket for ${eventName}. Your ticket has been confirmed.`,
-        new Date(), // Replace with the actual event date
-        60, // Replace with actual duration in minutes
-        'Event Venue Placeholder', // Replace with actual location
+        new Date(eventDate),
+        location,
         '',
       );
 
