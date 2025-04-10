@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { getAllSpeakers } from '../services/mongo/user';
 import { getUserById } from '../services/mongo/user';
 import { getEventById } from '../services/mongo/event';
+import { Ticket } from '../models/ticket';
 import { EmailService } from '../services/email/email';
 import { generateEventInviteHtml } from '../services/email/email-templates/event-create-invite';
 
@@ -16,7 +17,9 @@ import { generateEventInviteHtml } from '../services/email/email-templates/event
  *   "userId": "string",
  *   "amount": number,         // in cents, e.g., 5000 for $50.00
  *   "currency": "usd" | "cad",
- *   "eventName": "string"     // Name of the event for the ticket
+ *   "eventName": "string",
+ *   "email": "string",
+ *   "location": "string",
  * }
  */
 
@@ -34,12 +37,21 @@ export async function getAllSpeakersController(req: Request, res: Response) {
 
 export const purchaseTicket = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { eventId, userId, amount, currency, eventName } = req.body;
+    // Extract new parameters from the request body.
+    const { eventId, userId, amount, currency, eventName, email, location } = req.body;
 
-    Logger.info('Received payment request:', { eventId, userId, amount, currency, eventName });
+    Logger.info('Received payment request:', {
+      eventId,
+      userId,
+      amount,
+      currency,
+      eventName,
+      email,
+      location,
+    });
 
     // Validate request fields
-    if (!eventId || !userId || !amount || !currency || !eventName) {
+    if (!eventId || !userId || !amount || !currency || !eventName || !email || !location) {
       Logger.warn('Missing required fields in payment request.');
       res.status(400).json({ success: false, message: 'Missing required fields.' });
       return;
@@ -57,6 +69,42 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
 
     if (session && session.client_secret) {
       Logger.info(`Checkout session created with ID: ${session.id}`);
+
+      // Create a ticket in the database.
+      const ticket = new Ticket({
+        eventId,
+        userId,
+        paymentId: session.id,
+        isAttending: false, // Not yet confirmed until payment is finished.
+        purchaseDate: new Date(),
+      });
+      await ticket.save();
+      Logger.info(`Ticket created for event ${eventId} and user ${userId}.`);
+
+      // --- Start: Send confirmation email to user ---
+      const recipientEmail = email;
+      const emailHtml = generateEventInviteHtml(
+        eventName,
+        `Thank you for purchasing a ticket for ${eventName}. Your ticket has been confirmed.`,
+        location,
+        '',
+      );
+
+      const emailService = new EmailService();
+      const emailResult = await emailService
+        .createMailBuilder()
+        .to(recipientEmail)
+        .subject(`Ticket Confirmation for ${eventName}`)
+        .html(emailHtml)
+        .send();
+      if (emailResult.success) {
+        Logger.info(`Confirmation email sent to ${recipientEmail}`);
+      } else {
+        Logger.error(`Failed to send confirmation email: ${emailResult.error}`);
+      }
+      // --- End: Send confirmation email to user ---
+
+      // Return the client secret so that the frontend can continue with Stripe Checkout.
       res.status(200).json({ success: true, clientSecret: session.client_secret });
       return;
     }

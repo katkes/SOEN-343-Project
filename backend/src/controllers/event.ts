@@ -3,12 +3,17 @@ import { Logger } from '../configs/logger';
 import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
 import 'express-session';
-import { createEvent, CreateEventDTO, getAllEvents, getEventById, updateEvent, } from '../services/mongo/event';
+import {
+  createEvent,
+  CreateEventDTO,
+  getAllEvents,
+  getEventById,
+  updateEvent,
+} from '../services/mongo/event';
 import { getAllEmails } from '../services/mongo/user';
 import { EmailService } from '../services/email/email';
 import { generateEventPromotionHtml } from '../services/email/email-templates/event-promote';
 import { EventDetails } from '../services/email/email-templates/event-promote';
-
 
 // Create event validation schema when receiving request
 const createEventBodySchema = z.object({

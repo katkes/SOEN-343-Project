@@ -16,6 +16,7 @@ import { EventRegistration } from './pages/EventRegistration';
 import { EventStreaming } from './pages/EventStreaming';
 import { EventConfirmation } from './pages/EventConfirmation';
 import { EditProfile } from './pages/EditProfile';
+import { Event } from './pages/Event';
 
 import './App.css';
 import { ChatRoom } from './pages/ChatRoom';
@@ -38,6 +39,7 @@ const App = () => {
       <Route path={FrontEndRoutes.CreateCompanyUser} element={<CreateCompanyUser />} />
       <Route path={FrontEndRoutes.Dashboard} element={<Dashboard />} />
       <Route path={FrontEndRoutes.Events} element={<Events />} />
+      <Route path={FrontEndRoutes.Event.definition} element={<Event />} />
       <Route path={FrontEndRoutes.EventDetails} element={<EventDetails />} />
       <Route path={FrontEndRoutes.Schedule} element={<Schedule />} />
       <Route path={FrontEndRoutes.Analytics} element={<Analytics />} />
