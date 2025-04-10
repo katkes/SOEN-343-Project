@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { FrontEndRoutes } from '../pages/routes';
 import { userService } from '../services/backend/user';
 import { UserAccount } from '../types/account';
+import { useAccountInfo } from '../hooks/useAccountInfo';
 
 const CreateEventForm = () => {
   const [selectedSpeaker, setSelectedSpeaker] = useState<UserAccount>(); // New state for selected speaker
@@ -24,6 +25,8 @@ const CreateEventForm = () => {
   const [maxCapacity, setMaxCapacity] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
   const [price, setPrice] = useState<number>(0);
+  const account = useAccountInfo();
+  const companyName = account?.companyName;
 
   const navigate = useNavigate();
 
@@ -58,7 +61,9 @@ const CreateEventForm = () => {
         timeDurationInMinutes: Number(duration),
         speaker: selectedSpeaker?.email || '',
         price: price,
-        sponsoredBy: '', // Add sponsoredBy if needed
+        sponsoredBy: '',
+        organizedBy: companyName || ''
+        // Add sponsoredBy if needed
       });
       navigate(FrontEndRoutes.Dashboard);
     } catch (e) {

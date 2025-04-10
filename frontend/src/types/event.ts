@@ -10,6 +10,7 @@ export type CreateEventDTO = {
     speaker: string
     price: number
     sponsoredBy?: string | undefined
+    organizedBy: string
 }
 
 export type EventResponseDTO = CreateEventDTO & {
