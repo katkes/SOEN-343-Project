@@ -4,29 +4,30 @@ import { PageHeader } from '../components/PageHeader';
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { eventService } from '../services/backend/event';
 import { FrontEndRoutes } from './routes';
 import { EventResponseDTO } from '../types/event';
 import { userService } from '../services/backend/user';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+
 
 export const Schedule: React.FC = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState<EventResponseDTO[]>([]);
+  const account = useAccountInfo();
+  const accountId = account?._id;
 
   // Fetch events from the backend
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await eventService.getAllEvents();
+        const eventsRegisteredByUser = await userService.getEventsRegisteredByUser(accountId || '');
 
         const fetchedEvents = await Promise.all(
-          response.map(async (event: EventResponseDTO) => {
+          eventsRegisteredByUser.map(async (event: EventResponseDTO) => {
             const speaker = await userService.getUserByEmail(event.speaker); // Fetch speaker details
-            console.log('Speaker:', speaker); // Log the fetched speaker details
             return {
               ...event,
               speaker: speaker.firstName + ' ' + speaker.lastName,
-              tags: ['NEW!'],
             };
           })
         );
@@ -41,7 +42,7 @@ export const Schedule: React.FC = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [account]);
 
   return (
     <div className="flex bg-[#EAF5FF] min-h-screen">
@@ -122,7 +123,7 @@ export const Schedule: React.FC = () => {
                       : ''}
                   </p>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    <Badge key="NEW!" label="NEW!" className="bg-red px-3 py-1 text-xs shadow" />
+                    <Badge key={event.price} label={`$${event.price}`} className="bg-red px-3 py-1 text-xs shadow" />
                     <Badge
                       key={event.locationType}
                       label={event.locationType}

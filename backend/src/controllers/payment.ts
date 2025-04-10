@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { StripeFacade } from '../services/stripe/StripeFacade';
 import { Logger } from '../configs/logger';
+import { StatusCodes } from 'http-status-codes';
+import { getAllSpeakers } from '../services/mongo/user';
+import { getUserById } from '../services/mongo/user';
+import { getEventById } from '../services/mongo/event';
 import { Ticket } from '../models/ticket';
 import { EmailService } from '../services/email/email';
 import { generateEventInviteHtml } from '../services/email/email-templates/event-create-invite';
@@ -18,6 +22,19 @@ import { generateEventInviteHtml } from '../services/email/email-templates/event
  *   "location": "string",
  * }
  */
+
+export async function getAllSpeakersController(req: Request, res: Response) {
+  try {
+    const speakers = await getAllSpeakers();
+    res.status(StatusCodes.OK).json(speakers);
+  } catch (error) {
+    Logger.error('Error retrieving speakers: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: 'Error occurred while getting speakers.' });
+  }
+}
+
 export const purchaseTicket = async (req: Request, res: Response): Promise<void> => {
   try {
     // Extract new parameters from the request body.
@@ -92,6 +109,9 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
       return;
     }
 
+
+
+    // TODO: Create a ticket in the database after the purchase
     Logger.warn(`Payment not successful for user ${userId} and event ${eventId}.`);
     res.status(400).json({ success: false, message: 'Payment not successful. Please try again.' });
   } catch (error: unknown) {

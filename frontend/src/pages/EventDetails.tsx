@@ -23,6 +23,7 @@ const EventDetails = () => {
     timeDurationInMinutes: 60,
     price: 29.99,
     sponsoredBy: "Tech Innovations Inc.",
+    organizedBy: "Google"
   }
 
   useEffect(() => {
