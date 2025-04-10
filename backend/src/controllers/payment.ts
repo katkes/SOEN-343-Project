@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StripeFacade } from '../services/stripe/StripeFacade';
 import { Logger } from '../configs/logger';
-import { Ticket } from '../models/ticket'; // Import the Ticket model
+import { Ticket } from '../models/ticket';
 
 /**
  * POST /api/payment
