@@ -1,3 +1,4 @@
+// Route: /backend/server.ts
 import express from 'express';
 import { ENV_VARS } from './configs/env';
 import apiRoute from './routes/api';
