@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { StripeFacade } from '../services/stripe/StripeFacade';
 import { Logger } from '../configs/logger';
-import { getUserById } from '../services/mongo/user';
-import { getEventById } from '../services/mongo/event';
+import { Ticket } from '../models/ticket';
 import { EmailService } from '../services/email/email';
 import { generateEventInviteHtml } from '../services/email/email-templates/event-create-invite';
 
@@ -14,17 +13,28 @@ import { generateEventInviteHtml } from '../services/email/email-templates/event
  *   "userId": "string",
  *   "amount": number,         // in cents, e.g., 5000 for $50.00
  *   "currency": "usd" | "cad",
- *   "eventName": "string"     // Name of the event for the ticket
+ *   "eventName": "string",
+ *   "email": "string",
+ *   "location": "string",
  * }
  */
 export const purchaseTicket = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { eventId, userId, amount, currency, eventName } = req.body;
+    // Extract new parameters from the request body.
+    const { eventId, userId, amount, currency, eventName, email, location } = req.body;
 
-    Logger.info('Received payment request:', { eventId, userId, amount, currency, eventName });
+    Logger.info('Received payment request:', {
+      eventId,
+      userId,
+      amount,
+      currency,
+      eventName,
+      email,
+      location,
+    });
 
     // Validate request fields
-    if (!eventId || !userId || !amount || !currency || !eventName) {
+    if (!eventId || !userId || !amount || !currency || !eventName || !email || !location) {
       Logger.warn('Missing required fields in payment request.');
       res.status(400).json({ success: false, message: 'Missing required fields.' });
       return;
@@ -42,51 +52,46 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
 
     if (session && session.client_secret) {
       Logger.info(`Checkout session created with ID: ${session.id}`);
+
+      // Create a ticket in the database.
+      const ticket = new Ticket({
+        eventId,
+        userId,
+        paymentId: session.id,
+        isAttending: false, // Not yet confirmed until payment is finished.
+        purchaseDate: new Date(),
+      });
+      await ticket.save();
+      Logger.info(`Ticket created for event ${eventId} and user ${userId}.`);
+
+      // --- Start: Send confirmation email to user ---
+      const recipientEmail = email;
+      const emailHtml = generateEventInviteHtml(
+        eventName,
+        `Thank you for purchasing a ticket for ${eventName}. Your ticket has been confirmed.`,
+        location,
+        '',
+      );
+
+      const emailService = new EmailService();
+      const emailResult = await emailService
+        .createMailBuilder()
+        .to(recipientEmail)
+        .subject(`Ticket Confirmation for ${eventName}`)
+        .html(emailHtml)
+        .send();
+      if (emailResult.success) {
+        Logger.info(`Confirmation email sent to ${recipientEmail}`);
+      } else {
+        Logger.error(`Failed to send confirmation email: ${emailResult.error}`);
+      }
+      // --- End: Send confirmation email to user ---
+
+      // Return the client secret so that the frontend can continue with Stripe Checkout.
       res.status(200).json({ success: true, clientSecret: session.client_secret });
       return;
     }
 
-
-    // If the payment succeeded, create a ticket
-    if (paymentIntent.status === 'succeeded') {
-      const newTicket = new Ticket({
-        eventId,
-        userId,
-        paymentId: paymentIntent.id,
-        // Add any other fields as needed (e.g., purchaseDate)
-      });
-      await newTicket.save();
-      const user = await getUserById(userId);
-      const event = await getEventById(eventId);
-      const userEmail = user!.email;
-      const result = await new EmailService()
-        .createMailBuilder()
-        .subject('Ticket Confirmation')
-        .to(userEmail)
-        .html(
-          generateEventInviteHtml(
-            event!.name,
-            event!.description,
-            event!.startDateAndTime,
-            event!.timeDurationInMinutes,
-            event!.location,
-          ),
-        )
-        .send();
-      console.log(
-        result.success ? 'Email sent successfully!' : 'Failed to send email:',
-        result.error,
-      );
-
-      Logger.info(`Payment successful for user ${userId} and event ${eventId}. Ticket created.`);
-      res.status(200).json({
-        success: true,
-        message: 'Payment successful, ticket created.',
-        ticket: newTicket,
-      });
-      return;
-    }
-    // TODO: Create a ticket in the database after the purchase
     Logger.warn(`Payment not successful for user ${userId} and event ${eventId}.`);
     res.status(400).json({ success: false, message: 'Payment not successful. Please try again.' });
   } catch (error: unknown) {

@@ -70,6 +70,8 @@ export const EventRegistration = () => {
             userId={account._id}
             amount={Math.round(event.price * 100)}
             eventName={event.name} 
+            email = {account.email}         
+            location = {event.location}
           />
         </div>
       </main>

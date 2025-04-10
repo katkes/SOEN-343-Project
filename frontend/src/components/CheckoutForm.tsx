@@ -1,6 +1,9 @@
-import React, { useCallback } from 'react';
+import React, { useCallback } from "react";
 import { loadStripe } from '@stripe/stripe-js';
-import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
+import {
+  EmbeddedCheckoutProvider,
+  EmbeddedCheckout,
+} from '@stripe/react-stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -9,9 +12,18 @@ interface CheckoutFormProps {
   userId: string;
   amount: number; // Amount in cents
   eventName: string;
+  email: string;         
+  location: string;      
 }
 
-const CheckoutForm: React.FC<CheckoutFormProps> = ({ eventId, userId, amount, eventName }) => {
+const CheckoutForm: React.FC<CheckoutFormProps> = ({
+  eventId,
+  userId,
+  amount,
+  eventName,
+  email,
+  location,
+}) => {
 
   const fetchClientSecret = useCallback(() => {
     return fetch('/api/payment', {
@@ -21,13 +33,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ eventId, userId, amount, ev
         eventId,
         userId,
         amount,
-        currency: 'cad', 
+        currency: 'cad',
         eventName,
+        email,       
+        location,    
       }),
     })
       .then((res) => res.json())
       .then((data) => data.clientSecret);
-  }, [eventId, userId, amount]);
+  }, [eventId, userId, amount, eventName, email, location]);
 
   const options = { fetchClientSecret };
 

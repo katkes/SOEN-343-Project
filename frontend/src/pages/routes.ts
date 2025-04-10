@@ -11,6 +11,11 @@ export const FrontEndRoutes = {
   CreateCompanyUser: '/signup/company-user',
   Events: '/events',
   
+  Event: {
+    base: '/event',
+    param: ':id',
+    definition: '/event/:id',
+  },
   Schedule: '/schedule',
   Analytics: '/analytics',
   Profile: '/profile',
