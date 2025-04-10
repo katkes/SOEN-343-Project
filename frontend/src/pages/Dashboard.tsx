@@ -34,8 +34,8 @@ export const Dashboard: React.FC = () => {
         // }));
         const fetchedEvents = await Promise.all(
           response.map(async (event: EventResponseDTO) => {
+            console.log('Event:', event); // Log the fetched event
             const speaker = await userService.getUserByEmail(event.speaker); // Fetch speaker details
-            console.log('Speaker:', speaker); // Log the fetched speaker details
             return {
               ...event,
               speaker: speaker.firstName + ' ' + speaker.lastName,
@@ -193,7 +193,7 @@ export const Dashboard: React.FC = () => {
                     {/* {event.tags.map((tag: string) => (
                       <Badge key={tag} label={tag} className="bg-white px-3 py-1 text-xs shadow" />
                     ))} */}
-                    <Badge key="NEW!" label="NEW!" className="bg-red px-3 py-1 text-xs shadow" />
+                    <Badge key={event.price} label={`$${event.price.toString()}`} className="bg-blue-500 text-white px-3 py-1 text-xs shadow" />
                     <Badge key={event.locationType} label={event.locationType} className="bg-[#273266] text-white px-3 py-1 text-xs shadow" />
                   </div>
                 </div>
@@ -220,7 +220,7 @@ export const Dashboard: React.FC = () => {
                   {/* {event.tags.map((tag: string) => (
                     <Badge key={tag} label={tag} className="bg-white px-3 py-1 text-xs shadow" />
                   ))} */}
-                  <Badge key="NEW!" label="NEW!" className="bg-red px-3 py-1 text-xs shadow" />
+                  <Badge key="420.00" label="$420.00" className="bg-red px-3 py-1 text-xs shadow" />
                   <Badge key="Hybrid" label="Hybrid" className="bg-[#273266] text-white px-3 py-1 text-xs shadow" />
                 </div>
               </div>

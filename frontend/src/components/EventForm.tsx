@@ -38,12 +38,14 @@ export const EventForm: React.FC<EventFormProps> = ({
   const [duration, setDuration] = useState<number>(0);
   const [selectedSpeaker, setSelectedSpeaker] = useState<UserAccount>(); // New state for selected speaker
   const [speakers, setSpeakers] = useState<UserAccount[]>([]);
+  
 
 
   // TODO: Please don't store the event details in an array. Store each detail in a separate state variable.
   // const [eventDetails, setEventDetails] = useState<(string | string[])[]>([]);
 
   const [localEditable, setLocalEditable] = useState(editable);
+  const [price, setPrice] = useState<number>(0); // Add state for price
   const formEditable = isCreating ? true : localEditable;
 
   const navigate = useNavigate();
@@ -80,6 +82,7 @@ export const EventForm: React.FC<EventFormProps> = ({
       setLocationType(event.locationType);
       setMaxCapacity(event.maxCapacity);
       setDuration(event.timeDurationInMinutes);
+      setPrice(event.price);
 
       const fetchCurrentSpeaker = async () => {
         const currentSpeaker = await userService.getUserByEmail(event.speaker);
@@ -250,7 +253,26 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
           </div>
           <div className="py-6 px-12 bg-white rounded-b-xl">
-            <h3 className="text-xl font-semibold pt-2 pb-4">Event Details</h3>
+            <h3 className="text-xl font-semibold pt-2 pb-4">Event Details</h3>{/* New Price Input Field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Price ($):</label>
+              <input
+                type="number"
+                value={price || ''}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value >= 0) setPrice(value);
+                }}
+                min="0"
+                placeholder="Price"
+                disabled={!formEditable}
+                className={`w-full max-w-[500px] p-3 rounded-xl placeholder-gray-400 mb-4 ${
+                  formEditable
+                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+              />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
               {/* Max Capacity */}
