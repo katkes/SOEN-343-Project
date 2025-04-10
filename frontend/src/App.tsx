@@ -21,6 +21,7 @@ import './App.css';
 import { ChatRoom } from './pages/ChatRoom';
 import { SponsorSignUp } from './pages/SponsorSignUp';
 import { EventOrganizerSignUp } from './pages/EventOrganizerSignUp';
+import { SponsorConfirmation } from './pages/SponsorConfirmation';
 
 
 const App = () => {
@@ -46,6 +47,7 @@ const App = () => {
       <Route path={"/message"} element={<ChatRoom />} />
       <Route path={FrontEndRoutes.EventConfirmation} element={<EventConfirmation />} />
       <Route path={FrontEndRoutes.EditProfile} element={<EditProfile />} />
+      <Route path={FrontEndRoutes.SponsorConfirmation} element={<SponsorConfirmation />} />
     </Routes>
   </BrowserRouter>
 };

@@ -16,7 +16,7 @@ const Events = () => {
   const isEventCreator =
     account instanceof CompanyAccount ||
     (account instanceof UserAccount &&
-      ['EventOrganizer', 'Sponsor', 'Admin'].includes(account.role as string));
+      ['EventOrganizer', 'Admin'].includes(account.role as string));
 
   const [events, setEvents] = useState<EventResponseDTO[]>([]);
   const [creatingNewEvent, setCreatingNewEvent] = useState(false);

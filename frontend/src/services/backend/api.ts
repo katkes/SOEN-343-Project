@@ -27,6 +27,18 @@ async function post<T> (url: string, data?: unknown) {
   return handleResponse<T>(response);
 }
 
+async function put<T> (url: string, data?: unknown) {
+  const response = await fetch(`${BASE_URL}${url}`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  return handleResponse<T>(response);
+}
+
 function handleResponse<T>(response: Response) {
   if (response.status === StatusCodes.UNAUTHORIZED) {
     // get out of here, user is aunothorized.
@@ -45,5 +57,6 @@ function handleResponse<T>(response: Response) {
 export const api = {
   get,
   post,
+  put
   // Add other methods (PUT, DELETE, etc.) as needed
 };

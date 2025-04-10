@@ -12,10 +12,15 @@ async function getEventById (id: string) {
   return api.get<EventResponseDTO>(Endpoints.Event.GetById.replace(':id', id))
 }
 
+async function updateEvent(id: string, eventData: Partial<EventResponseDTO>) {
+  return api.put<void>(Endpoints.Event.UpdateEvent.replace(':id', id), eventData)
+}
+
 // export the functions here in an object
 export const eventService = {
   getAllEvents,
-  getEventById
+  getEventById,
+  updateEvent
 } as const;
 
 
