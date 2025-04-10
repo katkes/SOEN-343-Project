@@ -18,8 +18,8 @@ export const SponsorConfirmation = () => {
   const account = useAccountInfo();
   const companyName = account?.companyName
 
-
   useEffect(() => {
+    console.log('Company Name:', companyName); // Log the company name to check if it's defined
     const fetchEvent = async () => {
       try {
         if (!id) {
@@ -36,6 +36,33 @@ export const SponsorConfirmation = () => {
       fetchEvent();
     }
   }, [id]);
+
+  const handleSponsorEvent = async () => {
+    try {
+      // Update the event in the database
+      if (id) {
+        await eventService.updateEvent(id, { sponsoredBy: companyName });
+      } else {
+        throw new Error('Event ID is undefined');
+      }
+
+      // Optionally, update the local state to reflect the change
+      setEvent((prevEvent) => ({
+        ...prevEvent!,
+        sponsoredBy: companyName,
+      }));
+
+      console.log('Event successfully updated with sponsor:', companyName);
+    } catch (error) {
+      console.error('Error updating event:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (companyName) {
+      handleSponsorEvent(); // Automatically sponsor the event when the component loads
+    }
+  }, [companyName]);
 
   return (
     <div className="flex bg-[#EAF5FF] min-h-screen">

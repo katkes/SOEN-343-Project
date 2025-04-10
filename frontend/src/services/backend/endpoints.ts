@@ -18,5 +18,6 @@ export const Endpoints = {
     Create: "/api/event",
     GetAll: "/api/event",
     GetById: "/api/event/:id",
+    UpdateEvent: "/api/event/:id/updateEvent"
   }
 } as const;
