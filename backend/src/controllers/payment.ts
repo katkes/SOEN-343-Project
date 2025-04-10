@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { StripeFacade } from '../services/stripe/StripeFacade';
 import { Logger } from '../configs/logger';
+import { Ticket } from '../models/ticket'; // Import the Ticket model
 
 /**
  * POST /api/payment
@@ -38,11 +39,24 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
 
     if (session && session.client_secret) {
       Logger.info(`Checkout session created with ID: ${session.id}`);
+
+      // Create a ticket in the database after successful session creation.
+      // We link the ticket to the event and user, and store the payment session id.
+      const ticket = new Ticket({
+        eventId,
+        userId,
+        paymentId: session.id,
+        isAttending: false, // Mark as not yet confirmed for attendance until payment is finished
+        purchaseDate: new Date(),
+      });
+
+      await ticket.save();
+      Logger.info(`Ticket created for event ${eventId} and user ${userId}.`);
+
+      // Return the client secret so that the frontend can continue with Stripe Checkout.
       res.status(200).json({ success: true, clientSecret: session.client_secret });
       return;
     }
-
-    // TODO: Create a ticket in the database after the purchase
 
     Logger.warn(`Payment not successful for user ${userId} and event ${eventId}.`);
     res.status(400).json({ success: false, message: 'Payment not successful. Please try again.' });
