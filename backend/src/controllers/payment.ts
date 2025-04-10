@@ -39,23 +39,7 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
     // Check if session was created successfully
     res.status(200).json({ success: true, clientSecret: session.client_secret });
 
-    // // If the payment succeeded, create a ticket
-    // if (paymentIntent.status === 'succeeded') {
-    //   const newTicket = new Ticket({
-    //     eventId,
-    //     userId,
-    //     paymentId: paymentIntent.id,
-    //     // Add any other fields as needed (e.g., purchaseDate)
-    //   });
-    //   await newTicket.save();
-
-    //   Logger.info(`Payment successful for user ${userId} and event ${eventId}. Ticket created.`);
-    //   res.status(200).json({
-    //     success: true,
-    //     message: 'Payment successful, ticket created.',
-    //     ticket: newTicket,
-    //   });
-    //   return;
+    // TODO: Create a ticket in the database after the purchase
 
     // In case payment is not successful, return an appropriate message
     Logger.warn(`Payment not successful for user ${userId} and event ${eventId}.`);
