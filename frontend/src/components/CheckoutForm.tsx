@@ -13,7 +13,6 @@ interface CheckoutFormProps {
   amount: number; // Amount in cents
   eventName: string;
   email: string;         
-  eventDate: string;     
   location: string;      
 }
 
@@ -23,7 +22,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   amount,
   eventName,
   email,
-  eventDate,
   location,
 }) => {
 
@@ -38,13 +36,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         currency: 'cad',
         eventName,
         email,       
-        eventDate,   
         location,    
       }),
     })
       .then((res) => res.json())
       .then((data) => data.clientSecret);
-  }, [eventId, userId, amount, eventName, email, eventDate, location]);
+  }, [eventId, userId, amount, eventName, email, location]);
 
   const options = { fetchClientSecret };
 

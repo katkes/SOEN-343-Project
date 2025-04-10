@@ -15,14 +15,13 @@ import { generateEventInviteHtml } from '../services/email/email-templates/event
  *   "currency": "usd" | "cad",
  *   "eventName": "string",
  *   "email": "string",
- *   "eventDate": "string",
  *   "location": "string",
  * }
  */
 export const purchaseTicket = async (req: Request, res: Response): Promise<void> => {
   try {
     // Extract new parameters from the request body.
-    const { eventId, userId, amount, currency, eventName, email, eventDate, location } = req.body;
+    const { eventId, userId, amount, currency, eventName, email, location } = req.body;
 
     Logger.info('Received payment request:', {
       eventId,
@@ -31,21 +30,11 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
       currency,
       eventName,
       email,
-      eventDate,
       location,
     });
 
     // Validate request fields
-    if (
-      !eventId ||
-      !userId ||
-      !amount ||
-      !currency ||
-      !eventName ||
-      !email ||
-      !eventDate ||
-      !location
-    ) {
+    if (!eventId || !userId || !amount || !currency || !eventName || !email || !location) {
       Logger.warn('Missing required fields in payment request.');
       res.status(400).json({ success: false, message: 'Missing required fields.' });
       return;
@@ -80,7 +69,6 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
       const emailHtml = generateEventInviteHtml(
         eventName,
         `Thank you for purchasing a ticket for ${eventName}. Your ticket has been confirmed.`,
-        new Date(eventDate),
         location,
         '',
       );

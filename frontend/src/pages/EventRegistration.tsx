@@ -70,15 +70,7 @@ export const EventRegistration = () => {
             userId={account._id}
             amount={Math.round(event.price * 100)}
             eventName={event.name} 
-            email = {account.email}       
-            eventDate = {new Date(event.startDateAndTime).toLocaleDateString('en-US', {
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-              hour12: true,
-            })}   
+            email = {account.email}         
             location = {event.location}
           />
         </div>

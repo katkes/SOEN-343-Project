@@ -1,36 +1,10 @@
-/**
- * Generate HTML for event invitation
- */
-
-function getEndDate(startDate: Date, durationInMinutes: number): Date {
-  return new Date(startDate.getTime() + durationInMinutes * 60000);
-}
-
 export function generateEventInviteHtml(
   title: string,
   description: string,
-  startDate: Date,
   duration: number,
   location?: string,
   url?: string,
 ): string {
-  // Format date for display
-  const dateOptions: Intl.DateTimeFormatOptions = {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  };
-  const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  };
-
-  const formattedDate = startDate.toLocaleDateString(undefined, dateOptions);
-  const startTime = startDate.toLocaleTimeString(undefined, timeOptions);
-  const endTime = getEndDate(startDate, duration).toLocaleTimeString(undefined, timeOptions); // Assuming a 1-hour duration
-
   return `
 <!DOCTYPE html>
 <html>
@@ -59,8 +33,6 @@ export function generateEventInviteHtml(
     <h2>${title}</h2>
     
     <div class="event-meta">
-      <p><strong>Date:</strong> ${formattedDate}</p>
-      <p><strong>Time:</strong> ${startTime} - ${endTime}</p>
       ${location ? `<p><strong>Location:</strong> ${location}</p>` : ''}
       ${url ? `<p><strong>Event URL:</strong> <a href="${url}">${url}</a></p>` : ''}
     </div>
