@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Logo1 from '../assets/logo1.svg';
 import CustomButton from './CustomButton';
 import { Link } from 'react-router';
@@ -22,6 +23,8 @@ export default function NavBar({
   showSignUpLogIn = true,
 }: NavBarProps) {
   const [selectedTab, setSelectedTab] = useState('Home');
+  const location = useLocation();
+  const displayTabs = showTabs && location.pathname !== FrontEndRoutes.SignUp && location.pathname !== FrontEndRoutes.Login;
 
   const handleTabClick = (tab: string) => {
     setSelectedTab(tab);
@@ -83,7 +86,7 @@ export default function NavBar({
         <img src={Logo1} alt="Hero Shape" onClick={() => handleTabClick('Home')} />
       </Link>
 
-      {showTabs && (
+      {displayTabs && (
         <div className="tabs flex text-[#273266] bg-white p-2">
           {['Home', 'Services', 'About', 'Contact'].map((tab) => (
             <div
@@ -99,7 +102,7 @@ export default function NavBar({
         </div>
       )}
 
-      {showSignUpLogIn && ( // Conditional rendering for the Sign Up and Log In buttons
+      {showSignUpLogIn && (
         <div className="join flex gap-2">
           <Link to={FrontEndRoutes.SignUp}>
             <CustomButton

@@ -15,11 +15,7 @@ const PageHeader = ({ pageName }: PageHeaderProps) => {
     FrontEndRoutes.Dashboard,
     FrontEndRoutes.Events,
     FrontEndRoutes.Schedule,
-    FrontEndRoutes.Community,
     FrontEndRoutes.Analytics,
-    FrontEndRoutes.Messages,
-    FrontEndRoutes.Notifications,
-    FrontEndRoutes.Support,
     FrontEndRoutes.Profile,
   ];
 
@@ -33,7 +29,7 @@ const PageHeader = ({ pageName }: PageHeaderProps) => {
   });
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between mb-3">
       <div className="flex gap-5">
         <div className="flex items-center gap-2">
           {showBackButton && (

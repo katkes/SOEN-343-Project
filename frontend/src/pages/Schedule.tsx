@@ -1,98 +1,141 @@
 import Sidebar from '../components/Sidebar';
-import { CalendarDaysIcon, MapPinIcon, UserIcon } from '@heroicons/react/24/outline';
 import Badge from '../components/Badge';
-import { Link } from 'react-router-dom';
+import { PageHeader } from '../components/PageHeader';
 
-const Schedule = () => {
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { eventService } from '../services/backend/event';
+import { FrontEndRoutes } from './routes';
+import { EventResponseDTO } from '../types/event';
+import { userService } from '../services/backend/user';
 
-  const events = [
-    {
-      title: 'Security Workshop',
-      description: 'Write an amazing description in this dedicated card section.',
-      speaker: 'Daniel Lam',
-      location: 'Hybrid/SGW Campus',
-      date: 'April 4th 2025',
-      tags: ['Hot Topic', 'Automation', 'Nonproductive'],
-    },
-    {
-      title: 'Security Workshop',
-      description: 'Write an amazing description in this dedicated card section.',
-      speaker: 'Daniel Lam',
-      location: 'Hybrid/SGW Campus',
-      date: 'April 4th 2025',
-      tags: ['Hot Topic', 'Automation', 'Nonproductive'],
-    },
-  ];
+export const Schedule: React.FC = () => {
+  const navigate = useNavigate();
+  const [events, setEvents] = useState<EventResponseDTO[]>([]);
+
+  // Fetch events from the backend
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await eventService.getAllEvents();
+
+        const fetchedEvents = await Promise.all(
+          response.map(async (event: EventResponseDTO) => {
+            const speaker = await userService.getUserByEmail(event.speaker); // Fetch speaker details
+            console.log('Speaker:', speaker); // Log the fetched speaker details
+            return {
+              ...event,
+              speaker: speaker.firstName + ' ' + speaker.lastName,
+              tags: ['NEW!'],
+            };
+          })
+        );
+
+        // Sort events by startDateAndTime in ascending order
+        fetchedEvents.sort((a, b) => new Date(a.startDateAndTime).getTime() - new Date(b.startDateAndTime).getTime());
+
+        setEvents(fetchedEvents);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   return (
     <div className="flex bg-[#EAF5FF] min-h-screen">
       <Sidebar />
       <main className="flex-1 p-6 space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-extrabold text-[#3D50FF] bg-white px-6 py-2 rounded-full shadow">
-            Schedule
-          </h1>
-          <div className="bg-[#273266] text-white py-2 px-4 rounded-xl font-medium text-sm">
-            {currentDate}
-          </div>
-        </div>
+        <PageHeader pageName="Schedule" />
 
         {/* Hero Section */}
         <div className="bg-[#3D50FF] text-white px-8 py-8 rounded-2xl shadow space-y-2">
-          <h2 className="text-2xl font-bold">Schedule</h2>
+          <h2 className="text-2xl font-bold">My Schedule</h2>
           <p className="text-sm text-[#C8D1FF] max-w-2xl">
-            See all of the upcoming events you have registered for
+            See all of the upcoming events you have registered for.
           </p>
         </div>
 
         {/* Event List */}
         <div className="space-y-6">
-          {events.map((event, index) => (
-            <Link key={index} to={`/event/event-details`}>
-              <div className="bg-white rounded-xl shadow overflow-hidden">
-                <div className="bg-[#DFF0FF] py-2 px-4">
-                  <CalendarDaysIcon className="w-6 h-6 text-[#3D50FF]" />
-                </div>
-                <div className="p-6 space-y-2">
-                  <h3 className="text-lg font-bold text-[#273266]">{event.title}</h3>
-                  <p className="text-sm text-gray-600">{event.description}</p>
-
-                  <div className="text-sm space-y-1">
-                    <p className="flex items-center gap-1 text-[#273266]">
-                      <UserIcon className="w-4 h-4" />
-                      <span className="font-semibold">Speaker:</span> {event.speaker}
-                    </p>
-                    <p className="flex items-center gap-1 text-[#273266]">
-                      <MapPinIcon className="w-4 h-4" />
-                      <span className="font-semibold">Location:</span> {event.location}
-                    </p>
-                    <p className="flex items-center gap-1 text-[#273266]">
-                      <CalendarDaysIcon className="w-4 h-4" />
-                      <span className="font-semibold">Date:</span> {event.date}
-                    </p>
-                  </div>
-
-                  {/* Tags */}
-                  <div className="mt-4 flex gap-2 flex-wrap">
-                    {event.tags.map((tag, i) => (
-                      <Badge key={i} label={tag} />
-                    ))}
-                  </div>
-                </div>
+          <div className="flex-col bg-white p-8 rounded-2xl shadow space-y-6">
+            {/* DUMMY PR TO ALLOW USERS TO JOIN STREAMERS, PLEASE DELETE LATER */}
+            <div
+              key={'67e48cfee48b2a4d0439edererw'}
+              className="bg-[#EAF0FF] p-4 rounded-xl shadow cursor-pointer hover:bg-gray-100"
+              onClick={() =>
+                navigate(FrontEndRoutes.EventDetails.replace(':id', '67e48cfee48b2a4d0439edererw'))
+              }
+            >
+              <div className="flex items-center gap-2 text-sm text-[#273266] mb-2">
+                📅{' '}
+                <span>
+                  <b>Data Fabrication Workshop</b>
+                </span>
               </div>
-            </Link>
-          ))}
+              <p className="text-sm text-[#637381]">
+                Master the art of generating realistic fake data for testing, simulations, and
+                educational purposes using modern tools and techniques
+              </p>
+              <p className="mt-2 text-sm font-medium text-[#273266]">
+                <span className="text-[#637381]">👤 Speaker:</span> Nicolas MacBeth
+              </p>
+              <p className="text-sm text-[#637381]">📅 Date: May 15th, 2025 at 4:00 PM</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <Badge key="NEW!" label="NEW!" className="bg-red px-3 py-1 text-xs shadow" />
+                <Badge
+                  key="Hybrid"
+                  label="Hybrid"
+                  className="bg-[#273266] text-white px-3 py-1 text-xs shadow"
+                />
+              </div>
+            </div>
+            <hr className="my-4 border-gray-300" />
+            {events.map((event, idx) => (
+              <div key={idx}>
+                <div
+                  className="bg-[#EAF0FF] p-4 rounded-xl shadow cursor-pointer hover:bg-gray-100"
+                  onClick={() => navigate(FrontEndRoutes.EventDetails.replace(':id', event._id))}
+                >
+                  <div className="flex items-center gap-2 text-sm text-[#273266] mb-2">
+                    📅{' '}
+                    <span>
+                      <b>{event.name}</b>
+                    </span>
+                  </div>
+                  <p className="text-sm text-[#637381]">{event.description}</p>
+                  <p className="mt-2 text-sm font-medium text-[#273266]">
+                    <span className="text-[#637381]">👤 Speaker:</span> {event.speaker}
+                  </p>
+                  <p className="text-sm text-[#637381]">
+                    📅 Date:{' '}
+                    {event.startDateAndTime
+                      ? new Date(event.startDateAndTime).toLocaleString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        hour12: true,
+                      })
+                      : ''}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Badge key="NEW!" label="NEW!" className="bg-red px-3 py-1 text-xs shadow" />
+                    <Badge
+                      key={event.locationType}
+                      label={event.locationType}
+                      className="bg-[#273266] text-white px-3 py-1 text-xs shadow"
+                    />
+                  </div>
+                </div>
+                {idx < events.length - 1 && <hr className="my-4 border-gray-300" />}
+              </div>
+            ))}
+          </div>
         </div>
       </main>
     </div>
   );
 };
-
-export { Schedule };
