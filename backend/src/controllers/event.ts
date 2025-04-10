@@ -3,7 +3,7 @@ import { Logger } from '../configs/logger';
 import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
 import 'express-session';
-import { createEvent, CreateEventDTO, getAllEvents, getEventById } from '../services/mongo/event';
+import { createEvent, CreateEventDTO, getAllEvents, getEventById, updateEvent } from '../services/mongo/event';
 
 // Create event validation schema when receiving request
 const createEventBodySchema = z.object({
@@ -47,6 +47,22 @@ export async function createEventController(req: Request, res: Response) {
 
   // return success status
   res.status(StatusCodes.CREATED).json({});
+}
+
+export async function updateEventController(req: Request, res: Response) {
+  const { id } = req.params; // Get the event ID from the request parameters
+  const { sponsoredBy } = req.body;
+
+  try {
+    const event = await updateEvent(id, { sponsoredBy });
+    if (!event) {
+      return res.status(404).send('Event not found');
+    }
+
+    res.status(200).send(event);
+  } catch (error) {
+    res.status(500).send('Error updating event');
+  }
 }
 
 // Get all events from MongoDB
