@@ -36,12 +36,14 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
       eventName,
     );
 
-    // Check if session was created successfully
-    res.status(200).json({ success: true, clientSecret: session.client_secret });
+    if (session && session.client_secret) {
+      Logger.info(`Checkout session created with ID: ${session.id}`);
+      res.status(200).json({ success: true, clientSecret: session.client_secret });
+      return;
+    }
 
     // TODO: Create a ticket in the database after the purchase
 
-    // In case payment is not successful, return an appropriate message
     Logger.warn(`Payment not successful for user ${userId} and event ${eventId}.`);
     res.status(400).json({ success: false, message: 'Payment not successful. Please try again.' });
   } catch (error: unknown) {
