@@ -12,12 +12,7 @@ export const FrontEndRoutes = {
   Events: '/events',
   
   Schedule: '/schedule',
-  Community: '/community',
-  Discussion: '/community/discussion',
   Analytics: '/analytics',
-  Messages: '/messages',
-  Notifications: '/notifications',
-  Support: '/support',
   Profile: '/profile',
   EditProfile: '/profile/edit',
   EventRegistration: '/event/:id/register',
