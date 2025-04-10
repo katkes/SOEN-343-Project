@@ -3,6 +3,11 @@ import { StripeFacade } from '../services/stripe/StripeFacade';
 import { Logger } from '../configs/logger';
 import { StatusCodes } from 'http-status-codes';
 import { getAllSpeakers } from '../services/mongo/user';
+import { getUserById } from '../services/mongo/user';
+import { getEventById } from '../services/mongo/event';
+import { EmailService } from '../services/email/email';
+import { generateEventInviteHtml } from '../services/email/email-templates/event-create-invite';
+
 /**
  * POST /api/payment
  * Expected request body:
@@ -56,8 +61,9 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // TODO: Create a ticket in the database after the purchase
 
+
+    // TODO: Create a ticket in the database after the purchase
     Logger.warn(`Payment not successful for user ${userId} and event ${eventId}.`);
     res.status(400).json({ success: false, message: 'Payment not successful. Please try again.' });
   } catch (error: unknown) {
