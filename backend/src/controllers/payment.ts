@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { StripeFacade } from '../services/stripe/StripeFacade';
 import { Logger } from '../configs/logger';
 import { Ticket } from '../models/ticket';
+import { EmailService } from '../services/email/email';
+import { generateEventInviteHtml } from '../services/email/email-templates/event-create-invite';
 
 /**
  * POST /api/payment
@@ -11,7 +13,8 @@ import { Ticket } from '../models/ticket';
  *   "userId": "string",
  *   "amount": number,         // in cents, e.g., 5000 for $50.00
  *   "currency": "usd" | "cad",
- *   "eventName": "string"     // Name of the event for the ticket
+ *   "eventName": "string",    // Name of the event for the ticket
+ *   "email": "string"         // Email of the user
  * }
  */
 export const purchaseTicket = async (req: Request, res: Response): Promise<void> => {
@@ -49,9 +52,34 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
         isAttending: false, // Mark as not yet confirmed for attendance until payment is finished
         purchaseDate: new Date(),
       });
-
       await ticket.save();
       Logger.info(`Ticket created for event ${eventId} and user ${userId}.`);
+
+      // --- Start: Send confirmation email to user ---
+      const recipientEmail = req.body.email || 'user@example.com';
+
+      const emailHtml = generateEventInviteHtml(
+        eventName,
+        `Thank you for purchasing a ticket for ${eventName}. Your ticket has been confirmed.`,
+        new Date(), // Replace with the actual event date
+        60, // Replace with actual duration in minutes
+        'Event Venue Placeholder', // Replace with actual location
+        '',
+      );
+
+      const emailService = new EmailService();
+      const emailResult = await emailService
+        .createMailBuilder()
+        .to(recipientEmail)
+        .subject(`Ticket Confirmation for ${eventName}`)
+        .html(emailHtml)
+        .send();
+      if (emailResult.success) {
+        Logger.info(`Confirmation email sent to ${recipientEmail}`);
+      } else {
+        Logger.error(`Failed to send confirmation email: ${emailResult.error}`);
+      }
+      // --- End: Send confirmation email to user ---
 
       // Return the client secret so that the frontend can continue with Stripe Checkout.
       res.status(200).json({ success: true, clientSecret: session.client_secret });
