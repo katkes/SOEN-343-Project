@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
+import path from 'path';
 // config dotenv such that all imported files can use it
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 // flag to check if all variables are properly defined
 let areEnvsDefinedProperly = true;
@@ -33,6 +34,8 @@ export const ENV_VARS = {
   HTTPS: process.env.HTTPS !== undefined,
   JWT_SECRET: process.env.JWT_SECRET || 'supersecretjwtkey',
   SESSION_SECRET: process.env.JWT_SECRET || 'supersecretkey',
+  EMAIL: requiredEnv('EMAIL'),
+  APP_PASSWORD: requiredEnv('APP_PASSWORD'),
 } as const;
 
 // safeguard to not run the program in case env variables are not properly set

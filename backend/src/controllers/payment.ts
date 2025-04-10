@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { StripeFacade } from '../services/stripe/StripeFacade';
 import { Logger } from '../configs/logger';
+import { getUserById } from '../services/mongo/user';
+import { getEventById } from '../services/mongo/event';
+import { EmailService } from '../services/email/email';
+import { generateEventInviteHtml } from '../services/email/email-templates/event-create-invite';
 
 /**
  * POST /api/payment
@@ -42,8 +46,47 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // TODO: Create a ticket in the database after the purchase
 
+    // If the payment succeeded, create a ticket
+    if (paymentIntent.status === 'succeeded') {
+      const newTicket = new Ticket({
+        eventId,
+        userId,
+        paymentId: paymentIntent.id,
+        // Add any other fields as needed (e.g., purchaseDate)
+      });
+      await newTicket.save();
+      const user = await getUserById(userId);
+      const event = await getEventById(eventId);
+      const userEmail = user!.email;
+      const result = await new EmailService()
+        .createMailBuilder()
+        .subject('Ticket Confirmation')
+        .to(userEmail)
+        .html(
+          generateEventInviteHtml(
+            event!.name,
+            event!.description,
+            event!.startDateAndTime,
+            event!.timeDurationInMinutes,
+            event!.location,
+          ),
+        )
+        .send();
+      console.log(
+        result.success ? 'Email sent successfully!' : 'Failed to send email:',
+        result.error,
+      );
+
+      Logger.info(`Payment successful for user ${userId} and event ${eventId}. Ticket created.`);
+      res.status(200).json({
+        success: true,
+        message: 'Payment successful, ticket created.',
+        ticket: newTicket,
+      });
+      return;
+    }
+    // TODO: Create a ticket in the database after the purchase
     Logger.warn(`Payment not successful for user ${userId} and event ${eventId}.`);
     res.status(400).json({ success: false, message: 'Payment not successful. Please try again.' });
   } catch (error: unknown) {
