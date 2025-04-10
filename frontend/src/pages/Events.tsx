@@ -16,7 +16,7 @@ const Events = () => {
   const isEventCreator =
     account instanceof CompanyAccount ||
     (account instanceof UserAccount &&
-      (['EventOrganizer', 'Sponsor', 'Admin'].includes(account.role as string)));
+      ['EventOrganizer', 'Sponsor', 'Admin'].includes(account.role as string));
 
   const [events, setEvents] = useState<EventResponseDTO[]>([]);
   const [creatingNewEvent, setCreatingNewEvent] = useState(false);
@@ -25,45 +25,6 @@ const Events = () => {
   const [selectedEventType, setSelectedEventType] = useState<'myEvents' | 'otherEvents' | null>(
     'myEvents'
   );
-
-  // const allEvents = [
-  //   {
-  //     title: 'Security Workshop',
-  //     speaker: 'Jane Doe',
-  //     date: 'April 4th 2025',
-  //     location: 'SGW Campus',
-  //     organizer: 'MegaSoft Inc',
-  //     type: 'hybrid',
-  //     isUserRegistered: true,
-  //   },
-  //   {
-  //     title: 'AI Conference',
-  //     speaker: 'John Smith',
-  //     date: 'May 10th 2025',
-  //     location: 'Loyola Campus',
-  //     organizer: 'TechWorld',
-  //     type: 'in-person',
-  //     isUserRegistered: true,
-  //   },
-  //   {
-  //     title: 'Cloud Computing Seminar',
-  //     speaker: 'Alice Johnson',
-  //     date: 'June 15th 2025',
-  //     location: 'Online',
-  //     organizer: 'CloudTech',
-  //     type: 'virtual',
-  //     isUserRegistered: true,
-  //   },
-  //   {
-  //     title: 'Cybersecurity Meetup',
-  //     speaker: 'Bob Brown',
-  //     date: 'July 20th 2025',
-  //     location: 'SGW Campus',
-  //     organizer: 'SecureNet',
-  //     type: 'hybrid',
-  //     isUserRegistered: false,
-  //   },
-  // ];
 
   // Fetch events from the backend
   useEffect(() => {
@@ -102,9 +63,9 @@ const Events = () => {
                 setCreatingNewEvent(false);
               }}
             >
-              My Events
+              Events
             </CustomButton>
-            { !isEventCreator && (
+            {!isEventCreator && (
               <CustomButton
                 className={`${selectedEventType === 'otherEvents' && !creatingNewEvent ? 'bg-[#273266]' : 'bg-[#3D50FF]'} text-white text-sm font-semibold p-4 rounded-xl mb-4`}
                 width="w-[200px]"
@@ -116,7 +77,7 @@ const Events = () => {
                 Other Events
               </CustomButton>
             )}
-            { isEventCreator && (
+            {isEventCreator && (
               <CustomButton
                 className={`${creatingNewEvent ? 'bg-[#273266]' : 'bg-[#3D50FF]'} text-white text-sm font-semibold p-4 rounded-xl mb-4`}
                 width="w-[200px]"
@@ -137,7 +98,7 @@ const Events = () => {
             ) : (
               <>
                 <div className="bg-[#3D50FF] text-white text-xl font-bold px-4 py-4 rounded-t-2xl">
-                  {selectedEventType === 'myEvents' ? 'My Events' : 'Other Events'}
+                  {selectedEventType === 'myEvents' ? 'Events' : 'Other Events'}
                 </div>
                 <div className="overflow-x-auto flex-grow bg-white rounded-b-2xl">
                   <table className="min-w-full text-sm text-[#273266]">
@@ -148,7 +109,8 @@ const Events = () => {
                         <th className="px-4 py-3">Date</th>
                         <th className="px-4 py-3">Type</th>
                         <th className="px-4 py-3">Location</th>
-                        <th className="px-4 py-3">Organizer</th>
+                        <th className="px-4 py-3 text-center">Organizer</th>
+                        <th className="px-4 py-3 text-center">Tickets Sold</th> {/* Center-aligned header */}
                       </tr>
                     </thead>
                     <tbody>
@@ -160,23 +122,25 @@ const Events = () => {
                             navigate(`/event/${event._id}/details`, {
                               state: {
                                 event,
-                                editable: isEventCreator && selectedEventType === 'myEvents'
+                                editable: isEventCreator && selectedEventType === 'myEvents',
                               },
                             })
                           }
                         >
                           <td className="px-4 py-3">{event.name}</td>
                           <td className="px-4 py-3">Nicolas MacBeth</td>
-                          <td className="px-4 py-3">{event?.startDateAndTime
-                            ? new Date(event.startDateAndTime).toLocaleDateString('en-US', {
-                              month: 'long',
-                              day: 'numeric',
-                              year: 'numeric',
-                              hour: 'numeric',
-                              minute: 'numeric',
-                              hour12: true,
-                            })
-                            : ''} </td>
+                          <td className="px-4 py-3">
+                            {event?.startDateAndTime
+                              ? new Date(event.startDateAndTime).toLocaleDateString('en-US', {
+                                month: 'long',
+                                day: 'numeric',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
+                                hour12: true,
+                              })
+                              : ''}{' '}
+                          </td>
                           <td className="px-4 py-3">
                             <Badge
                               label={event.locationType}
@@ -190,7 +154,8 @@ const Events = () => {
                             />
                           </td>
                           <td className="px-4 py-3">{event.location}</td>
-                          <td className="px-4 py-3">Google</td>
+                          <td className="px-4 py-3 text-center">Google</td>
+                          <td className="px-4 py-3 text-center">{event.ticketsSold || 0}</td> {/* Center-aligned data */}
                         </tr>
                       ))}
                     </tbody>
