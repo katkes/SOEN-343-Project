@@ -44,7 +44,7 @@ const features = [
 
 export default function Services() {
   return (
-    <div className="bg-[#F9FAFB] py-24">
+    <div className=" py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto">
           <Badge className="mx-auto mb-2" label="Our Services" />
