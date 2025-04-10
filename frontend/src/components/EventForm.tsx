@@ -55,7 +55,9 @@ export const EventForm: React.FC<EventFormProps> = ({
   const isEventCreator =
     account instanceof CompanyAccount ||
     (account instanceof UserAccount &&
-      ['EventOrganizer', 'Sponsor', 'Admin'].includes(account.role as string));
+      ['EventOrganizer', 'Admin'].includes(account.role as string));
+
+  const isSponsor = (account instanceof UserAccount && account.role === 'Sponsor')
 
   const placeholders = {
     title: 'Event Name',
@@ -389,6 +391,8 @@ export const EventForm: React.FC<EventFormProps> = ({
                 onClick={() => {
                   if (isCreating) {
                     // do something
+                  } else if (isSponsor) {
+                    navigate(`/event/${event._id}/sponsorConfirmation`);
                   } else {
                     navigate(
                       registered
@@ -398,7 +402,17 @@ export const EventForm: React.FC<EventFormProps> = ({
                   }
                 }}
               >
-                {isCreating ? 'Create Event' : registered ? 'Join Stream' : 'Register'}
+                {(() => {
+                  if (isCreating) {
+                    return 'Create Event';
+                  } else if (isSponsor) {
+                    return 'Sponsor';
+                  } else if (registered) {
+                    return 'Join Stream';
+                  } else {
+                    return 'Register';
+                  }
+                })()}
               </CustomButton>
             </div>
           </div>
