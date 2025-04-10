@@ -23,3 +23,7 @@ export const DefaultCookieConfig = {
 } as const;
 
 export const JWT_COOKIE_NAME = 'jwt';
+
+export const SocketNameSpaces = {
+  CHATROOM: '/chatroom',
+} as const;

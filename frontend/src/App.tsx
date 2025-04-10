@@ -26,6 +26,7 @@ import './App.css';
 import { ChatRoom } from './pages/ChatRoom';
 import { SponsorSignUp } from './pages/SponsorSignUp';
 import { EventOrganizerSignUp } from './pages/EventOrganizerSignUp';
+import { EventViewer } from './pages/EventViewer';
 
 
 const App = () => {
@@ -52,6 +53,7 @@ const App = () => {
       <Route path={FrontEndRoutes.Profile} element={<Profile />} />
       <Route path={FrontEndRoutes.EventRegistration} element={<EventRegistration />} />
       <Route path={FrontEndRoutes.EventStreaming} element={<EventStreaming />} />
+      <Route path={FrontEndRoutes.EventViewer} element={<EventViewer />} />
       <Route path={FrontEndRoutes.Discussion} element={<Discussion />} />
       <Route path={"/message"} element={<ChatRoom />} />
       <Route path={FrontEndRoutes.EventConfirmation} element={<EventConfirmation />} />

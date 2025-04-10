@@ -19,6 +19,7 @@ export const ChatRoom: React.FC = () => {
   }, []);
   useEffect(() => {
     console.log('join room')
+    socket.current.connect();
     socket.current.emit('joinRoom', room);
 
     socket.current.on('receiveMessage', receiveMessage);
@@ -27,7 +28,7 @@ export const ChatRoom: React.FC = () => {
       console.log('disconnect from socket')
       socket.current.off('receiveMessage', receiveMessage);
       socket.current.emit('leaveRoom', room);
-
+      socket.current.disconnect();
     };
   }, []);
 

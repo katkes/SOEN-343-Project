@@ -7,9 +7,9 @@ import { useParams } from 'react-router-dom';
 import { useAccountInfo } from '../hooks/useAccountInfo';
 import { CompanyAccount, UserAccount } from '../types/account';
 import { useChatRoom } from '../hooks/useChatRoom';
-import { useStreamBroadCaster } from '../hooks/useStreamBroadcaster';
+import { useStreamViewer } from '../hooks/useStreamViewer';
 
-export const EventStreaming = () => {
+export const EventViewer = () => {
   // Polling state
   const { id } = useParams<{ id: string }>()
   const [pollQuestion, setPollQuestion] = useState('');
@@ -32,7 +32,7 @@ export const EventStreaming = () => {
   // Configure chatroom connection
   const [newMessage, setNewMessage] = useState("")
   const [messages, sendNewMessage] = useChatRoom(id || "")
-  const videoRef = useStreamBroadCaster();
+  const videoRef = useStreamViewer();
 
   // Retrieve user account information
   const account = useAccountInfo();

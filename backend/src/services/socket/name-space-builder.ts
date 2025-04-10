@@ -1,11 +1,12 @@
-import { Server, Socket } from 'socket.io';
-import { ConnectEvent, SocketContext, SocketEvent, SocketMiddleware } from '../../types/socket';
+import { Server } from 'socket.io';
+import { ConnectionEvent, SocketContext, SocketEvent, SocketMiddleware } from '../../types/socket';
 
 export class NameSpaceBuilder {
   #io!: Server;
   #namespace!: string;
   #middleware: SocketMiddleware[] = [];
-  #onConnectEvents: ConnectEvent[] = [];
+  #onConnectEvents: ConnectionEvent[] = [];
+  #onDisconnectEvents: ConnectionEvent[] = [];
   #socketEvents: { event: string; callback: (socket: SocketContext) => SocketEvent }[] = [];
 
   setIo(io: Server) {
@@ -27,8 +28,12 @@ export class NameSpaceBuilder {
     return this;
   }
 
-  addOnConnectEvent(callback: (socket: Socket) => void) {
+  addOnConnectEvent(callback: (socket: SocketContext) => void) {
     this.#onConnectEvents.push(callback);
+    return this;
+  }
+  addOnDisconnectEvent(callback: (socket: SocketContext) => void) {
+    this.#onDisconnectEvents.push(callback);
     return this;
   }
 
@@ -41,15 +46,17 @@ export class NameSpaceBuilder {
 
     // add on connect events
     nameSpaceInstance.on('connection', (socket) => {
+      const socketContext = { socket, nameSpace: nameSpaceInstance };
       console.log(`New user connected to namespace ${this.#namespace}`);
 
-      this.#onConnectEvents.forEach((callback) => callback(socket));
+      this.#onConnectEvents.forEach((callback) => callback(socketContext));
 
       this.#socketEvents.forEach(({ event, callback }) => {
-        socket.on(event, callback({ socket, nameSpace: nameSpaceInstance }));
+        socket.on(event, callback(socketContext));
       });
       socket.on('disconnect', () => {
         console.log(`User disconnected from namespace ${this.#namespace}`);
+        this.#onDisconnectEvents.forEach((callback) => callback(socketContext));
       });
     });
 
