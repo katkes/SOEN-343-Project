@@ -6,83 +6,61 @@ import { useNavigate } from 'react-router-dom';
 import CreateEventForm from '../components/CreateEventForm';
 import { PageHeader } from '../components/PageHeader';
 import { useAccountInfo } from '../hooks/useAccountInfo';
-import { CompanyAccount, UserAccount } from '../types/account';
+import { UserAccount } from '../types/account';
 import { eventService } from '../services/backend/event';
 import { EventResponseDTO } from '../types/event';
+import { userService } from '../services/backend/user'; // Import userService
 
 // TO-DO: For now, it's called My Events, but it's actually showcasing all events. We will need to add bridging tables in the future to showcase all the events associated with the logged in user.
 const Events = () => {
   const account = useAccountInfo();
-  const isEventCreator =
-    account instanceof CompanyAccount ||
-    (account instanceof UserAccount &&
-      (['EventOrganizer', 'Sponsor', 'Admin'].includes(account.role as string)));
+  const isCompanyAccount = (account instanceof UserAccount && ['EventOrganizer', 'Sponsor'].includes(account.role as string))
+  const isEventCreator = (account instanceof UserAccount && ['EventOrganizer', 'Admin'].includes(account.role as string))
+  console.log('isCompanyAccount:', isCompanyAccount);
+
 
   const [events, setEvents] = useState<EventResponseDTO[]>([]);
+  const [companyEvents, setCompanyEvents] = useState<EventResponseDTO[]>([]);
   const [creatingNewEvent, setCreatingNewEvent] = useState(false);
   const navigate = useNavigate();
 
-  const [selectedEventType, setSelectedEventType] = useState<'myEvents' | 'otherEvents' | null>(
-    'myEvents'
+  const [selectedEventType, setSelectedEventType] = useState<'allEvents' | 'companyEvents' | null>(
+    'allEvents'
   );
-
-  // const allEvents = [
-  //   {
-  //     title: 'Security Workshop',
-  //     speaker: 'Jane Doe',
-  //     date: 'April 4th 2025',
-  //     location: 'SGW Campus',
-  //     organizer: 'MegaSoft Inc',
-  //     type: 'hybrid',
-  //     isUserRegistered: true,
-  //   },
-  //   {
-  //     title: 'AI Conference',
-  //     speaker: 'John Smith',
-  //     date: 'May 10th 2025',
-  //     location: 'Loyola Campus',
-  //     organizer: 'TechWorld',
-  //     type: 'in-person',
-  //     isUserRegistered: true,
-  //   },
-  //   {
-  //     title: 'Cloud Computing Seminar',
-  //     speaker: 'Alice Johnson',
-  //     date: 'June 15th 2025',
-  //     location: 'Online',
-  //     organizer: 'CloudTech',
-  //     type: 'virtual',
-  //     isUserRegistered: true,
-  //   },
-  //   {
-  //     title: 'Cybersecurity Meetup',
-  //     speaker: 'Bob Brown',
-  //     date: 'July 20th 2025',
-  //     location: 'SGW Campus',
-  //     organizer: 'SecureNet',
-  //     type: 'hybrid',
-  //     isUserRegistered: false,
-  //   },
-  // ];
 
   // Fetch events from the backend
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchAllEvents = async () => {
       try {
-        const response = await eventService.getAllEvents();
-        const fetchedEvents = response.map((event: EventResponseDTO) => ({
-          ...event,
-          speaker: 'Test Speaker', // Default speaker
-          tags: ['NEW!'], // Default tags
-        }));
-        setEvents(fetchedEvents);
+        const allEvents = await eventService.getAllEvents();
+        
+        const eventsWithSpeakers = await Promise.all(
+          allEvents.map(async (event: EventResponseDTO) => {
+            const speaker = await userService.getUserByEmail(event.speaker); // Fetch speaker details
+            return {
+              ...event,
+              speaker: speaker.firstName + ' ' + speaker.lastName,
+            };
+          })
+        );
+        setEvents(eventsWithSpeakers); // Store all events
+
+        // If the user is a company account, filter events by company name
+        
+        if (isCompanyAccount) {
+          console.log("reach")
+          const companySpecificEvents = eventsWithSpeakers.filter(
+            (event) => (event.sponsoredBy === account.companyName || event.organizedBy === account.companyName) // Filter events by company name
+          );
+          console.log('Company-specific events:', companySpecificEvents);
+          setCompanyEvents(companySpecificEvents); // Store company-specific events
+        }
       } catch (error) {
         console.error('Error fetching events:', error);
       }
     };
-
-    fetchEvents();
-  }, []);
+    fetchAllEvents();
+  }, [isCompanyAccount, account]);
 
   return (
     <div className="flex bg-[#EAF5FF] min-h-screen">
@@ -95,28 +73,28 @@ const Events = () => {
         <div className="flex flex-col">
           <div className="flex flex-1/5 gap-3 ">
             <CustomButton
-              className={`${selectedEventType === 'myEvents' && !creatingNewEvent ? 'bg-[#273266]' : 'bg-[#3D50FF]'} text-white text-sm font-semibold p-4 rounded-xl mb-4`}
+              className={`${selectedEventType === 'allEvents' && !creatingNewEvent ? 'bg-[#273266]' : 'bg-[#3D50FF]'} text-white text-sm font-semibold p-4 rounded-xl mb-4`}
               width="w-[200px]"
               onClick={() => {
-                setSelectedEventType('myEvents');
+                setSelectedEventType('allEvents');
                 setCreatingNewEvent(false);
               }}
             >
-              My Events
+              All Events
             </CustomButton>
-            { !isEventCreator && (
+            {isCompanyAccount && (
               <CustomButton
-                className={`${selectedEventType === 'otherEvents' && !creatingNewEvent ? 'bg-[#273266]' : 'bg-[#3D50FF]'} text-white text-sm font-semibold p-4 rounded-xl mb-4`}
+                className={`${selectedEventType === 'companyEvents' && !creatingNewEvent ? 'bg-[#273266]' : 'bg-[#3D50FF]'} text-white text-sm font-semibold p-4 rounded-xl mb-4`}
                 width="w-[200px]"
                 onClick={() => {
-                  setSelectedEventType('otherEvents');
+                  setSelectedEventType('companyEvents');
                   setCreatingNewEvent(false);
                 }}
               >
-                Other Events
+                My Company Events
               </CustomButton>
             )}
-            { isEventCreator && (
+            {isEventCreator && (
               <CustomButton
                 className={`${creatingNewEvent ? 'bg-[#273266]' : 'bg-[#3D50FF]'} text-white text-sm font-semibold p-4 rounded-xl mb-4`}
                 width="w-[200px]"
@@ -136,9 +114,18 @@ const Events = () => {
               <CreateEventForm />
             ) : (
               <>
+                {/* Table Header */}
                 <div className="bg-[#3D50FF] text-white text-xl font-bold px-4 py-4 rounded-t-2xl">
-                  {selectedEventType === 'myEvents' ? 'My Events' : 'Other Events'}
+                  {(() => {
+                    if (selectedEventType === 'allEvents') {
+                      return 'All Events';
+                    } else {
+                      return 'My Company Events';
+                    }
+                  })()}
                 </div>
+
+                {/* Table Contents */}
                 <div className="overflow-x-auto flex-grow bg-white rounded-b-2xl">
                   <table className="min-w-full text-sm text-[#273266]">
                     <thead className="bg-[#F4F6F8] text-left">
@@ -148,11 +135,18 @@ const Events = () => {
                         <th className="px-4 py-3">Date</th>
                         <th className="px-4 py-3">Type</th>
                         <th className="px-4 py-3">Location</th>
-                        <th className="px-4 py-3">Organizer</th>
+                        <th className="px-4 py-3">Duration</th>
+                        <th className="px-4 py-3 text-center">Organizer</th>
+                        <th className="px-4 py-3 text-center">Sponsor</th>
+                        <th className="px-4 py-3 text-center">Price</th>
+                        
                       </tr>
                     </thead>
                     <tbody>
-                      {events.map((event, idx) => (
+
+                      {/* Map through events and display them in the table */}
+                      {(selectedEventType === 'allEvents' ? events : companyEvents).map((event, idx) => (
+                        console.log('Event:', event._id),
                         <tr
                           key={idx}
                           className="border-b cursor-pointer hover:bg-gray-100"
@@ -160,23 +154,25 @@ const Events = () => {
                             navigate(`/event/${event._id}/details`, {
                               state: {
                                 event,
-                                editable: isEventCreator && selectedEventType === 'myEvents'
+                                editable: isEventCreator && selectedEventType === 'allEvents',
                               },
                             })
                           }
                         >
                           <td className="px-4 py-3">{event.name}</td>
-                          <td className="px-4 py-3">Nicolas MacBeth</td>
-                          <td className="px-4 py-3">{event?.startDateAndTime
-                            ? new Date(event.startDateAndTime).toLocaleDateString('en-US', {
-                              month: 'long',
-                              day: 'numeric',
-                              year: 'numeric',
-                              hour: 'numeric',
-                              minute: 'numeric',
-                              hour12: true,
-                            })
-                            : ''} </td>
+                          <td className="px-4 py-3">{event.speaker}</td>
+                          <td className="px-4 py-3">
+                            {event?.startDateAndTime
+                              ? new Date(event.startDateAndTime).toLocaleDateString('en-US', {
+                                month: 'long',
+                                day: 'numeric',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
+                                hour12: true,
+                              })
+                              : ''}
+                          </td>
                           <td className="px-4 py-3">
                             <Badge
                               label={event.locationType}
@@ -190,9 +186,13 @@ const Events = () => {
                             />
                           </td>
                           <td className="px-4 py-3">{event.location}</td>
-                          <td className="px-4 py-3">Google</td>
+                          <td className="px-4 py-3">{`${event.timeDurationInMinutes} mins`}</td>
+                          <td className="px-4 py-3 text-center">{event.organizedBy}</td>
+                          <td className="px-4 py-3 text-center">{event.sponsoredBy || "None"}</td>
+                          <td className="px-4 py-3 text-center">{`$${event.price}`}</td>
                         </tr>
                       ))}
+                    
                     </tbody>
                   </table>
                 </div>

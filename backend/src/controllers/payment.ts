@@ -1,7 +1,11 @@
 import { Request, Response } from 'express';
 import { StripeFacade } from '../services/stripe/StripeFacade';
-import { Ticket } from '../services/mongo/ticket';
 import { Logger } from '../configs/logger';
+import { StatusCodes } from 'http-status-codes';
+import { getAllSpeakers } from '../services/mongo/user';
+import { Ticket } from '../models/ticket';
+import { EmailService } from '../services/email/email';
+import { generateEventInviteHtml } from '../services/email/email-templates/event-create-invite';
 
 /**
  * POST /api/payment
@@ -10,63 +14,100 @@ import { Logger } from '../configs/logger';
  *   "eventId": "string",
  *   "userId": "string",
  *   "amount": number,         // in cents, e.g., 5000 for $50.00
- *   "currency": "usd",
- *   "paymentMethod": "string" // e.g., 'pm_card_visa' from Stripe Elements or a test token
+ *   "currency": "usd" | "cad",
+ *   "eventName": "string",
+ *   "email": "string",
+ *   "location": "string",
  * }
  */
+
+export async function getAllSpeakersController(req: Request, res: Response) {
+  try {
+    const speakers = await getAllSpeakers();
+    res.status(StatusCodes.OK).json(speakers);
+  } catch (error) {
+    Logger.error('Error retrieving speakers: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: 'Error occurred while getting speakers.' });
+  }
+}
+
 export const purchaseTicket = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { eventId, userId, amount, currency, paymentMethod } = req.body;
+    // Extract new parameters from the request body.
+    const { eventId, userId, amount, currency, eventName, email, location } = req.body;
+
+    Logger.info('Received payment request:', {
+      eventId,
+      userId,
+      amount,
+      currency,
+      eventName,
+      email,
+      location,
+    });
 
     // Validate request fields
-    if (!eventId || !userId || !amount || !currency || !paymentMethod) {
+    if (!eventId || !userId || !amount || !currency || !eventName || !email || !location) {
       Logger.warn('Missing required fields in payment request.');
       res.status(400).json({ success: false, message: 'Missing required fields.' });
       return;
     }
 
-    // Instantiate your Stripe facade
+    // Instantiate Stripe facade and create Checkout Session
     const stripeFacade = new StripeFacade();
+    const session = await stripeFacade.createCheckoutSession(
+      amount,
+      currency,
+      eventId,
+      userId,
+      eventName,
+    );
 
-    // Create a Payment Intent using the facade
-    const paymentIntent = await stripeFacade.createPaymentIntent(amount, currency, paymentMethod);
+    if (session && session.client_secret) {
+      Logger.info(`Checkout session created with ID: ${session.id}`);
 
-    // Handle Payment Intent status:
-    if (
-      paymentIntent.status === 'requires_action' ||
-      paymentIntent.status === 'requires_confirmation'
-    ) {
-      Logger.info(
-        `Payment requires additional authentication. Client secret: ${paymentIntent.client_secret}`,
-      );
-      res.status(200).json({
-        success: false,
-        clientSecret: paymentIntent.client_secret,
-        message: 'Additional authentication required.',
-      });
-      return;
-    }
-
-    // If the payment succeeded, create a ticket
-    if (paymentIntent.status === 'succeeded') {
-      const newTicket = new Ticket({
+      // Create a ticket in the database.
+      const ticket = new Ticket({
         eventId,
         userId,
-        paymentId: paymentIntent.id,
-        // Add any other fields as needed (e.g., purchaseDate)
+        paymentId: session.id,
+        isAttending: false, // Not yet confirmed until payment is finished.
+        purchaseDate: new Date(),
       });
-      await newTicket.save();
+      await ticket.save();
+      Logger.info(`Ticket created for event ${eventId} and user ${userId}.`);
 
-      Logger.info(`Payment successful for user ${userId} and event ${eventId}. Ticket created.`);
-      res.status(200).json({
-        success: true,
-        message: 'Payment successful, ticket created.',
-        ticket: newTicket,
-      });
+      // --- Start: Send confirmation email to user ---
+      const recipientEmail = email;
+      const emailHtml = generateEventInviteHtml(
+        eventName,
+        `Thank you for purchasing a ticket for ${eventName}. Your ticket has been confirmed.`,
+        location,
+        '',
+      );
+
+      const emailService = new EmailService();
+      const emailResult = await emailService
+        .createMailBuilder()
+        .to(recipientEmail)
+        .subject(`Ticket Confirmation for ${eventName}`)
+        .html(emailHtml)
+        .send();
+      if (emailResult.success) {
+        Logger.info(`Confirmation email sent to ${recipientEmail}`);
+      } else {
+        Logger.error(`Failed to send confirmation email: ${emailResult.error}`);
+      }
+      // --- End: Send confirmation email to user ---
+
+      // Return the client secret so that the frontend can continue with Stripe Checkout.
+      res.status(200).json({ success: true, clientSecret: session.client_secret });
       return;
     }
 
-    // In case payment is not successful, return an appropriate message
+    // TODO: Create a ticket in the database after the purchase
     Logger.warn(`Payment not successful for user ${userId} and event ${eventId}.`);
     res.status(400).json({ success: false, message: 'Payment not successful. Please try again.' });
   } catch (error: unknown) {
@@ -75,6 +116,34 @@ export const purchaseTicket = async (req: Request, res: Response): Promise<void>
       res.status(500).json({ success: false, message: error.message });
     } else {
       Logger.error('Unexpected error occurred during payment.');
+      res.status(500).json({ success: false, message: 'An unexpected error occurred.' });
+    }
+  }
+};
+
+export const getSessionStatus = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { session_id } = req.query;
+
+    if (!session_id) {
+      res.status(400).json({ success: false, message: 'Session ID is required.' });
+      return;
+    }
+
+    const stripeFacade = new StripeFacade();
+    const session = await stripeFacade.getSessionStatus(session_id as string);
+
+    res.status(200).json({
+      success: true,
+      status: session.status,
+      customer_email: session.customer_details?.email,
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      Logger.error(`Error retrieving session status: ${error.message}`);
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      Logger.error('Unexpected error occurred while retrieving session status.');
       res.status(500).json({ success: false, message: 'An unexpected error occurred.' });
     }
   }

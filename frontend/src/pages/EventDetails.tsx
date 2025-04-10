@@ -20,7 +20,10 @@ const EventDetails = () => {
     ticketsSold: 0,
     maxCapacity: 5000,
     startDateAndTime: new Date('2025-05-15T16:00:00Z'), // Example date
-    timeDurationInMinutes: 60
+    timeDurationInMinutes: 60,
+    price: 29.99,
+    sponsoredBy: "Tech Innovations Inc.",
+    organizedBy: "Google"
   }
 
   useEffect(() => {
@@ -39,6 +42,8 @@ const EventDetails = () => {
     if (id) {
       fetchEvent();
     }
+
+    
   }, [id]);
 
   if (!event) {

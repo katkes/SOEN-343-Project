@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-// import { Listbox, Transition } from '@headlessui/react';
-// import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import CustomButton from './CustomButton';
 import FileUpload from './FileUpload';
 import { EventResponseDTO } from '../types/event';
@@ -9,6 +7,7 @@ import { EventResponseDTO } from '../types/event';
 export const userRole = 'attendee';
 import { useAccountInfo } from '../hooks/useAccountInfo';
 import { CompanyAccount, UserAccount } from '../types/account';
+import { userService } from '../services/backend/user';
 
 interface EventFormProps {
   editable?: boolean;
@@ -19,12 +18,9 @@ interface EventFormProps {
   event: EventResponseDTO;
 }
 
-// const allSpeakers = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Michael Clark'];
-
 export const EventForm: React.FC<EventFormProps> = ({
   editable = false,
   isCreating = false,
-  registered = false,
   event
 }) => {
   const [eventTitle, setEventTitle] = useState('');
@@ -34,23 +30,27 @@ export const EventForm: React.FC<EventFormProps> = ({
   const [locationType, setLocationType] = useState<string>('In Person');
   const [maxCapacity, setMaxCapacity] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
-  
-
-
-  // TODO: Please don't store the event details in an array. Store each detail in a separate state variable.
-  // const [eventDetails, setEventDetails] = useState<(string | string[])[]>([]);
-
+  const [selectedSpeaker, setSelectedSpeaker] = useState<UserAccount>();
+  const [speakers, setSpeakers] = useState<UserAccount[]>([]);
+  const [registered, setRegistered] = useState(false); // Registered is now a state variable
   const [localEditable, setLocalEditable] = useState(editable);
+  const [price, setPrice] = useState<number>(0);
   const formEditable = isCreating ? true : localEditable;
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const account = useAccountInfo();
+  const directJoinEligible =
+    account &&
+    'companyName' in account &&
+    ((account.role === 'Sponsor' || account.role === 'EventOrganizer') &&
+      (event.sponsoredBy === account.companyName || event.organizedBy === account.companyName));
   const isEventCreator =
     account instanceof CompanyAccount ||
     (account instanceof UserAccount &&
-      ['EventOrganizer', 'Sponsor', 'Admin'].includes(account.role as string));
+      ['EventOrganizer', 'Admin'].includes(account.role as string));
+
 
   const placeholders = {
     title: 'Event Name',
@@ -72,83 +72,51 @@ export const EventForm: React.FC<EventFormProps> = ({
           minute: 'numeric',
           hour12: true,
         })}`
-      ); // Format as 'mm/dd/yyyy hh:mm AM/PM'
+      );
       setEventLocation(event.location);
       setLocationType(event.locationType);
       setMaxCapacity(event.maxCapacity);
       setDuration(event.timeDurationInMinutes);
+      setPrice(event.price);
 
-      // TODO: Please don't store the event details in an array. Store each detail in a separate state variable.
-      // setEventDetails([
-      //   '09:00 AM', // Placeholder for start time
-      //   '05:00 PM', // Placeholder for end time
-      //   ["John Doe"], // Placeholder for speakers
-      //   event.locationType,
-      // ]);
+      const fetchCurrentSpeaker = async () => {
+        const currentSpeaker = await userService.getUserByEmail(event.speaker);
+        setSelectedSpeaker(currentSpeaker);
+      };
+      fetchCurrentSpeaker();
+
+      const fetchSpeakers = async () => {
+        try {
+          const responseJson = await userService.getAllSpeakers();
+          setSpeakers(responseJson);
+        } catch (error) {
+          console.error('Error fetching speakers:', error);
+        }
+      };
+
+      fetchSpeakers();
+
+      const fetchRegisteredEvents = async () => {
+        try {
+          const eventsRegisteredByUser = await userService.getEventsRegisteredByUser(account?._id || '');
+  
+          // Check if any of the registered events match the current event's _id
+          const isRegistered = eventsRegisteredByUser.some((registeredEvent) => registeredEvent._id === event._id);
+          console.log('Is registered:', isRegistered);
+
+          setRegistered(isRegistered); // Set registered to true if a match is found
+        } catch (error) {
+          console.error('Error fetching registered events:', error);
+        }
+      };
+      fetchRegisteredEvents();
+
+      
+
+
+
     }
-  }, [event]);
-
-  // TODO: Commented out since we're not using the eventDetails array
-  // const handleEventDetailChange = (index: number, newValue: string | string[]) => {
-  //   const newDetails = [...eventDetails];
-  //   newDetails[index] = newValue;
-  //   setEventDetails(newDetails);
-  // };
-
-  // TODO: Uncomment the following code to implement the MultiSpeakerSelector component
-  // const MultiSpeakerSelector = ({
-  //   selected,
-  //   onChange,
-  //   disabled,
-  // }: {
-  //   selected: string[];
-  //   onChange: (newValues: string[]) => void;
-  //   disabled: boolean;
-  // }) => (
-  //   <Listbox value={selected} onChange={onChange} multiple disabled={disabled}>
-  //     <div className="relative mt-1">
-  //       <Listbox.Button className="relative w-full cursor-default rounded-xl bg-[#F4F6F8] py-2 pl-3 pr-10 text-left text-sm text-gray-600 border border-gray-300">
-  //         <span className="block truncate">
-  //           {selected.length > 0 ? selected.join(', ') : 'Select Speakers'}
-  //         </span>
-  //         <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center pr-2">
-  //           <ChevronUpDownIcon className="h-4 w-4 text-gray-400" />
-  //         </span>
-  //       </Listbox.Button>
-  //       <Transition
-  //         as={Fragment}
-  //         leave="transition ease-in duration-100"
-  //         leaveFrom="opacity-100"
-  //         leaveTo="opacity-0"
-  //       >
-  //         <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-sm text-gray-700 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-  //           {allSpeakers.map((speaker, index) => (
-  //             <Listbox.Option
-  //               key={index}
-  //               className={({ active }) =>
-  //                 `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'}`
-  //               }
-  //               value={speaker}
-  //             >
-  //               {({ selected }) => (
-  //                 <>
-  //                   <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-  //                     {speaker}
-  //                   </span>
-  //                   {selected && (
-  //                     <span className="absolute inset-y-0 left-2 flex items-center text-blue-600">
-  //                       <CheckIcon className="h-4 w-4" />
-  //                     </span>
-  //                   )}
-  //                 </>
-  //               )}
-  //             </Listbox.Option>
-  //           ))}
-  //         </Listbox.Options>
-  //       </Transition>
-  //     </div>
-  //   </Listbox>
-  // );
+  }, [event, account]);
 
   return (
     <div className="flex flex-col">
@@ -205,14 +173,14 @@ export const EventForm: React.FC<EventFormProps> = ({
                       // do something
                     } else {
                       navigate(
-                        registered
+                        registered || directJoinEligible
                           ? `/event/${event._id}/streaming`
                           : `/event/${event._id}/register`
                       );
                     }
                   }}
                 >
-                  {isCreating ? 'Create Event' : registered ? 'Join Stream' : 'Register'}
+                  {isCreating ? 'Create Event' : (registered || directJoinEligible) ? 'Join Stream' : 'Register'}
                 </CustomButton>
               </div>
               {location.pathname === '/event/event-details' && !isCreating && isEventCreator && (
@@ -227,60 +195,112 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
           </div>
           <div className="py-6 px-12 bg-white rounded-b-xl">
-            <h3 className="text-xl font-semibold pt-2 pb-4">Event Details</h3>
+            <h3 className="text-xl font-semibold pt-2 pb-4">Event Details</h3>{/* New Price Input Field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Price ($):</label>
+              <input
+                type="number"
+                value={price || ''}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value >= 0) setPrice(value);
+                }}
+                min="0"
+                placeholder="Price"
+                disabled={!formEditable}
+                className={`w-full max-w-[500px] p-3 rounded-xl placeholder-gray-400 mb-4 ${
+                  formEditable
+                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+              />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
               {/* Max Capacity */}
-              <input
-                type="number"
-                disabled={!formEditable}
-                value={maxCapacity || ''}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  if (value >= 0) setMaxCapacity(value);
-                }}
-                min="0"
-                placeholder="Max Capacity"
-                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
-                  formEditable
-                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
-                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Max Capacity:</label>
+                <input
+                  type="number"
+                  disabled={!formEditable}
+                  value={maxCapacity || ''}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value >= 0) setMaxCapacity(value);
+                  }}
+                  min="0"
+                  placeholder="Max Capacity"
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                />
+              </div>
 
               {/* Duration */}
-              <input
-                type="number"
-                disabled={!formEditable}
-                value={duration || ''}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  if (value >= 0) setDuration(value);
-                }}
-                min="0"
-                placeholder="Duration (mins)"
-                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
-                  formEditable
-                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
-                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Duration (mins):</label>
+                <input
+                  type="number"
+                  disabled={!formEditable}
+                  value={duration || ''}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value >= 0) setDuration(value);
+                  }}
+                  min="0"
+                  placeholder="Duration (mins)"
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                />
+              </div>
 
               {/* Location Type */}
-              <select
-                value={locationType || ''}
-                disabled={!formEditable}
-                onChange={(e) => setLocationType(e.target.value)}
-                className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
-                  formEditable
-                    ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
-                    : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                <option value="in-person">In Person</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Online">Online</option>
-              </select>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Location Type:</label>
+                <select
+                  value={locationType || ''}
+                  disabled={!formEditable}
+                  onChange={(e) => setLocationType(e.target.value)}
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  <option value="in-person">In Person</option>
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="Online">Online</option>
+                </select>
+              </div>
+                
+              {/* Speaker */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 pl-1">Speaker:</label>
+                <select
+                  value={selectedSpeaker?._id || ''}
+                  disabled={!formEditable}
+                  onChange={(e) => {
+                    const selected = speakers.find(speaker => speaker._id === e.target.value);
+                    setSelectedSpeaker(selected);
+                  }}
+                  className={`w-full p-3 rounded-xl border text-sm placeholder-gray-400 ${
+                    formEditable
+                      ? 'bg-[#F4F6F8] border-gray-300 text-[#273266]'
+                      : 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  {speakers.map((speaker) => (
+                    <option key={speaker._id} value={speaker._id}>
+                      {speaker.firstName} {speaker.lastName}
+                    </option>
+                  ))}
+                </select>
+              </div>
               
               {/* TODO: Replace the following code with individual input fields */}
               {/* {eventDetails.map((detail, index) =>
@@ -313,14 +333,22 @@ export const EventForm: React.FC<EventFormProps> = ({
                     // do something
                   } else {
                     navigate(
-                      registered
+                      registered || directJoinEligible
                         ? `/event/${event._id}/streaming`
                         : `/event/${event._id}/register`
                     );
                   }
                 }}
               >
-                {isCreating ? 'Create Event' : registered ? 'Join Stream' : 'Register'}
+                {(() => {
+                  if (isCreating) {
+                    return 'Create Event';
+                  } else if (registered || directJoinEligible) {
+                    return 'Join Stream';
+                  } else {
+                    return 'Register';
+                  }
+                })()}
               </CustomButton>
             </div>
           </div>

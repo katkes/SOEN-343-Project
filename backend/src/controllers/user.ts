@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createUser, CreateUserDTO, getUserByEmail } from '../services/mongo/user';
+import { createUser, CreateUserDTO, getAllSpeakers, getUserByEmail } from '../services/mongo/user';
 import { Logger } from '../configs/logger';
 import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
@@ -12,6 +12,8 @@ import { getCompanyByEmail } from '../services/mongo/company';
 import { SessionAccountType } from '../types/account';
 import { User } from '../models/user';
 import { Company } from '../models/company';
+import { getTicketsByUserID } from '../services/mongo/ticket';
+import { getEventsFromEventsID } from '../services/mongo/event';
 
 // Create user validation schema when receiving request
 const createUserBodySchema = z.object({
@@ -87,6 +89,38 @@ export async function getUserByEmailController(req: Request, res: Response) {
     Logger.error('Error retrieving users: ');
     Logger.error('Received error: ', error);
     res.status(500).json({ error: 'Error occurred while getting users.' });
+  }
+}
+
+export async function getAllSpeakersController(req: Request, res: Response) {
+  try {
+    const speakers = await getAllSpeakers();
+    res.status(StatusCodes.OK).json(speakers);
+  } catch (error) {
+    Logger.error('Error retrieving speakers: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: 'Error occurred while getting speakers.' });
+  }
+}
+
+export async function getEventsRegisteredByUserController(req: Request, res: Response) {
+  const { id } = req.params;
+
+  try {
+    // Find all tickets for the user
+    const tickets = await getTicketsByUserID(id);
+
+    // Extract event IDs from the tickets
+    const eventIds = tickets.map((ticket) => ticket.eventId);
+
+    // Fetch events based on the event IDs
+    const events = await getEventsFromEventsID(eventIds);
+
+    res.status(StatusCodes.OK).json(events);
+  } catch (error) {
+    console.error('Error fetching user events:', error);
+    res.status(500).send('Error fetching user events');
   }
 }
 

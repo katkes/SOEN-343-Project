@@ -2,11 +2,7 @@ import {
   Squares2X2Icon,
   EnvelopeIcon,
   CalendarDaysIcon,
-  UsersIcon,
   ChartBarIcon,
-  ChatBubbleLeftRightIcon,
-  BellIcon,
-  InformationCircleIcon,
   ArrowLeftOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 
@@ -25,19 +21,27 @@ const Sidebar = () => {
   const [active, setActive] = useState('');
   const account = useAccountInfo();
 
-  const menuItems = [
+  const showAnalytics = account && (
+    (account instanceof UserAccount && (account.role === 'Sponsor' || account.role === 'EventOrganizer')) ||
+    account instanceof CompanyAccount
+  );
+
+  const baseMenuItems = [
     { name: 'Dashboard', icon: Squares2X2Icon, route: FrontEndRoutes.Dashboard },
     { name: 'Events', icon: EnvelopeIcon, route: FrontEndRoutes.Events },
     { name: 'Schedule', icon: CalendarDaysIcon, route: FrontEndRoutes.Schedule },
-    { name: 'Community', icon: UsersIcon, route: FrontEndRoutes.Community },
-    { name: 'Analytics', icon: ChartBarIcon, route: FrontEndRoutes.Analytics },
-    { name: 'Messages', icon: ChatBubbleLeftRightIcon, route: FrontEndRoutes.Messages },
-    { separator: true },
-    { name: 'Notifications', icon: BellIcon, route: FrontEndRoutes.Notifications },
-    { name: 'Support', icon: InformationCircleIcon, route: FrontEndRoutes.Support },
+  ];
+
+  const analyticsMenuItem = { name: 'Analytics', icon: ChartBarIcon, route: FrontEndRoutes.Analytics };
+
+  const extraMenuItems = [
     { separator: true },
     { name: 'Log Out', icon: ArrowLeftOnRectangleIcon },
   ];
+
+  const menuItems = showAnalytics
+    ? [...baseMenuItems, analyticsMenuItem, ...extraMenuItems]
+    : [...baseMenuItems, ...extraMenuItems];
 
   useEffect(() => {
     const currentItem = menuItems.find(

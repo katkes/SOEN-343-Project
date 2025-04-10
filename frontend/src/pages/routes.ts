@@ -1,3 +1,4 @@
+
 export const FrontEndRoutes = {
   Dashboard: '/dashboard',
   Home: '/',
@@ -10,13 +11,13 @@ export const FrontEndRoutes = {
   CreateCompanyUser: '/signup/company-user',
   Events: '/events',
   
+  Event: {
+    base: '/event',
+    param: ':id',
+    definition: '/event/:id',
+  },
   Schedule: '/schedule',
-  Community: '/community',
-  Discussion: '/community/discussion',
   Analytics: '/analytics',
-  Messages: '/messages',
-  Notifications: '/notifications',
-  Support: '/support',
   Profile: '/profile',
   EditProfile: '/profile/edit',
   EventRegistration: '/event/:id/register',
@@ -24,4 +25,5 @@ export const FrontEndRoutes = {
   EventStreaming: '/event/:id/streaming',
   EventViewer: '/event/:id/viewer',
   EventConfirmation: '/event/:id/confirmation',
+  SponsorConfirmation: '/event/:id/sponsorConfirmation',
 } as const;
