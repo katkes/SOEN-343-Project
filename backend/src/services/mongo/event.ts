@@ -13,3 +13,7 @@ export async function getAllEvents() {
 export async function getEventById(id: string) {
   return await Event.findById(id);
 }
+
+export async function updateEvent(id: string, eventData: Partial<CreateEventDTO>) {
+  return await Event.updateOne({ _id: id }, { $set: eventData });
+}

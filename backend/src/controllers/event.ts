@@ -49,6 +49,32 @@ export async function createEventController(req: Request, res: Response) {
   res.status(StatusCodes.CREATED).json({});
 }
 
+export async function updateEventController(req: Request, res: Response) {
+  const { id } = req.params; // Get the event ID from the request parameters
+
+  try {
+    const event = await getEventById(id);
+
+    if (!event) {
+      res.status(StatusCodes.NOT_FOUND).json({ message: 'Event not found' });
+      return;
+    }
+
+    // Update the sponsoredBy field
+    event.sponsoredBy = companyName;
+
+    // Save the updated event (assuming you have a method to update the event in the database)
+    await event.save();
+
+    res.status(StatusCodes.OK).json({ message: 'Event updated successfully', event });
+  } catch (error) {
+    Logger.error('Error updating event: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error occurred while updating the event.' });
+  }
+}
+
 // Get all events from MongoDB
 export async function getAllEventsController(req: Request, res: Response) {
   try {

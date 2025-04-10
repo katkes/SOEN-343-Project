@@ -6,11 +6,18 @@ import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
 import { EventResponseDTO } from '../types/event';
 import { eventService } from '../services/backend/event';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+
+
+
 
 export const SponsorConfirmation = () => {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventResponseDTO>();
   const navigate = useNavigate();
+  const account = useAccountInfo();
+  const companyName = account?.companyName
+
 
   useEffect(() => {
     const fetchEvent = async () => {
