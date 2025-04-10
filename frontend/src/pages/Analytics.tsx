@@ -17,13 +17,13 @@ import {
 } from 'recharts';
 import { eventService } from '../services/backend/event';
 import { userService } from '../services/backend/user';
+import { useAccountInfo } from '../hooks/useAccountInfo';
 
 const CHART_COLORS_BLUE = ['#637EFF', '#148CFC'];
 
 const Analytics = () => {
   interface Event {
     speaker: string;
-    tags: string[];
     data: { name: string; value: number }[];
     name: string;
     description: string;
@@ -34,13 +34,16 @@ const Analytics = () => {
     startDateAndTime: Date;
     timeDurationInMinutes: number;
     _id: string;
+    price: number;
+    totalRevenue: number;
   }
 
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [chartData, setChartData] = useState<{ name: string; value: number }[]>([]);
-
   const [allTickets, setAllTickets] = useState<Ticket[]>([]);
+  const account = useAccountInfo();
+  const companyName = account?.companyName; // Fallback to a default value if companyName is not available
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -70,16 +73,26 @@ const Analytics = () => {
       try {
         const response = await eventService.getAllEvents();
 
+        // Filter events based on companyName
+        const filteredEvents = response.filter(
+          (event) => event.sponsoredBy === companyName || event.organizedBy === companyName
+        );
+
         const fetchedEvents = await Promise.all(
-          response.map(async (event) => {
+          filteredEvents.map(async (event) => {
             const speaker = await userService.getUserByEmail(event.speaker);
+
+            // Fetch tickets for the event and calculate the number of tickets sold
+          const tickets = await eventService.getTicketsByEventID(event._id);
+          const ticketsSold = tickets.length;
+
             return {
               ...event,
               speaker: speaker.firstName + ' ' + speaker.lastName,
-              tags: ['NEW!'],
+              totalRevenue : ticketsSold * event.price,
               data: [
-                { name: 'Tickets Sold', value: event.ticketsSold },
-                { name: 'Remaining Capacity', value: event.maxCapacity - event.ticketsSold },
+                { name: 'Tickets Sold', value: ticketsSold },
+                { name: 'Remaining Capacity', value: event.maxCapacity - ticketsSold },
               ],
             };
           })
@@ -105,11 +118,12 @@ const Analytics = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [account]);
 
   const handleEventChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
     const selectedId: string = event.target.value;
     setSelectedEvent(selectedId);
+
     const selectedEventObj = events.find((e) => e._id === selectedId);
     const selectedEventData: { name: string; value: number }[] = selectedEventObj?.data || [];
     setChartData(selectedEventData);
@@ -161,6 +175,16 @@ const Analytics = () => {
           </div>
         </div>
 
+        <div className="bg-white rounded-xl p-6 shadow-md mt-8">
+          <p className="text-center text-2xl font-bold text-[#273266]">
+            Total Revenue: $
+            {(() => {
+              const selectedEventObj = events.find((e) => e._id === selectedEvent);
+              return selectedEventObj ? selectedEventObj.totalRevenue.toFixed(2) : '0.00';
+            })()}
+          </p>
+        </div>
+
         <div className="bg-white rounded-xl p-6 shadow-md">
           <h2 className="text-center text-lg font-semibold text-[#273266] mb-4">
             Ticket Sales Distribution
@@ -205,6 +229,7 @@ const Analytics = () => {
             </div>
           </div>
         </div>
+        
       </main>
     </div>
   );

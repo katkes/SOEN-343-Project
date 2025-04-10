@@ -20,7 +20,6 @@ export const Schedule: React.FC = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        console.log('Fetching events for account ID:', accountId);
         const eventsRegisteredByUser = await userService.getEventsRegisteredByUser(accountId || '');
 
         const fetchedEvents = await Promise.all(
