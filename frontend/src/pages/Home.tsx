@@ -16,7 +16,7 @@ export const Home: React.FC = () => {
   const contactRef = useRef<HTMLDivElement>(null);
   return (
     <Main>
-      <div className="frame">
+      <div>
         <NavBar
           homeRef={homeRef}
           servicesRef={servicesRef}
@@ -24,13 +24,15 @@ export const Home: React.FC = () => {
           contactRef={contactRef}
           showTabs={true}
         />
+        <div className="frame">
+          <div ref={homeRef} id="home-section">
+            <Hero servicesRef={servicesRef} />
+          </div>
+          <div ref={servicesRef} id="services-section">
+            <Services />
+          </div>
+        </div>
 
-        <div ref={homeRef} id="home-section">
-          <Hero servicesRef={servicesRef} />
-        </div>
-        <div ref={servicesRef} id="services-section">
-          <Services />
-        </div>
         <div ref={aboutRef} id="about-section">
           <AboutUs />
         </div>
