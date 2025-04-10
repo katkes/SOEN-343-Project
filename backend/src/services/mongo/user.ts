@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { IUser, User } from '../../models/user';
 import { hashPassword } from '../../utils/hash';
 
@@ -9,4 +10,12 @@ export async function createUser(userData: CreateUserDTO) {
 
 export async function getUserByEmail(email: string) {
   return await User.findOne({ email });
+}
+
+export async function getAllSpeakers() {
+  return await User.find({ role: 'Speaker' });
+}
+
+export async function getUserById(_id: Types.ObjectId | string) {
+  return await User.findOne({ _id });
 }

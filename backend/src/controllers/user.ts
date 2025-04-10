@@ -1,14 +1,17 @@
 import { Request, Response } from 'express';
-import { createUser, CreateUserDTO, getUserByEmail } from '../services/mongo/user';
+import { createUser, CreateUserDTO, getAllSpeakers, getUserByEmail } from '../services/mongo/user';
 import { Logger } from '../configs/logger';
 import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
 import { ENV_VARS } from '../configs/env';
 import jwt from 'jsonwebtoken';
 import 'express-session';
-import { SESSION_TIMEOUT } from '../configs/constants';
+import { DefaultCookieConfig, JWT_COOKIE_NAME, SESSION_TIMEOUT } from '../configs/constants';
 import { userRoles } from '../models/user';
 import { getCompanyByEmail } from '../services/mongo/company';
+import { SessionAccountType } from '../types/account';
+import { User } from '../models/user';
+import { Company } from '../models/company';
 
 // Create user validation schema when receiving request
 const createUserBodySchema = z.object({
@@ -16,6 +19,7 @@ const createUserBodySchema = z.object({
   lastName: z.string().min(1, 'lastName field is required.'), // Ensures name is a non-empty string
   password: z.string().min(1, 'password field is required.'), // Ensures name is a non-empty string
   email: z.string().min(1).email('Invalid email format.'), // Ensures email is a valid email address
+  companyName: z.string().optional(), // Ensures companyName is optional
   role: z.enum(userRoles), // Ensures email is a valid email address
 });
 
@@ -46,8 +50,10 @@ export async function createUserController(req: Request, res: Response) {
   const user = await createUser(body);
 
   // create token for user and store userId in JWT store
-  const token = jwt.sign({ _id: user._id }, ENV_VARS.JWT_SECRET, { expiresIn: SESSION_TIMEOUT });
-  req.session.token = token;
+  const account: SessionAccountType = { _id: user._id, accountType: 'user' };
+  const token = jwt.sign(account, ENV_VARS.JWT_SECRET, { expiresIn: SESSION_TIMEOUT });
+
+  res.cookie(JWT_COOKIE_NAME, token, DefaultCookieConfig);
 
   // return success status
   res.status(StatusCodes.CREATED).json({});
@@ -81,5 +87,61 @@ export async function getUserByEmailController(req: Request, res: Response) {
     Logger.error('Error retrieving users: ');
     Logger.error('Received error: ', error);
     res.status(500).json({ error: 'Error occurred while getting users.' });
+  }
+}
+
+export async function getAllSpeakersController(req: Request, res: Response) {
+  try {
+    const speakers = await getAllSpeakers();
+    res.status(StatusCodes.OK).json(speakers);
+  } catch (error) {
+    Logger.error('Error retrieving speakers: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: 'Error occurred while getting speakers.' });
+  }
+}
+
+export async function updateProfileController(req: Request, res: Response) {
+  try {
+    // The authenticate middleware should have attached req.account
+    const sessionAccount = req.account;
+    if (!sessionAccount) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Unauthorized' });
+      Logger.error('Unauthorized request to update profile');
+      return;
+    }
+
+    // Read the fields sent by the client
+    const { firstName, lastName, companyName, description } = req.body;
+
+    if (sessionAccount.accountType === 'user') {
+      const updatedUser = await User.findByIdAndUpdate(
+        sessionAccount._id,
+        { firstName, lastName, description },
+        { new: true },
+      );
+      if (!updatedUser) {
+        res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
+        return;
+      }
+      res.status(StatusCodes.OK).json(updatedUser);
+    } else if (sessionAccount.accountType === 'company') {
+      const updatedCompany = await Company.findByIdAndUpdate(
+        sessionAccount._id,
+        { companyName, description },
+        { new: true },
+      );
+      if (!updatedCompany) {
+        res.status(StatusCodes.NOT_FOUND).json({ message: 'Company not found' });
+        return;
+      }
+      res.status(StatusCodes.OK).json(updatedCompany);
+    } else {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid account type' });
+    }
+  } catch (error: unknown) {
+    Logger.error('Error updating profile', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error updating profile' });
   }
 }

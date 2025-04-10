@@ -9,7 +9,7 @@ declare module 'express-session' {
 
 declare module 'express' {
   interface Request {
-    user?: { _id: string }; // Extend the Request type
+    account?: SessionAccount; // Extend the Request type
   }
 }
 

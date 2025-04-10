@@ -1,260 +1,104 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Badge from '../components/Badge';
 import CustomButton from '../components/CustomButton';
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
-import { authService } from '../services/backend/auth';
-import { FrontEndRoutes } from './routes';
+import CreateEventForm from '../components/CreateEventForm';
+import { PageHeader } from '../components/PageHeader';
+import { useAccountInfo } from '../hooks/useAccountInfo';
+import { CompanyAccount, UserAccount } from '../types/account';
+import { eventService } from '../services/backend/event';
+import { EventResponseDTO } from '../types/event';
 
+// TO-DO: For now, it's called My Events, but it's actually showcasing all events. We will need to add bridging tables in the future to showcase all the events associated with the logged in user.
 const Events = () => {
+  const account = useAccountInfo();
+  const isEventCreator =
+    account instanceof CompanyAccount ||
+    (account instanceof UserAccount &&
+      ['EventOrganizer', 'Admin'].includes(account.role as string));
+
+  const [events, setEvents] = useState<EventResponseDTO[]>([]);
   const [creatingNewEvent, setCreatingNewEvent] = useState(false);
-  const [eventDate, setEventDate] = useState(() => {
-    const now = new Date();
-    const estZone = 'America/New_York'; // EST timezone
-    const estTime = toZonedTime(now, estZone);
-    return format(estTime, "yyyy-MM-dd'T'HH:mm");
-  });
-  const [eventLocation, setEventLocation] = useState('');
-  const [eventTitle, setEventTitle] = useState('');
-  const [eventDescription, setEventDescription] = useState('');
-  const [locationType, setLocationType] = useState<string>('In Person');
-  const [maxCapacity, setMaxCapacity] = useState<number>(0);
-  const [duration, setDuration] = useState<number>(0);
   const navigate = useNavigate();
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await authService.createEvent({
-        name: eventTitle,
-        description: eventDescription,
-        location: eventLocation,
-        locationType: locationType,
-        ticketsSold: 0,
-        maxCapacity: Number(maxCapacity),
-        startDateAndTime: new Date(eventDate),
-        timeDurationInMinutes: Number(duration)
-      });
-      navigate(FrontEndRoutes.Dashboard);
-    } catch (e) {
-      console.error("failed to signup as attendee:", e)
-    }
-  };
-
 
   const [selectedEventType, setSelectedEventType] = useState<'myEvents' | 'otherEvents' | null>(
     'myEvents'
   );
 
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  // Fetch events from the backend
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await eventService.getAllEvents();
+        const fetchedEvents = response.map((event: EventResponseDTO) => ({
+          ...event,
+          speaker: 'Test Speaker', // Default speaker
+          tags: ['NEW!'], // Default tags
+        }));
+        setEvents(fetchedEvents);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
 
-  const allParticipants = [
-    {
-      title: 'Security Workshop',
-      speaker: 'Jane Doe',
-      date: 'April 4th 2025',
-      location: 'SGW Campus',
-      organizer: 'MegaSoft Inc',
-      type: 'hybrid',
-      isUserRegistered: true,
-    },
-    {
-      title: 'AI Conference',
-      speaker: 'John Smith',
-      date: 'May 10th 2025',
-      location: 'Loyola Campus',
-      organizer: 'TechWorld',
-      type: 'in-person',
-      isUserRegistered: false,
-    },
-    {
-      title: 'Cloud Computing Seminar',
-      speaker: 'Alice Johnson',
-      date: 'June 15th 2025',
-      location: 'Online',
-      organizer: 'CloudTech',
-      type: 'virtual',
-      isUserRegistered: true,
-    },
-    {
-      title: 'Cybersecurity Meetup',
-      speaker: 'Bob Brown',
-      date: 'July 20th 2025',
-      location: 'SGW Campus',
-      organizer: 'SecureNet',
-      type: 'hybrid',
-      isUserRegistered: false,
-    },
-  ];
-
-  const filteredParticipants = allParticipants.filter((p) =>
-    selectedEventType === 'myEvents' ? p.isUserRegistered : !p.isUserRegistered
-  );
+    fetchEvents();
+  }, []);
 
   return (
     <div className="flex bg-[#EAF5FF] min-h-screen">
       <Sidebar />
       <main className="flex-1 p-6 space-y-6">
         {/* Top header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold text-[#273266] bg-white px-4 py-2 rounded-full shadow">
-            Events
-          </h1>
-          <div className="bg-[#273266] text-white py-2 px-4 rounded-xl font-medium text-sm">
-            {currentDate}
-          </div>
-        </div>
+        <PageHeader pageName="Events" />
 
         {/* Event Tabs */}
         <div className="flex flex-col">
           <div className="flex flex-1/5 gap-3 ">
             <CustomButton
-              className={`${
-                selectedEventType === 'myEvents' && !creatingNewEvent
-                  ? 'bg-[#273266]'
-                  : 'bg-[#3D50FF]'
-              } text-white text-sm font-semibold p-4 rounded-xl mb-4`}
+              className={`${selectedEventType === 'myEvents' && !creatingNewEvent ? 'bg-[#273266]' : 'bg-[#3D50FF]'} text-white text-sm font-semibold p-4 rounded-xl mb-4`}
               width="w-[200px]"
               onClick={() => {
                 setSelectedEventType('myEvents');
                 setCreatingNewEvent(false);
               }}
             >
-              My Events
+              Events
             </CustomButton>
-            <CustomButton
-              className={`${
-                selectedEventType === 'otherEvents' && !creatingNewEvent
-                  ? 'bg-[#273266]'
-                  : 'bg-[#3D50FF]'
-              } text-white text-sm font-semibold p-4 rounded-xl mb-4`}
-              width="w-[200px]"
-              onClick={() => {
-                setSelectedEventType('otherEvents');
-                setCreatingNewEvent(false);
-              }}
-            >
-              Other Events
-            </CustomButton>
-            <CustomButton
-              className={`${
-                creatingNewEvent ? 'bg-[#273266]' : 'bg-[#3D50FF]'
-              } text-white text-sm font-semibold p-4 rounded-xl mb-4`}
-              width="w-[200px]"
-              onClick={() => {
-                setCreatingNewEvent(true);
-                setSelectedEventType(null); // Reset selectedEventType when creating a new event
-              }}
-            >
-              Create New Event
-            </CustomButton>
+            {!isEventCreator && (
+              <CustomButton
+                className={`${selectedEventType === 'otherEvents' && !creatingNewEvent ? 'bg-[#273266]' : 'bg-[#3D50FF]'} text-white text-sm font-semibold p-4 rounded-xl mb-4`}
+                width="w-[200px]"
+                onClick={() => {
+                  setSelectedEventType('otherEvents');
+                  setCreatingNewEvent(false);
+                }}
+              >
+                Other Events
+              </CustomButton>
+            )}
+            {isEventCreator && (
+              <CustomButton
+                className={`${creatingNewEvent ? 'bg-[#273266]' : 'bg-[#3D50FF]'} text-white text-sm font-semibold p-4 rounded-xl mb-4`}
+                width="w-[200px]"
+                onClick={() => {
+                  setCreatingNewEvent(true);
+                  setSelectedEventType(null); // Reset when creating a new event
+                }}
+              >
+                Create New Event +
+              </CustomButton>
+            )}
           </div>
 
           {/* Create New Event Form */}
           <div className=" flex-4/5 overflow-hidden py-3">
             {creatingNewEvent ? (
-              <>
-                {/* New Event Form */}
-                <form onSubmit={onSubmit}>
-                  <div className="text-[#273266] rounded-xl shadow border-0.5">
-                    <div className="flex flex-col justify-center banner py-12 px-12 gap-6">
-                      <div className="flex flex-col md:flex-row gap-4 text-white text-sm font-medium">
-                        <input
-                          type="datetime-local"
-                          id="eventDate"
-                          name="eventDate"
-                          value={eventDate}
-                          onChange={(e) => setEventDate(e.target.value)}
-                          className="bg-transparent placeholder-gray-100 border-b border-white/50 focus:border-white outline-none w-fit"
-                        />
-                        <input
-                          type="text"
-                          value={eventLocation}
-                          onChange={(e) => setEventLocation(e.target.value)}
-                          className="bg-transparent placeholder-gray-100 border-b border-white/50 focus:border-white outline-none w-fit"
-                          placeholder="Location"
-                        />
-                      </div>
-
-                      <input
-                        value={eventTitle}
-                        onChange={(e) => setEventTitle(e.target.value)}
-                        className="text-3xl font-bold text-white bg-transparent outline-none border-b-2 border-white/50 focus:border-white w-full max-w-md placeholder-gray-100"
-                        placeholder="Event Title"
-                      />
-
-                      <div className="bg-white w-2/5 rounded-xl p-1">
-                        <textarea
-                          value={eventDescription}
-                          onChange={(e) => setEventDescription(e.target.value)}
-                          className="text-sm text-gray-500 w-full p-2 rounded-xl bg-white outline-none"
-                          placeholder="Description"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="py-6 px-12 bg-white rounded-b-xl">
-                      <h3 className="text-xl font-semibold pt-2 pb-4">Event Details</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {/* Max Capacity */}
-                        <input
-                          type="number"
-                          value={maxCapacity || ''}
-                          onChange={(e) => {
-                            const value = Number(e.target.value);
-                            if (value >= 0) setMaxCapacity(value);
-                          }}
-                          min="0"
-                          placeholder="Max Capacity"
-                          className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-                        />
-
-                        {/* Duration */}
-                        <input
-                          type="number"
-                          value={duration || ''}
-                          onChange={(e) => {
-                            const value = Number(e.target.value);
-                            if (value >= 0) setDuration(value);
-                          }}
-                          min="0"
-                          placeholder="Duration (mins)"
-                          className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-                        />
-
-                        {/* Location Type */}
-                        <select
-                          value={locationType || ''}
-                          onChange={(e) => setLocationType(e.target.value)}
-                          className="w-full p-3 rounded-xl bg-[#F4F6F8] border border-gray-300 text-sm text-[#273266] placeholder-gray-400"
-                        >
-                          <option value="in-person">In Person</option>
-                          <option value="hybrid">Hybrid</option>
-                          <option value="online">Online</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <CustomButton className="bg-[#3D50FF] w-full py-3 text-white rounded-xl mt-4 font-bold">
-                          Create Event
-                        </CustomButton>
-                      </div>
-                    </div>
-                  </div>
-                </form>
-              </>
+              <CreateEventForm />
             ) : (
               <>
-                {/* Event Table (unchanged) */}
                 <div className="bg-[#3D50FF] text-white text-xl font-bold px-4 py-4 rounded-t-2xl">
-                  {selectedEventType === 'myEvents' ? 'My Events' : 'Other Events'}
+                  {selectedEventType === 'myEvents' ? 'Events' : 'Other Events'}
                 </div>
                 <div className="overflow-x-auto flex-grow bg-white rounded-b-2xl">
                   <table className="min-w-full text-sm text-[#273266]">
@@ -265,33 +109,53 @@ const Events = () => {
                         <th className="px-4 py-3">Date</th>
                         <th className="px-4 py-3">Type</th>
                         <th className="px-4 py-3">Location</th>
-                        <th className="px-4 py-3">Organizer</th>
+                        <th className="px-4 py-3 text-center">Organizer</th>
+                        <th className="px-4 py-3 text-center">Tickets Sold</th> {/* Center-aligned header */}
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredParticipants.map((p, idx) => (
+                      {events.map((event, idx) => (
                         <tr
                           key={idx}
                           className="border-b cursor-pointer hover:bg-gray-100"
-                          onClick={() => navigate('/event/event-details')}
+                          onClick={() =>
+                            navigate(`/event/${event._id}/details`, {
+                              state: {
+                                event,
+                                editable: isEventCreator && selectedEventType === 'myEvents',
+                              },
+                            })
+                          }
                         >
-                          <td className="px-4 py-3">{p.title}</td>
-                          <td className="px-4 py-3">{p.speaker}</td>
-                          <td className="px-4 py-3">{p.date}</td>
+                          <td className="px-4 py-3">{event.name}</td>
+                          <td className="px-4 py-3">Nicolas MacBeth</td>
+                          <td className="px-4 py-3">
+                            {event?.startDateAndTime
+                              ? new Date(event.startDateAndTime).toLocaleDateString('en-US', {
+                                month: 'long',
+                                day: 'numeric',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
+                                hour12: true,
+                              })
+                              : ''}{' '}
+                          </td>
                           <td className="px-4 py-3">
                             <Badge
-                              label={p.type}
+                              label={event.locationType}
                               className={`${
-                                p.type === 'virtual'
+                                event.locationType === 'virtual'
                                   ? 'bg-blue-100 text-blue-600'
-                                  : p.type === 'in-person'
+                                  : event.locationType === 'in-person'
                                     ? 'bg-green-100 text-green-600'
                                     : 'bg-purple-100 text-purple-600'
                               } px-3 py-1 text-xs`}
                             />
                           </td>
-                          <td className="px-4 py-3">{p.location}</td>
-                          <td className="px-4 py-3">{p.organizer}</td>
+                          <td className="px-4 py-3">{event.location}</td>
+                          <td className="px-4 py-3 text-center">Google</td>
+                          <td className="px-4 py-3 text-center">{event.ticketsSold || 0}</td> {/* Center-aligned data */}
                         </tr>
                       ))}
                     </tbody>

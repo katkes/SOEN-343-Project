@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Logo1 from '../assets/logo1.svg';
 import CustomButton from './CustomButton';
 import { Link } from 'react-router';
@@ -10,6 +11,7 @@ interface NavBarProps {
   aboutRef?: React.RefObject<HTMLDivElement | null>;
   contactRef?: React.RefObject<HTMLDivElement | null>;
   showTabs?: boolean;
+  showSignUpLogIn?: boolean;
 }
 
 export default function NavBar({
@@ -17,28 +19,31 @@ export default function NavBar({
   servicesRef,
   aboutRef,
   contactRef,
-  showTabs,
+  showTabs = true,
+  showSignUpLogIn = true,
 }: NavBarProps) {
   const [selectedTab, setSelectedTab] = useState('Home');
+  const location = useLocation();
+  const displayTabs = showTabs && location.pathname !== FrontEndRoutes.SignUp && location.pathname !== FrontEndRoutes.Login;
 
   const handleTabClick = (tab: string) => {
     setSelectedTab(tab);
     let ref;
     switch (tab) {
-      case 'Home':
-        ref = homeRef;
-        break;
-      case 'Services':
-        ref = servicesRef;
-        break;
-      case 'About':
-        ref = aboutRef;
-        break;
-      case 'Contact':
-        ref = contactRef;
-        break;
-      default:
-        ref = homeRef;
+    case 'Home':
+      ref = homeRef;
+      break;
+    case 'Services':
+      ref = servicesRef;
+      break;
+    case 'About':
+      ref = aboutRef;
+      break;
+    case 'Contact':
+      ref = contactRef;
+      break;
+    default:
+      ref = homeRef;
     }
     ref?.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -81,7 +86,7 @@ export default function NavBar({
         <img src={Logo1} alt="Hero Shape" onClick={() => handleTabClick('Home')} />
       </Link>
 
-      {showTabs && (
+      {displayTabs && (
         <div className="tabs flex text-[#273266] bg-white p-2">
           {['Home', 'Services', 'About', 'Contact'].map((tab) => (
             <div
@@ -97,28 +102,30 @@ export default function NavBar({
         </div>
       )}
 
-      <div className="join flex gap-2">
-        <Link to={FrontEndRoutes.SignUp}>
-          <CustomButton
-            focusColor="focus:ring-[#1E2A78]"
-            hoverColor="hover:bg-[#3b4edb]"
-            rounded="rounded-full"
-          >
-            Sign Up
-          </CustomButton>
-        </Link>
-        <Link to={FrontEndRoutes.Login}>
-          <CustomButton
-            bgColor="bg-gray-200"
-            textColor="text-[#1E2A78]"
-            hoverColor="hover:bg-gray-300"
-            focusColor="focus:ring-[#1E2A78]"
-            rounded="rounded-full"
-          >
-            LogIn
-          </CustomButton>
-        </Link>
-      </div>
+      {showSignUpLogIn && (
+        <div className="join flex gap-2">
+          <Link to={FrontEndRoutes.SignUp}>
+            <CustomButton
+              focusColor="focus:ring-[#1E2A78]"
+              hoverColor="hover:bg-[#3b4edb]"
+              rounded="rounded-full"
+            >
+              Sign Up
+            </CustomButton>
+          </Link>
+          <Link to={FrontEndRoutes.Login}>
+            <CustomButton
+              bgColor="bg-gray-200"
+              textColor="text-[#1E2A78]"
+              hoverColor="hover:bg-gray-300"
+              focusColor="focus:ring-[#1E2A78]"
+              rounded="rounded-full"
+            >
+              LogIn
+            </CustomButton>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

@@ -12,6 +12,10 @@ export default defineConfig({
         target: 'http://localhost:3000', // Backend server URL
         changeOrigin: true, // Needed for virtual hosted sites
       },
+      '/socket.io': {
+        target: 'http://localhost:3000', // Backend server URL
+        changeOrigin: true, // Needed for virtual hosted sites
+      }
     },
   },
 });

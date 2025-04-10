@@ -2,11 +2,14 @@ import { Request, Response } from 'express';
 import { Logger } from '../configs/logger';
 import { z } from 'zod';
 import { StatusCodes } from 'http-status-codes';
-import { ENV_VARS } from '../configs/env';
-import jwt from 'jsonwebtoken';
 import 'express-session';
-import { SESSION_TIMEOUT } from '../configs/constants';
-import { createEvent, CreateEventDTO } from '../services/mongo/event';
+import {
+  createEvent,
+  CreateEventDTO,
+  getAllEvents,
+  getEventById,
+  updateEvent,
+} from '../services/mongo/event';
 
 // Create event validation schema when receiving request
 const createEventBodySchema = z.object({
@@ -23,6 +26,10 @@ const createEventBodySchema = z.object({
     }),
   timeDurationInMinutes: z.number().min(0, 'Time duration must be at least 0 minutes.'),
   description: z.string().min(1, 'Description field is required.'),
+  speaker: z.string().min(1, 'Speaker email field is required.'),
+  sponsoredBy: z.string().optional(),
+  organizedBy: z.string().optional(),
+  price: z.number().min(0, 'Price cannot be negative.'),
 });
 
 /**
@@ -41,12 +48,58 @@ export async function createEventController(req: Request, res: Response) {
       .json({ message: 'Error occurred while creating a new event.' });
     return;
   }
-  const event = await createEvent(body);
+  await createEvent(body);
 
   // create token for event and store eventId in JWT store
-  const token = jwt.sign({ _id: event._id }, ENV_VARS.JWT_SECRET, { expiresIn: SESSION_TIMEOUT });
-  req.session.token = token;
 
   // return success status
   res.status(StatusCodes.CREATED).json({});
 }
+
+export async function updateEventController(req: Request, res: Response) {
+  const { id } = req.params; // Get the event ID from the request parameters
+  const { sponsoredBy } = req.body;
+
+  try {
+    const event = await updateEvent(id, { sponsoredBy });
+    if (!event) {
+      return res.status(404).send('Event not found');
+    }
+
+    res.status(200).send(event);
+  } catch (error) {
+    res.status(500).send('Error updating event: ' + error);
+  }
+}
+
+// Get all events from MongoDB
+export async function getAllEventsController(req: Request, res: Response) {
+  try {
+    const events = await getAllEvents();
+    res.status(StatusCodes.OK).json(events);
+  } catch (error) {
+    Logger.error('Error retrieving events: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error occurred while retrieving events.' });
+  }
+}
+
+export const getEventByIdController = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const event = await getEventById(id);
+
+    if (!event) {
+      res.status(StatusCodes.NOT_FOUND).json({ message: 'Event not found' });
+    }
+
+    res.status(StatusCodes.OK).json(event);
+  } catch (error) {
+    Logger.error('Error retrieving event by ID: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error occurred while retrieving the event.' });
+  }
+};
