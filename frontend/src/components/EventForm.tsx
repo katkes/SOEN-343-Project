@@ -91,8 +91,28 @@ export const EventForm: React.FC<EventFormProps> = ({
       };
 
       fetchSpeakers();
+
+      const fetchRegisteredEvents = async () => {
+        try {
+          const eventsRegisteredByUser = await userService.getEventsRegisteredByUser(account?._id || '');
+  
+          // Check if any of the registered events match the current event's _id
+          const isRegistered = eventsRegisteredByUser.some((registeredEvent) => registeredEvent._id === event._id);
+          console.log('Is registered:', isRegistered);
+
+          setRegistered(isRegistered); // Set registered to true if a match is found
+        } catch (error) {
+          console.error('Error fetching registered events:', error);
+        }
+      };
+      fetchRegisteredEvents();
+
+      
+
+
+
     }
-  }, [event]);
+  }, [event, account]);
 
   return (
     <div className="flex flex-col">

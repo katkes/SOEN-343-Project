@@ -14,6 +14,7 @@ import { getAllEmails } from '../services/mongo/user';
 import { EmailService } from '../services/email/email';
 import { generateEventPromotionHtml } from '../services/email/email-templates/event-promote';
 import { EventDetails } from '../services/email/email-templates/event-promote';
+import { getAllTicketsByEventID } from '../services/mongo/ticket';
 
 // Create event validation schema when receiving request
 const createEventBodySchema = z.object({
@@ -128,5 +129,26 @@ export const getEventByIdController = async (req: Request, res: Response): Promi
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: 'Error occurred while retrieving the event.' });
+  }
+};
+
+export const getTicketsByEventIDController = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params; // Extract event ID from request parameters
+
+  try {
+    // Fetch tickets associated with the event ID
+    const tickets = await getAllTicketsByEventID(id);
+
+    if (!tickets) {
+      res.status(StatusCodes.NOT_FOUND).json({ message: 'No tickets found for this event' });
+      return;
+    }
+
+    res.status(StatusCodes.OK).json(tickets);
+  } catch (error) {
+    Logger.error('Error retrieving tickets by event ID: ', error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error occurred while retrieving tickets.' });
   }
 };

@@ -30,4 +30,8 @@ export async function getTicketsByUserID(userId: Types.ObjectId | string) {
   return await Ticket.find({ userId });
 }
 
+export async function getAllTicketsByEventID(eventId: Types.ObjectId | string) {
+  return await Ticket.find({ eventId });
+}
+
 // export const Ticket = mongoose.model('Ticket', ticketSchema);
