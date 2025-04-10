@@ -21,20 +21,18 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await eventService.getAllEvents();
+        const allEvents = await eventService.getAllEvents();
 
-        const fetchedEvents = await Promise.all(
-          response.map(async (event: EventResponseDTO) => {
-            console.log('Event:', event); // Log the fetched event
+        const eventsWithSpeakers = await Promise.all(
+          allEvents.map(async (event: EventResponseDTO) => {
             const speaker = await userService.getUserByEmail(event.speaker); // Fetch speaker details
             return {
               ...event,
               speaker: speaker.firstName + ' ' + speaker.lastName,
-              tags: ['NEW!'],
             };
           })
         );
-        setEvents(fetchedEvents);
+        setEvents(eventsWithSpeakers);
       } catch (error) {
         console.error('Error fetching events:', error);
       }
