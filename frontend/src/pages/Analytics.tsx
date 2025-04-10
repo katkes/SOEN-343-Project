@@ -83,8 +83,8 @@ const Analytics = () => {
             const speaker = await userService.getUserByEmail(event.speaker);
 
             // Fetch tickets for the event and calculate the number of tickets sold
-          const tickets = await eventService.getTicketsByEventID(event._id);
-          const ticketsSold = tickets.length;
+            const tickets = await eventService.getTicketsByEventID(event._id);
+            const ticketsSold = tickets.length;
 
             return {
               ...event,

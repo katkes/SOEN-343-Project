@@ -1,19 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useChatRoom } from '../hooks/useChatRoom';
+import { useStreamBroadcaster } from '../hooks/useStreamBroadcaster';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import CustomButton from '../components/CustomButton';
 import { PageHeader } from '../components/PageHeader';
-import { SocketFlyweight } from '../services/socket/socket';
-import { NameSpaceEndpoints } from '../config/constants';
 import { useAccountInfo } from '../hooks/useAccountInfo';
 import { CompanyAccount, UserAccount } from '../types/account';
 import { Session } from '../types/session';
 
-interface Message {
-  room: string;
-  sender: string;
-  content: string;
-}
 
 interface EventDetails {
   name: string;
@@ -106,46 +101,24 @@ export const EventStreaming = () => {
     location: event?.location || eventDetails?.location || '',
   };
 
+  // Configure chatroom connection
+  const [newMessage, setNewMessage] = useState("")
+  const [messages, sendNewMessage] = useChatRoom(id || "")
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useStreamBroadcaster(videoRef);
+
+  // Retrieve user account information
   const account = useAccountInfo();
   const isEventCreator =
     account instanceof CompanyAccount ||
     (account instanceof UserAccount &&
       ['EventOrganizer', 'Sponsor', 'Admin', 'Speaker'].includes(account.role as string));
 
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-  const socket = useRef(SocketFlyweight.getSocket(NameSpaceEndpoints.ChatRoom));
-  const receiveMessage = useCallback((message: Message) => {
-    setMessages((prev) => [...prev, message]);
-  }, []);
-
-  useEffect(() => {
-    if (!id) {
-      console.error('Event ID is not defined');
-      return;
-    }
-    const currSocket = socket.current;
-    currSocket.emit('joinRoom', id);
-    console.log('join room');
-
-    currSocket.on('receiveMessage', receiveMessage);
-    console.log('register function');
-
-    return () => {
-      console.log('disconnect from socket');
-      currSocket.off('receiveMessage', receiveMessage);
-      currSocket.emit('leaveRoom', id);
-    };
-  }, [id, receiveMessage]);
-
-  const sendNewMessage = () => {
+  const sendNewMessageHandler = () => {
     if (newMessage.trim() === '' || !id) {
       return;
     }
-    socket.current.emit('sendMessage', {
-      room: id,
-      content: newMessage,
-    });
+    sendNewMessage(newMessage);
     setNewMessage('');
   };
 
@@ -171,8 +144,8 @@ export const EventStreaming = () => {
           {/* Video */}
           <div className="flex-1 relative">
             <video
+              ref={videoRef} autoPlay playsInline controls
               className="w-full h-full object-cover rounded-l-xl"
-              controls
               poster="/assets/thumbnail.jpg"
             >
               <source src="" type="video/mp4" />
@@ -202,11 +175,11 @@ export const EventStreaming = () => {
                 placeholder="Send a message"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendNewMessage()}
+                onKeyDown={(e) => e.key === 'Enter' && sendNewMessageHandler()}
                 className="text-white flex-1 px-3 py-2 rounded-xl text-sm text-black outline-none"
               />
               <CustomButton
-                onClick={sendNewMessage}
+                onClick={sendNewMessageHandler}
                 className="bg-[#3D50FF] px-4 py-2 rounded-xl text-white font-semibold text-sm"
               >
                 Send

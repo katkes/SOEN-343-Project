@@ -4,7 +4,7 @@ import {
   getUserByEmailController,
   getAllSpeakersController,
   updateProfileController,
-  getEventsRegisteredByUserController
+  getEventsRegisteredByUserController,
 } from '../controllers/user';
 import { authenticate } from '../middleware/auth';
 

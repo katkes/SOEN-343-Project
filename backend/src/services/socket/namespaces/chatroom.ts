@@ -9,6 +9,7 @@ const ChatRoomEvents = {
   joinRoom: 'joinRoom',
   leaveRoom: 'leaveRoom',
   sendMessage: 'sendMessage',
+  receiveMessage: 'receiveMessage',
   disconnect: 'disconnect',
 };
 
@@ -41,7 +42,7 @@ const sendMessage = ({ socket, nameSpace }: SocketContext) => {
       return;
     }
     Logger.info(`User ${user.firstName} ${user.lastName} sent message: ${content}`);
-    nameSpace.to(room).emit('receiveMessage', {
+    nameSpace.to(room).emit(ChatRoomEvents.receiveMessage, {
       room,
       sender: `${user.firstName} ${user.lastName}`,
       content,
@@ -70,6 +71,6 @@ export function createChatRoomNameSpace(io: Server, nameSpace: string) {
     .addSocketEvent(ChatRoomEvents.joinRoom, joinRoom)
     .addSocketEvent(ChatRoomEvents.leaveRoom, leaveRoom)
     .addSocketEvent(ChatRoomEvents.sendMessage, sendMessage)
-    .addSocketEvent(ChatRoomEvents.disconnect, disconnect)
+    .addOnDisconnectEvent(disconnect)
     .build();
 }

@@ -23,6 +23,7 @@ export const FrontEndRoutes = {
   EventRegistration: '/event/:id/register',
   EventDetails: '/event/:id/details',
   EventStreaming: '/event/:id/streaming',
+  EventViewer: '/event/:id/viewer',
   EventConfirmation: '/event/:id/confirmation',
   SponsorConfirmation: '/event/:id/sponsorConfirmation',
 } as const;

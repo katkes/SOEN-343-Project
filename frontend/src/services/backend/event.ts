@@ -17,6 +17,7 @@ async function updateEvent(id: string, eventData: Partial<EventResponseDTO>) {
 }
 
 async function getTicketsByEventID(id: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return api.get<any>(Endpoints.Event.GetTicketsByEventID.replace(':id', id))
 }
 
