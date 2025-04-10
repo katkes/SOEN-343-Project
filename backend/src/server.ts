@@ -1,3 +1,4 @@
+// Route: /backend/server.ts
 import express from 'express';
 import { ENV_VARS } from './configs/env';
 import apiRoute from './routes/api';
@@ -6,6 +7,9 @@ import path from 'path';
 import Database from './configs/database';
 import { Logger } from './configs/logger';
 import { StripeFacade } from './services/stripe/StripeFacade';
+import { Server } from 'socket.io';
+import { createServer } from 'node:http';
+import { SetupSocket } from './services/socket/socket';
 
 const app = express();
 
@@ -44,11 +48,20 @@ async function initRouteConfig() {
   app.get('*', (req, res) => {
     res.sendFile(path.join(reactBuildPath, 'index.html'));
   });
+
+  // register socket io before ultimate fall back
+  const server = createServer(app);
+  const io = new Server(server, {
+    cors: {
+      credentials: true,
+    },
+  });
+  SetupSocket(io);
+
+  // Start the server
+  server.listen(ENV_VARS.PORT, () => {
+    Logger.info(`Server is running on http://localhost:${ENV_VARS.PORT}`);
+  });
 }
 
 initRouteConfig();
-
-// Start the server
-app.listen(ENV_VARS.PORT, () => {
-  Logger.info(`Server is running on http://localhost:${ENV_VARS.PORT}`);
-});

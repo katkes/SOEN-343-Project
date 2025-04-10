@@ -5,9 +5,10 @@ import { StatusCodes } from 'http-status-codes';
 import { ENV_VARS } from '../configs/env';
 import jwt from 'jsonwebtoken';
 import 'express-session';
-import { SESSION_TIMEOUT } from '../configs/constants';
+import { DefaultCookieConfig, JWT_COOKIE_NAME, SESSION_TIMEOUT } from '../configs/constants';
 import { createCompany, CreateCompanyDTO } from '../services/mongo/company';
 import { getUserByEmail } from '../services/mongo/user';
+import { SessionAccountType } from '../types/account';
 
 // Create company validation schema when receiving request
 const createCompanyBodySchema = z.object({
@@ -40,8 +41,10 @@ export async function createCompanyController(req: Request, res: Response) {
   const company = await createCompany(body);
 
   // create token for company and store companyId in JWT store
-  const token = jwt.sign({ _id: company._id }, ENV_VARS.JWT_SECRET, { expiresIn: SESSION_TIMEOUT });
-  req.session.token = token;
+  const account: SessionAccountType = { _id: company._id, accountType: 'company' };
+  const token = jwt.sign(account, ENV_VARS.JWT_SECRET, { expiresIn: SESSION_TIMEOUT });
+
+  res.cookie(JWT_COOKIE_NAME, token, DefaultCookieConfig);
 
   // return success status
   res.status(StatusCodes.CREATED).json({});

@@ -1,3 +1,5 @@
+// Route: backend/src/routes/api.ts
+
 import { Router } from 'express';
 import { TestController } from '../controllers/test';
 import userRoute from './user';
@@ -5,13 +7,13 @@ import authRoute from './auth';
 import companyRoute from './company';
 import paymentRoute from './payment';
 import eventRoute from './event';
-import { SessionMiddleware } from '../middleware/session';
 import { StatusCodes } from 'http-status-codes';
+import cookieParser from 'cookie-parser';
+import sessionRoutes from './sessions';
 const router = Router();
 
 // Allow sessions to be used for requests.
-router.use(SessionMiddleware);
-
+router.use(cookieParser());
 // Test route controller
 router.get('/', TestController);
 
@@ -29,6 +31,8 @@ router.use('/payment', paymentRoute);
 
 // api/event
 router.use('/event', eventRoute);
+
+router.use('/sessions', sessionRoutes);
 
 // Catch all route for api/ group.
 router.all('*', (_, res) => {
