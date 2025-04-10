@@ -16,6 +16,10 @@ async function updateEvent(id: string, eventData: Partial<EventResponseDTO>) {
   return api.put<void>(Endpoints.Event.UpdateEvent.replace(':id', id), eventData)
 }
 
+async function getEventsRegisteredByUser(id: string) {
+  return api.get<EventResponseDTO[]>(Endpoints.User.GetEventsRegisteredByUser.replace(':id', id))
+}
+
 // export the functions here in an object
 export const eventService = {
   getAllEvents,

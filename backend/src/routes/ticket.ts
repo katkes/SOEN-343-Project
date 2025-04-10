@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { Ticket } from '../models/ticket'; // Import the Ticket model
+import { Ticket } from '../models/ticket';
 
 const router = Router();
 
